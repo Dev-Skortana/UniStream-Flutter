@@ -1,0 +1,8 @@
+import 'package:unistream/Models/Templates/Base_Model.dart';
+
+abstract class IloadManagerDatabase {
+  Future<bool> insert(BaseModel model);
+  Future<BaseModel> getOne(Map<String, Object> fields);
+  Future<List<BaseModel>> getList(Map<String, Object> fields);
+  Iterable GetGen(item);
+}
