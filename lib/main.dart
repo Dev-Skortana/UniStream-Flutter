@@ -51,7 +51,7 @@ class MyAppState extends State<MyApp> {
         title: 'UniStream',
         theme: Provider.of<ThemeProvider>(context).themeData,
         home: Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          //backgroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
           appBar: AppBar(
             title: [
               Row(spacing: 15, children: [

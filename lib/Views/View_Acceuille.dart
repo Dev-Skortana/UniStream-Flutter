@@ -8,103 +8,118 @@ class ViewAcceuille extends StatefulWidget {
 
 class ViewAcceuilleState extends State<ViewAcceuille> {
   late ViewmodelAcceuille viewmodelAcceuille;
+  late List videosInList;
+  late int countVideos;
+  late int number_rows;
+  late int number_videos_by_row;
+  int iteration_global = 0;
+  int iteration_row = 0;
 
   @override
   void initState() {
     super.initState();
-
-    this.test();
+    this.viewmodelAcceuille = ViewmodelAcceuille();
   }
 
-  void test() {
-    var viewmodelAcceuill = ViewmodelAcceuille();
-    const String chaine_condition =
-        "where date(Videos.Date_Parution)>=date('now','-1 year') and date(Videos.Date_Parution)<=date('now')";
-    const String chaine_order = "order by Videos.Titre asc";
-    viewmodelAcceuill.r(chaine_condition, chaine_order).then((values) {
-      for (var item in values) {
-        print(item);
-      }
-    });
+  FutureBuilder buildListViewWithData() {
+    return FutureBuilder(
+        future: this.viewmodelAcceuille.getVideosOnTheLastTwelveMonths(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            this.videosInList = snapshot.data;
+            this.countVideos = snapshot.data?.length;
+            this.number_rows = (this.countVideos / 3).toInt() ?? 1;
+            this.number_videos_by_row =
+                this._getNumberVideosByRow(nb_total_videos: this.countVideos);
+
+            return ListView.builder(
+              itemCount: snapshot.data?.length,
+              itemBuilder: (context, index) {
+                if (this.iteration_row < this.number_rows ||
+                    this.iteration_global < this.countVideos) {
+                  final Row row = Row(
+                    spacing: 0,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: this._getCardsVideosOfRow(
+                      number_total_videos: this.countVideos,
+                      number_videos_by_row: this.number_videos_by_row,
+                      iteration_global: this.iteration_global,
+                      index: index,
+                    ),
+                  );
+                  final Column column = Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [row],
+                  );
+                  this.iteration_global =
+                      this.iteration_global + row.children.length;
+                  this.iteration_row += 1;
+
+                  return column;
+                }
+              },
+              shrinkWrap: true,
+            );
+          } else {
+            return CircularProgressIndicator(
+              backgroundColor: Colors.white70,
+              color: Colors.greenAccent,
+              semanticsLabel: "Chargement",
+              strokeCap: StrokeCap.round,
+            );
+          }
+        });
   }
 
-  List<Widget> _getColumnsWithTheirRows() {
-    final int number_total_videos = 12;
-    final int number_rows = int.tryParse("${(number_total_videos / 4)}") ?? 3;
-    final int number_videos_by_row =
-        this._getNumberVideosByRow(nb_total_videos: number_total_videos);
-    int iteration_global = 0;
-    int iteration_row = 0;
-
-    List<Widget> controls = [];
-    while (
-        iteration_row < number_rows || iteration_global < number_total_videos) {
-      final Row row = Row(
-        spacing: 0,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: this._getCardsVideosOfRow(
-            number_total_videos: number_total_videos,
-            number_videos_by_row: number_videos_by_row,
-            iteration_global: iteration_global),
-      );
-      final Column column = Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [row],
-      );
-      iteration_global = iteration_global + row.children.length;
-      controls.add(column);
-      iteration_row += 1;
-    }
-    return controls;
-  }
-
-  List<Card> _getCardsVideosOfRow(
+  List<Widget> _getCardsVideosOfRow(
       {required int number_total_videos,
       required int number_videos_by_row,
-      required int iteration_global}) {
-    List<Card> controls = [];
+      required int iteration_global,
+      required int index}) {
+    List<Widget> controls = [];
     for (int iteration_cellule = 0;
         iteration_cellule < number_videos_by_row;
         iteration_cellule++) {
       if (iteration_global < number_total_videos) {
-        controls.add(this._getCardVideo());
+        controls.add(this._getCardVideo(iteration_global));
         iteration_global += 1;
       }
     }
     return controls;
   }
 
-  Card _getCardVideo() {
+  Widget _getCardVideo(int iteration) {
     return Card(
       elevation: 10,
-      shadowColor: Colors.red,
+      shadowColor: Colors.grey,
       surfaceTintColor: Colors.transparent,
       child: Container(
         color: Colors.transparent,
-        height: 200,
-        width: 100,
+        height: 150,
+        width: 80,
         child: Column(
           spacing: 0,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               child: Image.asset(
-                "assets/images/video_posters/1529636559_persona-5-the-animation-vostfr-ddl.jpg",
+                this.videosInList[iteration]["Lien_Affiche"],
                 fit: BoxFit.cover,
                 width: 80,
                 height: 50,
               ),
             ),
             TextField(
+              textAlign: TextAlign.center,
               readOnly: true,
               decoration: InputDecoration(
-                  hintText: "Title vidéo",
+                  hintText: this.videosInList[iteration]["Titre"],
                   border: InputBorder.none,
                   fillColor: Colors.tealAccent),
             ),
             FloatingActionButton.extended(
-              backgroundColor: Colors.white38,
+              backgroundColor: Colors.white54,
               label: Text("Voir"),
               icon: Icon(Icons.videocam),
               onPressed: () {},
@@ -116,44 +131,43 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
   }
 
   int _getNumberVideosByRow({required int nb_total_videos}) {
-    return nb_total_videos % 6 == 0 ? 6 : 5;
+    return nb_total_videos % 6 == 0 ? 3 : 2;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        Column(
-          children: [
-            Text("UniStream la bibliothéque des cinéphiles"),
-            ListTile(
-              leading: Icon(Icons.personal_video),
-              title: Text("Derniers publications"),
-              subtitle: Text("de ces 12 derniers mois ..."),
-            ),
-            Container(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Column(
-                        children: this._getColumnsWithTheirRows(),
-                      ),
-                    )
-                  ]),
-            ),
-            ElevatedButton(
-              child: Text("Réinitialiser la base de données"),
-              onPressed: () {},
-            )
-          ],
-        )
-      ],
+    return SingleChildScrollView(
+        child: Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text("UniStream la bibliothéque des cinéphiles"),
+          ListTile(
+            leading: Icon(Icons.personal_video),
+            title: Text("Derniers publications"),
+            subtitle: Text("de ces 12 derniers mois ..."),
+          ),
+          Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+                backgroundBlendMode: BlendMode.darken,
+                color: Colors.transparent),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    child: this.buildListViewWithData(),
+                  ),
+                ]),
+          ),
+          ElevatedButton(
+            child: Text("Réinitialiser la base de données"),
+            onPressed: () {},
+          )
+        ],
+      ),
     ));
   }
 }

@@ -1,4 +1,7 @@
+import 'package:sqflite/sqflite.dart';
+import 'package:unistream/Database/Data_Initialize.dart';
 import 'package:unistream/Models/Templates/Base_Model.dart';
+import 'package:unistream/Models/Video_Pays.dart';
 import 'package:unistream/Services/Interface/ILoad_Manager_Database.dart';
 
 class VideoPaysManager implements IloadManagerDatabase {
@@ -9,20 +12,26 @@ class VideoPaysManager implements IloadManagerDatabase {
   }
 
   @override
-  Future<List<BaseModel>> getList(Map<String, Object> fields) {
+  Future<List<Map<String, dynamic>>> getList(Map<String, Object> fields) async {
+    Database database = await DataInitialize.getDatabase();
+    List<Map<String, dynamic>> records_videos_pays = await database
+        .rawQuery("select Videos_Pays.Titre,Videos_Pays.Nom from Videos_Pays");
+    //DataInitialize.closeConnection();
+
+    return records_videos_pays;
+  }
+
+  @override
+  Future<BaseModel> getOne(Map<String, Object> fields) async {
     // TODO: implement getList
     throw UnimplementedError();
   }
 
   @override
-  Future<BaseModel> getOne(Map<String, Object> fields) {
-    // TODO: implement getOne
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<bool> insert(BaseModel model) {
-    // TODO: implement insert
-    throw UnimplementedError();
+  Future<void> insert(BaseModel model) async {
+    Database database = await DataInitialize.getDatabase();
+    await database.execute(
+        "insert or ignore into Videos_Pays(Titre,Nom) values(?,?)",
+        [(model as VideoPays).titre, (model as VideoPays).nom]);
   }
 }
