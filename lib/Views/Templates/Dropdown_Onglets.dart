@@ -10,7 +10,6 @@ class DropdownOnglets extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment.center,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         spacing: 0,

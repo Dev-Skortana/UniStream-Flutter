@@ -12,13 +12,14 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
   late int countVideos;
   late int number_rows;
   late int number_videos_by_row;
-  int iteration_global = 0;
-  int iteration_row = 0;
+
+  late FutureBuilder _future_builder;
 
   @override
   void initState() {
     super.initState();
     this.viewmodelAcceuille = ViewmodelAcceuille();
+    this._future_builder = this.buildListViewWithData();
   }
 
   FutureBuilder buildListViewWithData() {
@@ -32,32 +33,16 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
             this.number_videos_by_row =
                 this._getNumberVideosByRow(nb_total_videos: this.countVideos);
 
-            return ListView.builder(
+            return GridView.builder(
+              physics: ScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 5,
+                crossAxisSpacing: 5,
+              ),
               itemCount: snapshot.data?.length,
               itemBuilder: (context, index) {
-                if (this.iteration_row < this.number_rows ||
-                    this.iteration_global < this.countVideos) {
-                  final Row row = Row(
-                    spacing: 0,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: this._getCardsVideosOfRow(
-                      number_total_videos: this.countVideos,
-                      number_videos_by_row: this.number_videos_by_row,
-                      iteration_global: this.iteration_global,
-                      index: index,
-                    ),
-                  );
-                  final Column column = Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [row],
-                  );
-                  this.iteration_global =
-                      this.iteration_global + row.children.length;
-                  this.iteration_row += 1;
-
-                  return column;
-                }
+                return this._getCardVideo(index);
               },
               shrinkWrap: true,
             );
@@ -72,32 +57,12 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
         });
   }
 
-  List<Widget> _getCardsVideosOfRow(
-      {required int number_total_videos,
-      required int number_videos_by_row,
-      required int iteration_global,
-      required int index}) {
-    List<Widget> controls = [];
-    for (int iteration_cellule = 0;
-        iteration_cellule < number_videos_by_row;
-        iteration_cellule++) {
-      if (iteration_global < number_total_videos) {
-        controls.add(this._getCardVideo(iteration_global));
-        iteration_global += 1;
-      }
-    }
-    return controls;
-  }
-
   Widget _getCardVideo(int iteration) {
     return Card(
       elevation: 10,
-      shadowColor: Colors.grey,
-      surfaceTintColor: Colors.transparent,
       child: Container(
+        height: 100,
         color: Colors.transparent,
-        height: 150,
-        width: 80,
         child: Column(
           spacing: 0,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -119,7 +84,8 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
                   fillColor: Colors.tealAccent),
             ),
             FloatingActionButton.extended(
-              backgroundColor: Colors.white54,
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white70,
               label: Text("Voir"),
               icon: Icon(Icons.videocam),
               onPressed: () {},
@@ -136,38 +102,41 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text("UniStream la bibliothéque des cinéphiles"),
-          ListTile(
-            leading: Icon(Icons.personal_video),
-            title: Text("Derniers publications"),
-            subtitle: Text("de ces 12 derniers mois ..."),
-          ),
-          Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-                backgroundBlendMode: BlendMode.darken,
-                color: Colors.transparent),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    child: this.buildListViewWithData(),
-                  ),
-                ]),
-          ),
-          ElevatedButton(
-            child: Text("Réinitialiser la base de données"),
-            onPressed: () {},
-          )
-        ],
+    return Container(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("UniStream la bibliothéque des cinéphiles"),
+            ListTile(
+              leading: Icon(Icons.personal_video),
+              title: Text("Derniers publications"),
+              subtitle: Text("de ces 12 derniers mois ..."),
+            ),
+            Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                  backgroundBlendMode: BlendMode.darken,
+                  color: Colors.transparent),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      child: this._future_builder,
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white),
+                      child: Text("Réinitialiser la base de données"),
+                      onPressed: () {},
+                    ),
+                  ]),
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }

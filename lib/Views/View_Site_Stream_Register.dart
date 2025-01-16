@@ -10,8 +10,9 @@ class ViewSiteStreamRegister extends StatefulWidget {
 class ViewSiteStreamRegisterState extends State<ViewSiteStreamRegister> {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
+    return Container(
+      child: SingleChildScrollView(
+        physics: ScrollPhysics(),
         child: Column(
           children: [
             Row(
@@ -47,7 +48,7 @@ class ViewSiteStreamRegisterState extends State<ViewSiteStreamRegister> {
               children: [
                 Text(
                   """Ci-dessous, selectionner via case à cocher le/les catégories de vidéos que le site propose puis saisissez pour chaque catégorie l'url pointant vers le catalogue contenant les videos de la catégorie.\n
-                     Dans le cas ou l'url pointe vers le catalogue affichent des videos des deux catégories, selectionner 'AllCategories' puis saisissez l'url menant au catalogue.""",
+                       Dans le cas ou l'url pointe vers le catalogue affichent des videos des deux catégories, selectionner 'AllCategories' puis saisissez l'url menant au catalogue.""",
                   textAlign: TextAlign.center,
                 )
               ],
