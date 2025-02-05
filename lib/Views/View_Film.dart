@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unistream/ViewModels/ViewModel_Film.dart';
 import 'package:unistream/Views/Templates/Films_Block_Display.dart';
 import 'package:unistream/Views/Templates/Pagination_Display.dart';
 
@@ -10,6 +11,19 @@ class ViewFilm extends StatefulWidget {
 }
 
 class ViewFilmState extends State<ViewFilm> {
+  late ViewmodelFilm viewmodel;
+  late FilmsBlockDisplay filmBlockDisplay;
+  @override
+  void initState() {
+    super.initState();
+    this._setViewModelAsync();
+    this.filmBlockDisplay = FilmsBlockDisplay(viewmodel: this.viewmodel);
+  }
+
+  void _setViewModelAsync() async {
+    this.viewmodel = await ViewmodelFilm.create();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -21,7 +35,7 @@ class ViewFilmState extends State<ViewFilm> {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 10,
               children: [
-                FilmsBlockDisplay(),
+                this.filmBlockDisplay,
                 PaginationDisplay(),
               ],
             ),

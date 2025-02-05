@@ -5,11 +5,13 @@ import 'Templates/Base_Model.dart';
 class Video extends BaseModel {
   @protected
   String _titre = "";
-
   String _description = "";
   TimeOfDay? _duree;
   DateTime? _dateParution;
   String _lienAffiche = "";
+  Iterable? _pays = [];
+  Iterable? _genres = [];
+  Iterable? _realisateurs = [];
 
   String get titre => _titre;
   void set titre(String value) {
@@ -36,17 +38,38 @@ class Video extends BaseModel {
     this._lienAffiche = value;
   }
 
+  Iterable? get pays => this._pays;
+  void set pays(Iterable? value) {
+    this._pays = value;
+  }
+
+  Iterable? get genres => this._genres;
+  void set genres(Iterable? value) {
+    this._genres = value;
+  }
+
+  Iterable? get realisateurs => this._realisateurs;
+  void set realisateurs(Iterable? value) {
+    this._realisateurs = value;
+  }
+
   Video(
       {String titre = "",
       String description = "",
       TimeOfDay? duree,
       DateTime? date_parution,
-      String lien_affiche = ""})
+      String lien_affiche = "",
+      Iterable? pays,
+      Iterable? genres,
+      Iterable? realisateurs})
       : super() {
     this._titre = titre;
     this._description = description;
     this._duree = duree;
     this._dateParution = date_parution;
     this._lienAffiche = lien_affiche;
+    this.pays = pays;
+    this.genres = genres;
+    this.realisateurs = realisateurs;
   }
 }

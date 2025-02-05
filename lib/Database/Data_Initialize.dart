@@ -112,6 +112,15 @@ class DataInitialize {
         ["X", "assets/images/video_posters/kuzu-no-honkai.jpg"]);
     await db
         .execute("insert or ignore into Videos_Series(Titre) values(?)", ["X"]);
+
+    await db
+        .execute("insert or ignore into Animes_Series(Titre) values(?)", ["e"]);
+
+    await db
+        .execute("insert or ignore into Animes_Films(Titre) values(?)", ["B"]);
+
+    await db.execute("insert or ignore into Series(Titre) values(?)", ["Z"]);
+    await db.execute("insert or ignore into Series(Titre) values(?)", ["C"]);
   }
 
   static void closeConnection() async {

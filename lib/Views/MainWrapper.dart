@@ -93,7 +93,7 @@ class MainWrapperState extends State<MainWrapper> {
           ViewSerie(),
           ViewFilm(),
           ViewEnregistrement(),
-          //ViewSiteStreamRegister(),
+          ViewSiteStreamRegister(),
         ],
       )),
       bottomNavigationBar: NavigationBar(

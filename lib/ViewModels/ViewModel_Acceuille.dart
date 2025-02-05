@@ -1,14 +1,15 @@
-import 'package:unistream/Services/Reboot_Database_Manager.dart';
-import 'package:unistream/Services/Special_Management.dart';
+import 'dart:async';
+
+import 'package:unistream/Services/Databases/Reboot_Database_Manager.dart';
+import 'package:unistream/Services/Databases/Special_Management.dart';
 
 class ViewmodelAcceuille {
-  late List VideosOfTwelveMonths;
+  //late List VideosOfTwelveMonths;
 
   ViewmodelAcceuille() {}
-
-  Future<List> getVideosOnTheLastTwelveMonths() async {
-    var v = await SpecialManagement.getVideosOnTheLastTwelveMonths().toList();
-    return SpecialManagement.getVideosOnTheLastTwelveMonths().toList();
+  Stream<Iterator<Map<String, dynamic>>>
+      getVideosOnTheLastTwelveMonths() async* {
+    yield await SpecialManagement.getVideosOnTheLastTwelveMonths();
   }
 
   Future<int> getTotalVideosOnTheLastTwelveMonths() async {

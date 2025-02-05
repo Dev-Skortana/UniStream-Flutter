@@ -8,9 +8,17 @@ class PaginationDisplay extends StatefulWidget {
 }
 
 class PaginationDisplayState extends State<PaginationDisplay> {
-  void initializationControlsPagination() {}
+  late GlobalKey controlNumberFiche;
+  late GlobalKey controlTotalFiche;
 
-  void valueChanged() {}
+  void initializationControlsPagination() {
+    this.controlNumberFiche = GlobalKey();
+    this.controlTotalFiche = GlobalKey();
+  }
+
+  void valueChanged({required int indexvideo, required int index}) {
+    /* */
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +26,12 @@ class PaginationDisplayState extends State<PaginationDisplay> {
       alignment: Alignment.center,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [Text("Fiche : "), Text("nb"), Text("/"), Text("Total")],
+        children: [
+          Text("Fiche : "),
+          Text(key: this.controlNumberFiche, ""),
+          Text("/"),
+          Text(key: this.controlTotalFiche, "Total")
+        ],
       ),
     );
   }

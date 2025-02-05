@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:unistream/Models/Video.dart';
 import 'package:unistream/ViewModels/ViewModel_Acceuille.dart';
 
 class ViewAcceuille extends StatefulWidget {
@@ -8,58 +11,58 @@ class ViewAcceuille extends StatefulWidget {
 
 class ViewAcceuilleState extends State<ViewAcceuille> {
   late ViewmodelAcceuille viewmodelAcceuille;
-  late List videosInList;
-  late int countVideos;
-  late int number_rows;
-  late int number_videos_by_row;
-
-  late FutureBuilder _future_builder;
+  late StreamBuilder componentsWithData;
 
   @override
   void initState() {
     super.initState();
     this.viewmodelAcceuille = ViewmodelAcceuille();
-    this._future_builder = this.buildListViewWithData();
+    this.componentsWithData = this.buildComponentsWithData();
   }
 
-  FutureBuilder buildListViewWithData() {
-    return FutureBuilder(
-        future: this.viewmodelAcceuille.getVideosOnTheLastTwelveMonths(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            this.videosInList = snapshot.data;
-            this.countVideos = snapshot.data?.length;
-            this.number_rows = (this.countVideos / 3).toInt() ?? 1;
-            this.number_videos_by_row =
-                this._getNumberVideosByRow(nb_total_videos: this.countVideos);
-
-            return GridView.builder(
-              physics: ScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 5,
-                crossAxisSpacing: 5,
-              ),
-              itemCount: snapshot.data?.length,
-              itemBuilder: (context, index) {
-                return this._getCardVideo(index);
-              },
-              shrinkWrap: true,
-            );
-          } else {
-            return CircularProgressIndicator(
-              backgroundColor: Colors.white70,
-              color: Colors.greenAccent,
-              semanticsLabel: "Chargement",
-              strokeCap: StrokeCap.round,
-            );
+  StreamBuilder buildComponentsWithData() {
+    return StreamBuilder(
+        stream: this.viewmodelAcceuille.getVideosOnTheLastTwelveMonths(),
+        builder: (context, snaphot) {
+          if (!snaphot.hasData) {
+            return CircularProgressIndicator();
           }
+          Iterator<Map<String, dynamic>> video_iterator = snaphot.data;
+          List<Widget> cards = [];
+          while (video_iterator.moveNext()) {
+            cards.add(this._getCardVideo(video_iterator.current));
+          }
+          return GridView.count(
+            physics: ScrollPhysics(),
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            children: cards,
+          );
         });
   }
 
-  Widget _getCardVideo(int iteration) {
+  /*
+  void doasync() async {
+    List<Widget> list_children = [];
+
+    while (await this.iterat.moveNext()) {
+      list_children.add(this._getCardVideo(iterat.current));
+      print(iterat.current);
+    }
+    this.setstate_comp(list_children);
+  }
+  */
+  /*
+  void setstate_comp(List<Widget> liste) {
+    setState(() => this.list_children_of_griview = liste);
+  }
+  */
+
+  Widget _getCardVideo(Map<String, dynamic> data) {
     return Card(
       elevation: 10,
+      shadowColor: Colors.red,
+      surfaceTintColor: Colors.transparent,
       child: Container(
         height: 100,
         color: Colors.transparent,
@@ -69,7 +72,7 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
           children: [
             Container(
               child: Image.asset(
-                this.videosInList[iteration]["Lien_Affiche"],
+                data["Lien_Affiche"],
                 fit: BoxFit.cover,
                 width: 80,
                 height: 50,
@@ -79,7 +82,7 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
               textAlign: TextAlign.center,
               readOnly: true,
               decoration: InputDecoration(
-                  hintText: this.videosInList[iteration]["Titre"],
+                  hintText: data["Titre"],
                   border: InputBorder.none,
                   fillColor: Colors.tealAccent),
             ),
@@ -94,10 +97,6 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
         ),
       ),
     );
-  }
-
-  int _getNumberVideosByRow({required int nb_total_videos}) {
-    return nb_total_videos % 6 == 0 ? 3 : 2;
   }
 
   @override
@@ -124,13 +123,50 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      child: this._future_builder,
+                      child: this.componentsWithData,
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white),
                       child: Text("Réinitialiser la base de données"),
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(
+                            barrierDismissible: true,
+                            context: context,
+                            builder: (_) => AlertDialog(
+                                  title: Text("Demande de confirmation"),
+                                  content: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                            "La base de données sera réinitialiser.\nLes affiches seront aussi supprimer.\n\nVoulez vous continuer ?"),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.white70,
+                                        ),
+                                        onPressed: () {},
+                                        child: Text("Supprimer les données")),
+                                    TextButton(
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.white70,
+                                        ),
+                                        onPressed: () async {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("Annuler")),
+                                  ],
+                                  elevation: 24.0,
+                                ));
+                      },
                     ),
                   ]),
             ),
