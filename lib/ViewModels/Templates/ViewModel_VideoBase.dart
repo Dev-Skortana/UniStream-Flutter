@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:unistream/Models/Genre.dart';
 import 'package:unistream/Models/Pays.dart';
 import 'package:unistream/Models/Realisateur.dart';
+import 'package:unistream/Models/Video.dart';
 import 'package:unistream/Services/Databases/Special_Management.dart';
 import 'package:unistream/Services/Databases/Video_Genre_Manager.dart';
 import 'package:unistream/Services/Databases/Video_Pays_Manager.dart';
@@ -28,6 +29,9 @@ class ViewmodelVideobase {
 
     this.videosFromDictionnary = dictionnary_methode_and_args["method"](
         [...dictionnary_methode_and_args["args"]]);
+    //this._InitializeSubList();
+    this.GetVideoFirst();
+    this.TotalCount = this.Count(this.videosFromDictionnary);
   }
 
   void _InitializeSubList() async {
@@ -56,7 +60,7 @@ class ViewmodelVideobase {
 
   Iterable _getGenForVideoWithGenres(Map<String, dynamic> video) sync* {
     for (var video_genre in this._getGenres()) {
-      if (video["Video"].Titre == video_genre["Video"].Titre) {
+      if (video["Video"].titre == video_genre["Video"].titre) {
         yield Genre(nom: video_genre["Video"].Nom);
       }
     }
@@ -68,7 +72,7 @@ class ViewmodelVideobase {
 
   Iterable _getGenForVideoWithPays(Map<String, dynamic> video) sync* {
     for (var video_pays in this._GetPays()) {
-      if (video["Video"].Titre == video_pays["Video"].Titre) {
+      if (video["Video"].titre == video_pays["Video"].titre) {
         yield Pays(nom: video_pays["Video"].Nom);
       }
     }
@@ -81,7 +85,7 @@ class ViewmodelVideobase {
 
   Iterable _getGenForVideoWithRealisateurs(Map<String, dynamic> video) sync* {
     for (var video_realisateur in this._GetRealisateurs()) {
-      if (video["Video"].Titre == video_realisateur["Video"].Titre) {
+      if (video["Video"].titre == video_realisateur["Video"].titre) {
         yield Realisateur(nom: video_realisateur["Video"].Nom);
       }
     }
@@ -125,22 +129,24 @@ class ViewmodelVideobase {
     dynamic callback = this.getCallBackNeeded();
     void fetching(dynamic callback_result) {
       for (var video in callback_result) {
-        if (this.index == this.video["Video"]) {
-          this.video = this._getVideoFilled(video);
+        if (this.index == video["index"]) {
+          video = this._getVideoFilled(video);
+          this.video = video;
         }
       }
     }
 
     dynamic callback_result = Object();
-    if (this._callBackGetVideosFiltered == null) {
+    if (this._callBackGetVideosFiltered == false) {
       callback_result = callback["method"]([...callback["args"]]);
     } else {
       callback_result = callback();
     }
+    fetching(callback_result);
   }
 
   Map<String, dynamic> _getVideoFilled(Map<String, dynamic> video) {
-    video = this._ProcessFillsVideo(video);
+    //video = this._ProcessFillsVideo(video);
     if (this is ViewmodelSeriebase) {
       (this as ViewmodelSeriebase).FillVideoSerieWithDetails(video);
     }
@@ -148,13 +154,13 @@ class ViewmodelVideobase {
   }
 
   dynamic getCallBackNeeded() {
-    return this._callBackGetVideosFiltered == null
+    return this._callBackGetVideosFiltered == false
         ? this._callBackGetVideos
         : this._callBackGetVideosFiltered;
   }
 
   bool _isVideosHasValues() => this.TotalCount > 0;
-  bool IsVideoHasValue({required Map<String, dynamic> video}) => video != null;
+  bool IsVideoHasValue({required Video video}) => video != null;
 
   Iterable GetVideosOfSearch(SetSearch set_of_search) {
     /* à completer !!! */

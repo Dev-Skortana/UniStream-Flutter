@@ -10,7 +10,14 @@ class DetailVideoSerieManager implements IloadManagerDatabase {
     Iterator iterator_source_detailsvideoserie = item.iterator;
     int iteration = 0;
     while (iterator_source_detailsvideoserie.moveNext()) {
-      yield {"index": iteration, "Video": Object()};
+      yield {
+        "index": iteration,
+        "Video": DetailVideoSerie.parseToDetailVideoSerie(
+            titre_videoserie:
+                iterator_source_detailsvideoserie.current["Titre"],
+            saison: iterator_source_detailsvideoserie.current["Saison"],
+            episode: iterator_source_detailsvideoserie.current["Episode"])
+      };
       iteration += 1;
     }
     ();

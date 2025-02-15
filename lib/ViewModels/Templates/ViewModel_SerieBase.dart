@@ -21,17 +21,17 @@ class ViewmodelSeriebase extends ViewmodelVideobase {
   }
 
   void FillVideoSerieWithDetails(Map<String, dynamic> video_serie) {
-    video_serie["Video"].DetailsVideosSeries =
-        this.GetGenerator_DetailSerieOfVideoSerie(video_serie["Video"].Titre);
+    video_serie["Video"].detailsVideosSeries =
+        this.GetGenerator_DetailSerieOfVideoSerie(video_serie["Video"].titre);
   }
 
   Iterable? GetGenerator_DetailSerieOfVideoSerie(String titre_video) sync* {
     for (var detail in this.GetDetailsSeries(this._ListDetailsSeries)) {
-      if (detail["Video"].Titre == titre_video) {
+      if (detail["Video"].titre == titre_video) {
         yield DetailVideoSerie(
             titreVideoSerie: titre_video,
-            saison: detail["Video"].Saison,
-            episode: detail["Video"].Episode);
+            saison: detail["Video"].saison,
+            episode: detail["Video"].episode);
       }
     }
   }

@@ -72,4 +72,17 @@ class Video extends BaseModel {
     this.genres = genres;
     this.realisateurs = realisateurs;
   }
+
+  static Video parseToVideo(
+          {required String titre,
+          required String description,
+          required TimeOfDay duree,
+          required DateTime dateParution,
+          required String lienAffiche}) =>
+      Video(
+          titre: titre,
+          description: description,
+          duree: duree,
+          date_parution: dateParution,
+          lien_affiche: lienAffiche);
 }

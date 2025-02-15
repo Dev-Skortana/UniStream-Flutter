@@ -10,7 +10,13 @@ class VideoRealisateurManager implements IloadManagerDatabase {
     Iterator iterator_source_videosrealisateurs = item.iterator;
     int iteration = 0;
     while (iterator_source_videosrealisateurs.moveNext()) {
-      yield {"index": iteration, "Video": Object()};
+      yield {
+        "index": iteration,
+        "Video": VideoRealisateur.parseToVideoRealisateur(
+          titre: iterator_source_videosrealisateurs.current["Titre"],
+          nom: iterator_source_videosrealisateurs.current["Nom"],
+        )
+      };
       iteration += 1;
     }
   }

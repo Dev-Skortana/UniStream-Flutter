@@ -3,25 +3,39 @@ import 'package:unistream/ViewModels/Templates/ViewModel_FilmBase.dart';
 import 'package:unistream/Views/Templates/Video_Block_Display.dart';
 
 class FilmsBlockDisplay extends StatefulWidget {
+  Function? value_changed_of_topview;
   late ViewmodelFilmbase viewmodelFilmBase;
 
-  FilmsBlockDisplay({Key? key, required ViewmodelFilmbase viewmodel})
-      : super(key: key) {}
+  FilmsBlockDisplay(
+      {Key? key,
+      required ViewmodelFilmbase viewmodel,
+      required Function value_changed_of_topview})
+      : super(key: key) {
+    this.viewmodelFilmBase = viewmodel;
+    this.value_changed_of_topview = value_changed_of_topview;
+  }
+
   @override
   State createState() => FilmsBlockDisplayState();
 }
 
 class FilmsBlockDisplayState extends State<FilmsBlockDisplay> {
+  Function? valueChangedOfThis;
   late VideoBlockDisplay videoBlockDisplay;
 
   late GlobalKey controlButtonSeeMovie;
   late GlobalKey controlLoadSearchLinksWatch;
 
+  FilmsBlockDisplayState() {
+    this.valueChangedOfThis = () {
+      setState(() {});
+    };
+  }
+
   @override
   void initState() {
     super.initState();
-    this.videoBlockDisplay =
-        VideoBlockDisplay(viewmodel: super.widget.viewmodelFilmBase);
+
     this.initializeControlsFilm();
   }
 
@@ -36,7 +50,11 @@ class FilmsBlockDisplayState extends State<FilmsBlockDisplay> {
       alignment: Alignment.center,
       child: Column(
         children: [
-          this.videoBlockDisplay,
+          VideoBlockDisplay(
+              viewmodel: widget.viewmodelFilmBase,
+              value_changed_of_view_specialized:
+                  widget.value_changed_of_topview!,
+              value_changed_of_block: this.valueChangedOfThis!),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

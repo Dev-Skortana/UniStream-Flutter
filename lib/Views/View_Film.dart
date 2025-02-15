@@ -11,17 +11,15 @@ class ViewFilm extends StatefulWidget {
 }
 
 class ViewFilmState extends State<ViewFilm> {
-  late ViewmodelFilm viewmodel;
+  ViewmodelFilm? viewmodel;
   late FilmsBlockDisplay filmBlockDisplay;
   @override
   void initState() {
     super.initState();
-    this._setViewModelAsync();
-    this.filmBlockDisplay = FilmsBlockDisplay(viewmodel: this.viewmodel);
   }
 
-  void _setViewModelAsync() async {
-    this.viewmodel = await ViewmodelFilm.create();
+  void valueChanged() {
+    setState(() {});
   }
 
   @override
@@ -35,7 +33,21 @@ class ViewFilmState extends State<ViewFilm> {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 10,
               children: [
-                this.filmBlockDisplay,
+                FutureBuilder(
+                    future: ViewmodelFilm.create(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        this.viewmodel = snapshot.data;
+                        Function callbacksetstate = () {
+                          this.valueChanged();
+                        };
+                        return FilmsBlockDisplay(
+                            viewmodel: this.viewmodel!,
+                            value_changed_of_topview: callbacksetstate);
+                      } else {
+                        return CircularProgressIndicator();
+                      }
+                    }),
                 PaginationDisplay(),
               ],
             ),

@@ -18,4 +18,8 @@ class VideoGenre extends BaseModel {
     this._titre = titre;
     this._nom = nom;
   }
+
+  static VideoGenre parseToVideoGenre(
+          {required String titre, required String nom}) =>
+      VideoGenre(titre: titre, nom: nom);
 }

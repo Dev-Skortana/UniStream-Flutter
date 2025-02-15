@@ -18,4 +18,8 @@ class VideoPays extends BaseModel {
     this._titre = titre;
     this._nom = nom;
   }
+
+  static VideoPays parseToVideoPays(
+          {required String titre, required String nom}) =>
+      VideoPays(titre: titre, nom: nom);
 }

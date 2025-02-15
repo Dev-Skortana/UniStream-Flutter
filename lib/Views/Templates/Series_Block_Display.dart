@@ -1,28 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:unistream/Models/Video.dart';
 import 'package:unistream/ViewModels/Templates/ViewModel_SerieBase.dart';
 import 'package:unistream/Views/Templates/Video_Block_Display.dart';
 
 class SeriesBlockDisplay extends StatefulWidget {
+  Function? valueChangedOfTopView;
   late ViewmodelSeriebase viewmodelseriebase;
-  SeriesBlockDisplay({Key? key, required ViewmodelSeriebase viewmodel})
-      : super(key: key) {}
+  SeriesBlockDisplay(
+      {Key? key,
+      required ViewmodelSeriebase viewmodel,
+      required Function value_changed_topview})
+      : super(key: key) {
+    this.viewmodelseriebase = viewmodel;
+    this.valueChangedOfTopView = value_changed_topview;
+  }
+
   @override
   State createState() => SeriesBlockDisplayState();
 }
 
 class SeriesBlockDisplayState extends State<SeriesBlockDisplay> {
-  late VideoBlockDisplay videoBlockDisplay;
-
+  Function? valueChangedOfThisBlock;
   late GlobalKey ControlSaison;
   late GlobalKey ControlEpisode;
   late GlobalKey ControlButtonSeeSerie;
   late GlobalKey ControlLoadSearchLinksWatch;
 
+  late int valueCurrentSaison;
+
+  SeriesBlockDisplayState() {
+    this.valueChangedOfThisBlock = () {
+      setState(() {});
+    };
+  }
+
   @override
   void initState() {
     super.initState();
-    this.videoBlockDisplay =
-        VideoBlockDisplay(viewmodel: super.widget.viewmodelseriebase);
     this.initializeControlsSerie();
   }
 
@@ -46,13 +60,31 @@ class SeriesBlockDisplayState extends State<SeriesBlockDisplay> {
     return values.toSet().toList();
   }
 
+  List<int> getEpisodesOfSaison() {
+    List<int> values = [];
+    for (var detail in super
+            .widget
+            .viewmodelseriebase
+            .GetGenerator_DetailSerieOfVideoSerie(
+                super.widget.viewmodelseriebase.video["Video"].titre) ??
+        []) {
+      if (int.parse(detail.saison.toString()) == this.valueCurrentSaison) {
+        values.add(int.parse(detail.episode.toString()));
+      }
+    }
+    return values;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
       child: Column(
         children: [
-          this.videoBlockDisplay,
+          VideoBlockDisplay(
+              viewmodel: widget.viewmodelseriebase,
+              value_changed_of_view_specialized: widget.valueChangedOfTopView!,
+              value_changed_of_block: this.valueChangedOfThisBlock!),
           Container(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -71,13 +103,21 @@ class SeriesBlockDisplayState extends State<SeriesBlockDisplay> {
                       ],
                       menuHeight: 100,
                       width: 200,
-                      onSelected: (value) {},
+                      onSelected: (value) {
+                        setState(() {
+                          this.valueCurrentSaison = int.parse(value.toString());
+                        });
+                      },
                     ),
                     DropdownMenu(
                       key: this.ControlEpisode,
                       label: Text("Episode"),
                       hintText: "Choisissez l'épisode.",
-                      dropdownMenuEntries: <DropdownMenuEntry>[],
+                      dropdownMenuEntries: <DropdownMenuEntry>[
+                        for (var episode in this.getEpisodesOfSaison())
+                          DropdownMenuEntry(
+                              value: episode, label: episode.toString())
+                      ],
                       menuHeight: 100,
                       width: 200,
                     ),
@@ -94,7 +134,9 @@ class SeriesBlockDisplayState extends State<SeriesBlockDisplay> {
                               strokeWidth: 2)
                         ],
                       ),
-                    )
+                    ),
+                    Text((widget.viewmodelseriebase.video["Video"] as Video)
+                        .titre)
                   ],
                 )
               ],

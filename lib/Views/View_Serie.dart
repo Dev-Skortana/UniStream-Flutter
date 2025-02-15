@@ -11,18 +11,35 @@ class ViewSerie extends StatefulWidget {
 }
 
 class ViewSerieState extends State<ViewSerie> {
-  late ViewmodelSerie viewmodel;
-  late SeriesBlockDisplay serieBlockDisplay;
+  ViewmodelSerie? viewmodel;
+  late FutureBuilder data;
+  Function? valueChangedOfThisTopView;
+
+  ViewSerieState() {
+    this.valueChangedOfThisTopView = () {
+      setState(() {});
+    };
+  }
+
+  FutureBuilder getData() => FutureBuilder(
+      future: ViewmodelSerie.create(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return CircularProgressIndicator();
+        } else {
+          this.viewmodel = snapshot.data;
+
+          return SeriesBlockDisplay(
+            viewmodel: this.viewmodel!,
+            value_changed_topview: this.valueChangedOfThisTopView!,
+          );
+        }
+      });
 
   @override
   void initState() {
     super.initState();
-    this._setViewModelAsync();
-    this.serieBlockDisplay = SeriesBlockDisplay(viewmodel: this.viewmodel);
-  }
-
-  void _setViewModelAsync() async {
-    this.viewmodel = await ViewmodelSerie.create();
+    this.data = this.getData();
   }
 
   @override
@@ -35,12 +52,10 @@ class ViewSerieState extends State<ViewSerie> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 10,
-              children: [
-                this.serieBlockDisplay,
-                PaginationDisplay(),
-              ],
+              children: [this.data],
             ),
-          )
+          ),
+          PaginationDisplay()
         ],
       ),
     );

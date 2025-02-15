@@ -10,4 +10,7 @@ class Realisateur extends BaseModel {
   Realisateur({String nom = ""}) {
     this._nom = nom;
   }
+
+  static Realisateur parseToRealisateur({required String nom}) =>
+      Realisateur(nom: nom);
 }

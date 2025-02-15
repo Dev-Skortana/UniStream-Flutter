@@ -7,9 +7,21 @@ import 'package:unistream/Services/Databases/Interface/ILoad_Manager_Database.da
 
 class VideoManager implements IloadManagerDatabase {
   @override
-  Iterable GetGen(item) {
-    // TODO: implement GetGen
-    throw UnimplementedError();
+  Iterable GetGen(item) sync* {
+    Iterator iterator_source_video = item.iterator;
+    int iteration = 0;
+    while (iterator_source_video.moveNext()) {
+      yield {
+        "index": iteration,
+        "Video": Video.parseToVideo(
+            titre: iterator_source_video.current["Titre"],
+            description: iterator_source_video.current["Description"],
+            duree: iterator_source_video.current["Duree"],
+            dateParution: iterator_source_video.current["Date_Parution"],
+            lienAffiche: iterator_source_video.current["Lien_Affiche"])
+      };
+      iteration += 1;
+    }
   }
 
   @override

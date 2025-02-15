@@ -11,6 +11,10 @@ class PaginationDisplayState extends State<PaginationDisplay> {
   late GlobalKey controlNumberFiche;
   late GlobalKey controlTotalFiche;
 
+  PaginationDisplayState() {
+    this.initializationControlsPagination();
+  }
+
   void initializationControlsPagination() {
     this.controlNumberFiche = GlobalKey();
     this.controlTotalFiche = GlobalKey();

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unistream/Database/Data_Initialize.dart';
 import 'package:unistream/Models/Drama_Film.dart';
@@ -12,7 +13,20 @@ class DramaFilmManager implements IloadManagerDatabase {
     Iterator iterator_source_dramafilm = item.iterator;
     int iteration = 0;
     while (iterator_source_dramafilm.moveNext()) {
-      yield {"index": iteration, "Video": Object()};
+      yield {
+        "index": iteration,
+        "Video": DramaFilm.parseToDramaFilm(
+            titre: iterator_source_dramafilm.current[0]["Titre"],
+            description:
+                iterator_source_dramafilm.current[0]["Description"] ?? "",
+            duree: iterator_source_dramafilm.current[0]["Duree"] ??
+                TimeOfDay.now(),
+            dateParution: iterator_source_dramafilm.current[0]
+                    ["Date_Parution"] ??
+                DateTime.now(),
+            lienAffiche:
+                iterator_source_dramafilm.current[0]["Lien_Affiche"] ?? "")
+      };
       iteration += 1;
     }
   }

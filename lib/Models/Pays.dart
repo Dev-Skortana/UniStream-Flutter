@@ -10,4 +10,6 @@ class Pays extends BaseModel {
   Pays({String nom = ""}) : super() {
     this._nom = nom;
   }
+
+  static Pays parseToPays({required String nom}) => Pays(nom: nom);
 }

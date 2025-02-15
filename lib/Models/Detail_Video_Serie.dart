@@ -29,4 +29,11 @@ class DetailVideoSerie extends BaseModel {
     this._saison = saison;
     this._episode = episode;
   }
+
+  static DetailVideoSerie parseToDetailVideoSerie(
+          {required String titre_videoserie,
+          required int saison,
+          required int episode}) =>
+      DetailVideoSerie(
+          titreVideoSerie: titre_videoserie, saison: saison, episode: episode);
 }

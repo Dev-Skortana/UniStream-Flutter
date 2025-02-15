@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unistream/Database/Data_Initialize.dart';
 import 'package:unistream/Models/Anime_Film.dart';
@@ -12,7 +13,21 @@ class AnimeFilmManager implements IloadManagerDatabase {
     Iterator iterator_source_animefilm = item.iterator;
     int iteration = 0;
     while (iterator_source_animefilm.moveNext()) {
-      yield {"index": iteration, "Video": Object()};
+      yield {
+        "index": iteration,
+        "Video": AnimeFilm.parseToAnimeFilm(
+            titre: iterator_source_animefilm.current[0]["Titre"],
+            description:
+                iterator_source_animefilm.current[0]["Description"] ?? "",
+            duree: iterator_source_animefilm.current[0]["Duree"] ??
+                TimeOfDay.now(),
+            dateParution: iterator_source_animefilm.current[0]
+                    ["Date_Parution"] ??
+                DateTime.now(),
+            lienAffiche:
+                iterator_source_animefilm.current[0]["Lien_Affiche"] ?? "",
+            studio: iterator_source_animefilm.current[0]["Studio"] ?? "")
+      };
       iteration += 1;
     }
   }

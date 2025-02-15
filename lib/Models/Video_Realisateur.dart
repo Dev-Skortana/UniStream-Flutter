@@ -18,4 +18,8 @@ class VideoRealisateur extends BaseModel {
     this._titre = titre;
     this._nom = nom;
   }
+
+  static VideoRealisateur parseToVideoRealisateur(
+          {required String titre, required String nom}) =>
+      VideoRealisateur(titre: titre, nom: nom);
 }

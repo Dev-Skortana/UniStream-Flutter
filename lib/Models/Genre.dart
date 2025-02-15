@@ -10,4 +10,6 @@ class Genre extends BaseModel {
   Genre({String nom = ""}) {
     this._nom = nom;
   }
+
+  static Genre parseToGenre({required String nom}) => Genre(nom: nom);
 }

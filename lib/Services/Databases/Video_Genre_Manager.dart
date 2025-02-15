@@ -10,7 +10,13 @@ class VideoGenreManager implements IloadManagerDatabase {
     Iterator iterator_source_videosgenres = item.iterator;
     int iteration = 0;
     while (iterator_source_videosgenres.moveNext()) {
-      yield {"index": iteration, "Video": Object()};
+      yield {
+        "index": iteration,
+        "Video": VideoGenre.parseToVideoGenre(
+          titre: iterator_source_videosgenres.current["Titre"],
+          nom: iterator_source_videosgenres.current["Nom"],
+        )
+      };
       iteration += 1;
     }
   }

@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:unistream/Models/Video.dart';
 import 'package:unistream/ViewModels/Templates/ViewModel_VideoBase.dart';
 
 class VideoBlockDisplay extends StatefulWidget {
+  late Function valueTopViewChanged;
+  late Function valueBlockChanged;
   late ViewmodelVideobase viewmodelVideobase;
-  VideoBlockDisplay({Key? key, required ViewmodelVideobase viewmodel})
+  VideoBlockDisplay(
+      {Key? key,
+      required ViewmodelVideobase viewmodel,
+      required Function value_changed_of_view_specialized,
+      required Function value_changed_of_block})
       : super(key: key) {
     this.viewmodelVideobase = viewmodel;
+    this.valueBlockChanged = value_changed_of_block;
+    this.valueTopViewChanged = value_changed_of_view_specialized;
   }
 
   @override
@@ -70,8 +79,12 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
     this.controlButtonNext = GlobalKey();
   }
 
-  void _Value_Changed() {
-    setState(() {});
+  _value_Changed(VoidCallback callback_naviguation) {
+    setState(() {
+      callback_naviguation();
+      widget.valueBlockChanged();
+      widget.valueTopViewChanged();
+    });
   }
 
   bool isVideosDipslayNotEmpty() =>
@@ -123,7 +136,8 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
               children: [
                 Image.asset(
                     key: this.controlLienAffiche,
-                    super.widget.viewmodelVideobase.video["Video"].lienAffiche,
+                    (super.widget.viewmodelVideobase.video["Video"] as Video)
+                        .lienAffiche,
                     width: 200,
                     height: 150),
               ],
@@ -132,13 +146,19 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text("Titre :"),
-                TextField(
-                  key: this.controlLienAffiche,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    hintText:
-                        super.widget.viewmodelVideobase.video["Video"].titre,
-                    border: InputBorder.none,
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    key: this.controlTitre,
+                    decoration: InputDecoration(
+                        constraints: BoxConstraints(),
+                        hintText: (super
+                                .widget
+                                .viewmodelVideobase
+                                .video["Video"] as Video)
+                            .titre,
+                        border: InputBorder.none),
+                    readOnly: true,
                   ),
                 ),
               ],
@@ -147,18 +167,21 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text("Description :"),
-                TextField(
-                  key: this.controlDescription,
-                  readOnly: true,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    hintText: super
-                        .widget
-                        .viewmodelVideobase
-                        .video["Video"]
-                        .description,
-                    border: InputBorder.none,
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    key: this.controlDescription,
+                    readOnly: true,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                        constraints: BoxConstraints(),
+                        hintText: (super
+                                .widget
+                                .viewmodelVideobase
+                                .video["Video"] as Video)
+                            .description,
+                        border: InputBorder.none),
                   ),
                 ),
               ],
@@ -169,7 +192,12 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
                 Text("Durée :"),
                 Text(
                     key: this.controlDuree,
-                    super.widget.viewmodelVideobase.video["Video"].duree),
+                    super
+                        .widget
+                        .viewmodelVideobase
+                        .video["Video"]
+                        .duree
+                        .toString()),
               ],
             ),
             Row(
@@ -178,7 +206,12 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
                 Text("Date de parution :"),
                 Text(
                     key: this.controlDateParution,
-                    super.widget.viewmodelVideobase.video["Video"].dateParution)
+                    super
+                        .widget
+                        .viewmodelVideobase
+                        .video["Video"]
+                        .dateParution
+                        .toString())
               ],
             ),
             Row(
@@ -196,20 +229,25 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text("Genre :"),
-                TextField(
-                  key: this.controlGenres,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                      hintText: this._Unsplit([
-                        for (var item in super
-                            .widget
-                            .viewmodelVideobase
-                            .video["Video"]
-                            .genres)
-                          item.nom
-                      ]),
-                      border: InputBorder.none),
-                  expands: true,
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    key: this.controlGenres,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                        constraints: BoxConstraints(),
+                        hintText: this._Unsplit([
+                          for (var item in super
+                                  .widget
+                                  .viewmodelVideobase
+                                  .video["Video"]
+                                  .genres ??
+                              [])
+                            item.nom
+                        ]),
+                        border: InputBorder.none),
+                    expands: false,
+                  ),
                 )
               ],
             ),
@@ -220,40 +258,50 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
                     children: [Text("Infos Additionnel : (en dessous !)")]),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Text("Réalisateurs :"),
-                  TextField(
-                    key: this.controlRealisateurs,
-                    readOnly: true,
-                    decoration: InputDecoration(
-                        hintText: this._Unsplit([
-                          for (var item in super
-                              .widget
-                              .viewmodelVideobase
-                              .video["Video"]
-                              .realisateurs)
-                            item.nom
-                        ]),
-                        border: InputBorder.none),
-                    expands: true,
+                  SizedBox(
+                    width: 80,
+                    child: TextField(
+                      key: this.controlRealisateurs,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                          constraints: BoxConstraints(),
+                          hintText: this._Unsplit([
+                            for (var item in super
+                                    .widget
+                                    .viewmodelVideobase
+                                    .video["Video"]
+                                    .realisateurs ??
+                                [])
+                              item.nom
+                          ]),
+                          border: InputBorder.none),
+                      expands: false,
+                    ),
                   )
                 ]),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text("Pays :"),
-                    TextField(
-                      key: this.controlPays,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                          hintText: this._Unsplit([
-                            for (var item in super
-                                .widget
-                                .viewmodelVideobase
-                                .video["Video"]
-                                .pays)
-                              item.nom
-                          ]),
-                          border: InputBorder.none),
-                      expands: true,
+                    SizedBox(
+                      width: 80,
+                      child: TextField(
+                        key: this.controlPays,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                            constraints: BoxConstraints(),
+                            hintText: this._Unsplit([
+                              for (var item in super
+                                      .widget
+                                      .viewmodelVideobase
+                                      .video["Video"]
+                                      .pays ??
+                                  [])
+                                item.nom
+                            ]),
+                            border: InputBorder.none),
+                        expands: false,
+                      ),
                     )
                   ],
                 ),
@@ -268,29 +316,29 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
                     ElevatedButton(
                       child: Text("<<"),
                       onPressed: () {
-                        super.widget.viewmodelVideobase.GetVideoFirst();
-                        this._Value_Changed();
+                        this._value_Changed(
+                            super.widget.viewmodelVideobase.GetVideoFirst);
                       },
                     ),
                     ElevatedButton(
                       child: Text("<"),
                       onPressed: () {
-                        super.widget.viewmodelVideobase.GetVideoPrevious();
-                        this._Value_Changed();
+                        this._value_Changed(
+                            super.widget.viewmodelVideobase.GetVideoPrevious);
                       },
                     ),
                     ElevatedButton(
                       child: Text(">"),
                       onPressed: () {
-                        super.widget.viewmodelVideobase.GetVideoNext();
-                        this._Value_Changed();
+                        this._value_Changed(
+                            super.widget.viewmodelVideobase.GetVideoNext);
                       },
                     ),
                     ElevatedButton(
                       child: Text(">>"),
                       onPressed: () {
-                        super.widget.viewmodelVideobase.GetVideoLast();
-                        this._Value_Changed();
+                        this._value_Changed(
+                            super.widget.viewmodelVideobase.GetVideoLast);
                       },
                     ),
                   ],

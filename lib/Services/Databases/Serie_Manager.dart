@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unistream/Database/Data_Initialize.dart';
 import 'package:unistream/Models/Serie.dart';
@@ -9,10 +10,19 @@ import 'package:unistream/Services/Databases/Interface/ILoad_Manager_Database.da
 class SerieManager implements IloadManagerDatabase {
   @override
   Iterable GetGen(item) sync* {
-    Iterator iterator_source_serie = item.iterator;
+    Iterator iterator_source_serie = item[0].iterator;
     int iteration = 0;
     while (iterator_source_serie.moveNext()) {
-      yield {"index": iteration, "Video": Object()};
+      yield {
+        "index": iteration,
+        "Video": Serie.parseToSerie(
+            titre: iterator_source_serie.current["Titre"],
+            description: iterator_source_serie.current["Description"] ?? "",
+            duree: iterator_source_serie.current["Duree"] ?? TimeOfDay.now(),
+            dateParution: iterator_source_serie.current["Date_Parution"] ??
+                DateTime.now(),
+            lienAffiche: iterator_source_serie.current["Lien_Affiche"] ?? "")
+      };
       iteration += 1;
     }
   }

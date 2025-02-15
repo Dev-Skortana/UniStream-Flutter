@@ -10,7 +10,13 @@ class VideoPaysManager implements IloadManagerDatabase {
     Iterator iterator_source_videospays = item.iterator;
     int iteration = 0;
     while (iterator_source_videospays.moveNext()) {
-      yield {"index": iteration, "Video": Object()};
+      yield {
+        "index": iteration,
+        "Video": VideoPays.parseToVideoPays(
+          titre: iterator_source_videospays.current["Titre"],
+          nom: iterator_source_videospays.current["Nom"],
+        )
+      };
       iteration += 1;
     }
   }
