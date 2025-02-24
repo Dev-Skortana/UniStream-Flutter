@@ -10,8 +10,7 @@ class ViewmodelAnimefilm extends ViewmodelFilmbase {
       : list_animes_films = list_of_viewmodel,
         super(dictionnary_methode_and_args);
 
-  static Future<ViewmodelAnimefilm> create(
-      Map<String, dynamic> dictionnary_methode_and_args) async {
+  static Future<ViewmodelAnimefilm> create() async {
     List list_animes_films = await ViewmodelAnimefilm.GetListAnimesFilms();
     Map<String, dynamic> dictionnary_methode_and_args = {
       "method": ViewmodelAnimefilm.GetAnimesFilms,

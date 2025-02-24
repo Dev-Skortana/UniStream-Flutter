@@ -15,11 +15,12 @@ class DropdownOnglets extends StatelessWidget {
         spacing: 0,
         children: [
           DropdownMenu(
-            label: Text("Onglet"),
+            initialSelection: "Films",
+            label: Text("Films"),
             hintText: "Onglet",
             dropdownMenuEntries: <DropdownMenuEntry>[
-              DropdownMenuEntry(value: "Films", label: "Films"),
-              DropdownMenuEntry(value: "Films", label: "Séries")
+              DropdownMenuEntry(value: "Video_Film", label: "Films"),
+              DropdownMenuEntry(value: "Video_Serie", label: "Séries")
             ],
             onSelected: this._on_change,
           )

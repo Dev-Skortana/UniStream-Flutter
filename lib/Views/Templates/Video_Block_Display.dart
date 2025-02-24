@@ -230,8 +230,10 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
               children: [
                 Text("Genre :"),
                 SizedBox(
+                  height: 30,
                   width: 80,
                   child: TextField(
+                    maxLines: null,
                     key: this.controlGenres,
                     readOnly: true,
                     decoration: InputDecoration(
@@ -246,7 +248,7 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
                             item.nom
                         ]),
                         border: InputBorder.none),
-                    expands: false,
+                    expands: true,
                   ),
                 )
               ],
@@ -259,8 +261,10 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Text("Réalisateurs :"),
                   SizedBox(
+                    height: 30,
                     width: 80,
                     child: TextField(
+                      maxLines: null,
                       key: this.controlRealisateurs,
                       readOnly: true,
                       decoration: InputDecoration(
@@ -275,7 +279,7 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
                               item.nom
                           ]),
                           border: InputBorder.none),
-                      expands: false,
+                      expands: true,
                     ),
                   )
                 ]),
@@ -284,8 +288,10 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
                   children: [
                     Text("Pays :"),
                     SizedBox(
+                      height: 30,
                       width: 80,
                       child: TextField(
+                        maxLines: null,
                         key: this.controlPays,
                         readOnly: true,
                         decoration: InputDecoration(
@@ -300,7 +306,7 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
                                 item.nom
                             ]),
                             border: InputBorder.none),
-                        expands: false,
+                        expands: true,
                       ),
                     )
                   ],
