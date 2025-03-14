@@ -11,15 +11,9 @@ class ViewSerie extends StatefulWidget {
 }
 
 class ViewSerieState extends State<ViewSerie> {
+  ValueNotifier? videoNotifier;
   ViewmodelSerie? viewmodel;
   late FutureBuilder data;
-  Function? valueChangedOfThisTopView;
-
-  ViewSerieState() {
-    this.valueChangedOfThisTopView = () {
-      setState(() {});
-    };
-  }
 
   FutureBuilder getData() => FutureBuilder(
       future: ViewmodelSerie.create(),
@@ -28,10 +22,26 @@ class ViewSerieState extends State<ViewSerie> {
           return CircularProgressIndicator();
         } else {
           this.viewmodel = snapshot.data;
-
-          return SeriesBlockDisplay(
-            viewmodel: this.viewmodel!,
-            value_changed_topview: this.valueChangedOfThisTopView!,
+          this.videoNotifier = ValueNotifier(this.viewmodel!.video["Video"]);
+          return Column(
+            children: [
+              Container(
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 10,
+                  children: [
+                    SeriesBlockDisplay(
+                      viewmodel: this.viewmodel!,
+                      video_notifier: this.videoNotifier!,
+                    )
+                  ],
+                ),
+              ),
+              PaginationDisplay(
+                  viewmodel_Video: this.viewmodel!,
+                  video_notifier: this.videoNotifier!)
+            ],
           );
         }
       });
@@ -44,20 +54,6 @@ class ViewSerieState extends State<ViewSerie> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 10,
-              children: [this.data],
-            ),
-          ),
-          PaginationDisplay()
-        ],
-      ),
-    );
+    return SingleChildScrollView(child: this.data);
   }
 }

@@ -17,6 +17,7 @@ enum EnumCategorieVideoToDisplay { Video_Film, Video_Serie }
 
 class ViewAnimerState extends State<ViewAnimer> {
   late FutureBuilder view_to_display;
+  ValueNotifier? videoNotifier;
   EnumCategorieVideoToDisplay? videoCategorie;
   ViewmodelAnimeserie? viewmodel_anime_serie;
   ViewmodelAnimefilm? viewmodel_anime_film;
@@ -41,12 +42,19 @@ class ViewAnimerState extends State<ViewAnimer> {
           } on TypeError catch (e) {
             print("TypeError on DataofMovies");
           }
-          Function valueChanged_data_OfThisTopView = () {
-            setState(() {});
-          };
-          return FilmsBlockDisplay(
-            viewmodel: this.viewmodel_anime_film!,
-            value_changed_of_topview: valueChanged_data_OfThisTopView,
+          this.videoNotifier =
+              ValueNotifier(this.viewmodel_anime_film!.video["Video"]);
+
+          return Column(
+            children: [
+              FilmsBlockDisplay(
+                viewmodel: this.viewmodel_anime_film!,
+                video_notifier: this.videoNotifier!,
+              ),
+              PaginationDisplay(
+                  viewmodel_Video: this.viewmodel_anime_film!,
+                  video_notifier: this.videoNotifier!)
+            ],
           );
         }
       });
@@ -61,17 +69,20 @@ class ViewAnimerState extends State<ViewAnimer> {
           try {
             this.viewmodel_anime_serie = snapshot.data;
 
-            Function valueChanged_data_OfThisTopView = () {
-              setState(() {});
-            };
-            return SeriesBlockDisplay(
-              viewmodel: this.viewmodel_anime_serie!,
-              value_changed_topview: valueChanged_data_OfThisTopView,
-            );
+            this.videoNotifier =
+                ValueNotifier(this.viewmodel_anime_serie!.video["Video"]);
+            return Column(children: [
+              SeriesBlockDisplay(
+                  viewmodel: this.viewmodel_anime_serie!,
+                  video_notifier: this.videoNotifier!),
+              PaginationDisplay(
+                  viewmodel_Video: this.viewmodel_anime_serie!,
+                  video_notifier: this.videoNotifier!)
+            ]);
           } on TypeError catch (e) {
             print('TypeError on DataofSeries');
           }
-          return Container();
+          return CircularProgressIndicator();
         }
       });
 
@@ -95,19 +106,13 @@ class ViewAnimerState extends State<ViewAnimer> {
       this.view_to_display = this.getDataOfMovies();
     }
     return Container(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              alignment: Alignment.topRight,
-              child: DropdownOnglets((event) => this._dropdown_change(event)),
-            ),
-            this.view_to_display,
-            PaginationDisplay()
-          ],
-        ),
+        child: SingleChildScrollView(
+            child: Column(children: [
+      Container(
+        alignment: Alignment.topRight,
+        child: DropdownOnglets((event) => this._dropdown_change(event)),
       ),
-    );
-    ;
+      Container(child: this.view_to_display)
+    ])));
   }
 }

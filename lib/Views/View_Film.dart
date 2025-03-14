@@ -11,49 +11,49 @@ class ViewFilm extends StatefulWidget {
 }
 
 class ViewFilmState extends State<ViewFilm> {
+  ValueNotifier? videoNotifier;
   ViewmodelFilm? viewmodel;
-  late FilmsBlockDisplay filmBlockDisplay;
+  late FutureBuilder data;
+
+  FutureBuilder getData() => FutureBuilder(
+      future: ViewmodelFilm.create(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return CircularProgressIndicator();
+        } else {
+          this.viewmodel = snapshot.data;
+          this.videoNotifier = ValueNotifier(this.viewmodel!.video["Video"]);
+          return Column(
+            children: [
+              Container(
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 10,
+                  children: [
+                    FilmsBlockDisplay(
+                      viewmodel: this.viewmodel!,
+                      video_notifier: this.videoNotifier!,
+                    ),
+                    PaginationDisplay(
+                        viewmodel_Video: this.viewmodel!,
+                        video_notifier: this.videoNotifier!),
+                  ],
+                ),
+              )
+            ],
+          );
+        }
+      });
+
   @override
   void initState() {
     super.initState();
-  }
-
-  void valueChanged() {
-    setState(() {});
+    this.data = this.getData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 10,
-              children: [
-                FutureBuilder(
-                    future: ViewmodelFilm.create(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        this.viewmodel = snapshot.data;
-                        Function callbacksetstate = () {
-                          this.valueChanged();
-                        };
-                        return FilmsBlockDisplay(
-                            viewmodel: this.viewmodel!,
-                            value_changed_of_topview: callbacksetstate);
-                      } else {
-                        return CircularProgressIndicator();
-                      }
-                    }),
-                PaginationDisplay(),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
+    return SingleChildScrollView(child: this.data);
   }
 }

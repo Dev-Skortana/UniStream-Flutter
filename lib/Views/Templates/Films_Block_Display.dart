@@ -3,16 +3,16 @@ import 'package:unistream/ViewModels/Templates/ViewModel_FilmBase.dart';
 import 'package:unistream/Views/Templates/Video_Block_Display.dart';
 
 class FilmsBlockDisplay extends StatefulWidget {
-  Function? value_changed_of_topview;
+  late ValueNotifier videoNotifier;
   late ViewmodelFilmbase viewmodelFilmBase;
 
   FilmsBlockDisplay(
       {Key? key,
       required ViewmodelFilmbase viewmodel,
-      required Function value_changed_of_topview})
+      required ValueNotifier video_notifier})
       : super(key: key) {
     this.viewmodelFilmBase = viewmodel;
-    this.value_changed_of_topview = value_changed_of_topview;
+    this.videoNotifier = video_notifier;
   }
 
   @override
@@ -20,17 +20,12 @@ class FilmsBlockDisplay extends StatefulWidget {
 }
 
 class FilmsBlockDisplayState extends State<FilmsBlockDisplay> {
-  Function? valueChangedOfThis;
   late VideoBlockDisplay videoBlockDisplay;
 
   late GlobalKey controlButtonSeeMovie;
   late GlobalKey controlLoadSearchLinksWatch;
 
-  FilmsBlockDisplayState() {
-    this.valueChangedOfThis = () {
-      setState(() {});
-    };
-  }
+  FilmsBlockDisplayState() {}
 
   @override
   void initState() {
@@ -51,13 +46,17 @@ class FilmsBlockDisplayState extends State<FilmsBlockDisplay> {
       child: Column(
         children: [
           VideoBlockDisplay(
-              viewmodel: widget.viewmodelFilmBase,
-              value_changed_of_view_specialized:
-                  widget.value_changed_of_topview!,
-              value_changed_of_block: this.valueChangedOfThis!),
+            viewmodel: widget.viewmodelFilmBase,
+            video_notifier: widget.videoNotifier,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              ValueListenableBuilder(
+                  valueListenable: widget.videoNotifier,
+                  builder: (context, value, child) {
+                    return Container();
+                  }),
               ElevatedButton(
                   key: this.controlButtonSeeMovie,
                   onPressed: () {},

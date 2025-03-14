@@ -4,15 +4,15 @@ import 'package:unistream/ViewModels/Templates/ViewModel_SerieBase.dart';
 import 'package:unistream/Views/Templates/Video_Block_Display.dart';
 
 class SeriesBlockDisplay extends StatefulWidget {
-  Function? valueChangedOfTopView;
+  late ValueNotifier videoNotifier;
   late ViewmodelSeriebase viewmodelseriebase;
   SeriesBlockDisplay(
       {Key? key,
       required ViewmodelSeriebase viewmodel,
-      required Function value_changed_topview})
+      required ValueNotifier video_notifier})
       : super(key: key) {
     this.viewmodelseriebase = viewmodel;
-    this.valueChangedOfTopView = value_changed_topview;
+    this.videoNotifier = video_notifier;
   }
 
   @override
@@ -20,23 +20,19 @@ class SeriesBlockDisplay extends StatefulWidget {
 }
 
 class SeriesBlockDisplayState extends State<SeriesBlockDisplay> {
-  Function? valueChangedOfThisBlock;
   late GlobalKey ControlSaison;
   late GlobalKey ControlEpisode;
   late GlobalKey ControlButtonSeeSerie;
   late GlobalKey ControlLoadSearchLinksWatch;
 
-  late int valueCurrentSaison;
+  late ValueNotifier<int> valueCurrentSaisonNotifier;
 
-  SeriesBlockDisplayState() {
-    this.valueChangedOfThisBlock = () {
-      setState(() {});
-    };
-  }
+  SeriesBlockDisplayState() {}
 
   @override
   void initState() {
     super.initState();
+    this.valueCurrentSaisonNotifier = ValueNotifier(0);
     this.initializeControlsSerie();
   }
 
@@ -47,28 +43,40 @@ class SeriesBlockDisplayState extends State<SeriesBlockDisplay> {
     this.ControlLoadSearchLinksWatch = GlobalKey();
   }
 
-  List<int> getSaisonWithoutDoublons() {
+  void resetItemsInDropdows() {
+    if (this.ControlSaison.currentWidget != null) {
+      (this.ControlSaison.currentWidget as DropdownMenu)
+          .dropdownMenuEntries
+          .clear;
+    }
+    if (this.ControlEpisode.currentWidget != null) {
+      (this.ControlEpisode.currentWidget as DropdownMenu)
+          .dropdownMenuEntries
+          .clear;
+    }
+  }
+
+  List<int> getSaisonWithoutDoublons({required String titre}) {
     List<int> values = [];
     for (var detail in super
             .widget
             .viewmodelseriebase
-            .GetGenerator_DetailSerieOfVideoSerie(
-                super.widget.viewmodelseriebase.video["Video"].titre) ??
+            .GetGenerator_DetailSerieOfVideoSerie(titre) ??
         []) {
       values.add(detail.saison);
     }
     return values.toSet().toList();
   }
 
-  List<int> getEpisodesOfSaison() {
+  List<int> getEpisodesOfSaison({required String titre}) {
     List<int> values = [];
     for (var detail in super
             .widget
             .viewmodelseriebase
-            .GetGenerator_DetailSerieOfVideoSerie(
-                super.widget.viewmodelseriebase.video["Video"].titre) ??
+            .GetGenerator_DetailSerieOfVideoSerie(titre) ??
         []) {
-      if (int.parse(detail.saison.toString()) == this.valueCurrentSaison) {
+      if (int.parse(detail.saison.toString()) ==
+          this.valueCurrentSaisonNotifier!.value) {
         values.add(int.parse(detail.episode.toString()));
       }
     }
@@ -83,8 +91,7 @@ class SeriesBlockDisplayState extends State<SeriesBlockDisplay> {
         children: [
           VideoBlockDisplay(
               viewmodel: widget.viewmodelseriebase,
-              value_changed_of_view_specialized: widget.valueChangedOfTopView!,
-              value_changed_of_block: this.valueChangedOfThisBlock!),
+              video_notifier: widget.videoNotifier),
           Container(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -92,35 +99,58 @@ class SeriesBlockDisplayState extends State<SeriesBlockDisplay> {
                 Column(
                   spacing: 20,
                   children: [
-                    DropdownMenu(
-                      key: this.ControlSaison,
-                      label: Text("Saison"),
-                      hintText: "Choisissez la saison.",
-                      dropdownMenuEntries: <DropdownMenuEntry>[
-                        for (var saison in this.getSaisonWithoutDoublons())
-                          DropdownMenuEntry(
-                              value: saison, label: saison.toString())
-                      ],
-                      menuHeight: 100,
-                      width: 200,
-                      onSelected: (value) {
-                        setState(() {
-                          this.valueCurrentSaison = int.parse(value.toString());
-                        });
-                      },
-                    ),
-                    DropdownMenu(
-                      key: this.ControlEpisode,
-                      label: Text("Episode"),
-                      hintText: "Choisissez l'épisode.",
-                      dropdownMenuEntries: <DropdownMenuEntry>[
-                        for (var episode in this.getEpisodesOfSaison())
-                          DropdownMenuEntry(
-                              value: episode, label: episode.toString())
-                      ],
-                      menuHeight: 100,
-                      width: 200,
-                    ),
+                    ValueListenableBuilder(
+                        valueListenable: widget.videoNotifier,
+                        builder: (context, value, child) {
+                          //resetItemsInDropdows();
+
+                          return DropdownMenu(
+                            key: this.ControlSaison,
+                            label: Text("Saison"),
+                            hintText: "Choisissez la saison.",
+                            dropdownMenuEntries: <DropdownMenuEntry>[
+                              for (var saison in this
+                                  .getSaisonWithoutDoublons(titre: value.titre))
+                                DropdownMenuEntry(
+                                    value: saison, label: saison.toString())
+                            ],
+                            menuHeight: 100,
+                            width: 200,
+                            onSelected: (value) {
+                              this.valueCurrentSaisonNotifier!.value =
+                                  int.parse(value.toString());
+                            },
+                          );
+                        }),
+                    ValueListenableBuilder(
+                        valueListenable: this.valueCurrentSaisonNotifier,
+                        builder: (context, value, child) {
+                          if (value > 0) {
+                            return DropdownMenu(
+                              key: this.ControlEpisode,
+                              label: Text("Episode"),
+                              hintText: "Choisissez l'épisode.",
+                              dropdownMenuEntries: <DropdownMenuEntry>[
+                                for (var episode
+                                    in this.valueCurrentSaisonNotifier?.value !=
+                                            null
+                                        ? this.getEpisodesOfSaison(
+                                            titre: super
+                                                .widget
+                                                .viewmodelseriebase
+                                                .video["Video"]
+                                                .titre)
+                                        : [])
+                                  DropdownMenuEntry(
+                                      value: episode, label: episode.toString())
+                              ],
+                              menuHeight: 100,
+                              width: 200,
+                            );
+                          } else {
+                            return Container();
+                          }
+                        }),
                     ElevatedButton(
                         key: this.ControlButtonSeeSerie,
                         onPressed: () {},
