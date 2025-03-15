@@ -3,7 +3,6 @@ import 'package:unistream/Models/Genre.dart';
 import 'package:unistream/Models/Pays.dart';
 import 'package:unistream/Models/Realisateur.dart';
 import 'package:unistream/Models/Video.dart';
-import 'package:unistream/Services/Databases/Special_Management.dart';
 import 'package:unistream/Services/Databases/Video_Genre_Manager.dart';
 import 'package:unistream/Services/Databases/Video_Pays_Manager.dart';
 import 'package:unistream/Services/Databases/Video_Realisateur_Manager.dart';
@@ -15,10 +14,13 @@ class ViewmodelVideobase {
   late Map<String, dynamic> _callBackGetVideos;
   late bool _callBackGetVideosFiltered;
 
-  late List _ListVideosGenres;
+  List? _ListVideosGenres;
   late List _ListVideosPays;
   late List _ListVideosRealisateurs;
-  late Map<String, dynamic> video;
+  late Map<String, dynamic> video = {
+    "Index": 0,
+    "Video": Video.getEmptyVideo()
+  };
 
   late int index = 0;
   late int TotalCount;
@@ -29,7 +31,7 @@ class ViewmodelVideobase {
 
     this.videosFromDictionnary = dictionnary_methode_and_args["method"](
         [...dictionnary_methode_and_args["args"]]);
-    //this._InitializeSubList();
+    this._InitializeSubList();
     this.GetVideoFirst();
     this.TotalCount = this.Count(this.videosFromDictionnary);
   }
@@ -42,7 +44,7 @@ class ViewmodelVideobase {
 
   int Count(Iterable generator) => generator.length;
 
-  Iterable _getGenres() => VideoGenreManager().GetGen(this._ListVideosGenres);
+  Iterable _getGenres() => VideoGenreManager().GetGen(this._ListVideosGenres!);
   Iterable _GetPays() => VideoPaysManager().GetGen(this._ListVideosPays);
   Iterable _GetRealisateurs() =>
       VideoRealisateurManager().GetGen(this._ListVideosRealisateurs);
@@ -55,19 +57,19 @@ class ViewmodelVideobase {
   }
 
   void _FillVideoWithGenres(Map<String, dynamic> video) {
-    this.video["Video"].Genres = this._getGenForVideoWithGenres(video);
+    video["Video"].genres = this._getGenForVideoWithGenres(video);
   }
 
   Iterable _getGenForVideoWithGenres(Map<String, dynamic> video) sync* {
     for (var video_genre in this._getGenres()) {
       if (video["Video"].titre == video_genre["Video"].titre) {
-        yield Genre(nom: video_genre["Video"].Nom);
+        yield Genre(nom: video_genre["Video"].nom);
       }
     }
   }
 
   void _FillVideoWithPays(Map<String, dynamic> video) {
-    this.video["Video"].Pays = this._getGenForVideoWithPays(video);
+    video["Video"].pays = this._getGenForVideoWithPays(video);
   }
 
   Iterable _getGenForVideoWithPays(Map<String, dynamic> video) sync* {
@@ -79,8 +81,7 @@ class ViewmodelVideobase {
   }
 
   void _FillVideoWithRealisateurs(Map<String, dynamic> video) {
-    this.video["Video"].Realisateurs =
-        this._getGenForVideoWithRealisateurs(video);
+    video["Video"].realisateurs = this._getGenForVideoWithRealisateurs(video);
   }
 
   Iterable _getGenForVideoWithRealisateurs(Map<String, dynamic> video) sync* {
@@ -106,8 +107,8 @@ class ViewmodelVideobase {
       this.index -= 1;
       if (this.index < 0) {
         this.index = (this.TotalCount - 1);
-        this.GetVideo();
       }
+      this.GetVideo();
     }
   }
 
@@ -146,7 +147,7 @@ class ViewmodelVideobase {
   }
 
   Map<String, dynamic> _getVideoFilled(Map<String, dynamic> video) {
-    //video = this._ProcessFillsVideo(video);
+    video = this._ProcessFillsVideo(video);
     if (this is ViewmodelSeriebase) {
       (this as ViewmodelSeriebase).FillVideoSerieWithDetails(video);
     }

@@ -68,9 +68,6 @@ class Video extends BaseModel {
     this._duree = duree;
     this._dateParution = date_parution;
     this._lienAffiche = lien_affiche;
-    this.pays = pays;
-    this.genres = genres;
-    this.realisateurs = realisateurs;
   }
 
   static Video parseToVideo(
@@ -85,4 +82,13 @@ class Video extends BaseModel {
           duree: duree,
           date_parution: dateParution,
           lien_affiche: lienAffiche);
+
+  static Video getEmptyVideo() => Video(
+        titre: "",
+        description: "",
+        duree: TimeOfDay.now(),
+        date_parution: DateTime.now(),
+        lien_affiche:
+            "assets/images/video_posters/visuals-NotFound-unsplash.jpg",
+      );
 }

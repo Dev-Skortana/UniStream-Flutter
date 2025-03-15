@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unistream/Views/Helpers/Theme_Provider.dart';
+import 'package:unistream/Views/Templates/Naviguation_Bar.dart';
 import 'package:unistream/Views/View_Acceuille.dart';
 import 'package:unistream/Views/View_Animer.dart';
 import 'package:unistream/Views/View_Drama.dart';
@@ -17,12 +18,13 @@ class MainWrapper extends StatefulWidget {
 }
 
 class MainWrapperState extends State<MainWrapper> {
+  int currentIndex = 0;
+  Map<String, int> objectIndex = {"Index": 0};
   final String nameofapplication = "UniStream";
-  int _currentindex = 0;
 
   void setCurrentIndex(int index) {
     setState(() {
-      this._currentindex = index;
+      currentIndex = index;
     });
   }
 
@@ -38,7 +40,7 @@ class MainWrapperState extends State<MainWrapper> {
       appBar: AppBar(
         title: SafeArea(
             child: IndexedStack(
-          index: this._currentindex,
+          index: currentIndex,
           children: [
             Row(spacing: 15, children: [
               Text(this.nameofapplication),
@@ -85,7 +87,7 @@ class MainWrapperState extends State<MainWrapper> {
       ),
       body: SafeArea(
           child: IndexedStack(
-        index: this._currentindex,
+        index: currentIndex,
         children: [
           ViewAcceuille(),
           ViewAnimer(),
@@ -97,7 +99,7 @@ class MainWrapperState extends State<MainWrapper> {
         ],
       )),
       bottomNavigationBar: NavigationBar(
-          selectedIndex: this._currentindex,
+          selectedIndex: currentIndex,
           elevation: 10,
           onDestinationSelected: (index) {
             this.setCurrentIndex(index);

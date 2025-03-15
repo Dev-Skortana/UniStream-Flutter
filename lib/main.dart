@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unistream/Views/MainWrapper.dart';
@@ -22,8 +20,6 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    print(Directory.current);
-    print(Directory.current.path);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'UniStream',

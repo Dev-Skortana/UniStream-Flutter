@@ -72,11 +72,30 @@ class DataInitialize {
   }
 
   static Future<void> _insertDatas(Database db) async {
+    await db.execute("insert or ignore into Genres values(?)", ["Aventure"]);
+    await db.execute("insert or ignore into Genres values(?)", ["Action"]);
+    await db.execute("insert or ignore into Genres values(?)", ["Shonen"]);
+    await db.execute("insert or ignore into Genres values(?)", ["Romance"]);
+    await db
+        .execute("insert or ignore into Genres values(?)", ["Tranche de vie"]);
+    await db.execute("insert or ignore into Genres values(?)", ["Comédie"]);
+
     await db.execute(
         "insert or ignore into Videos(Titre,Lien_Affiche) values(?,?)", [
       "Z",
       "assets/images/video_posters/1539165262_flcl-saison-2-progressive-vostfr.jpg"
     ]);
+
+    await db.execute(
+        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
+        ["Z", "Aventure"]);
+    await db.execute(
+        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
+        ["Z", "Action"]);
+    await db.execute(
+        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
+        ["Z", "Shonen"]);
+
     await db
         .execute("insert or ignore into Videos_Series(Titre) values(?)", ["Z"]);
 
@@ -121,6 +140,62 @@ class DataInitialize {
 
     await db.execute("insert or ignore into Series(Titre) values(?)", ["Z"]);
     await db.execute("insert or ignore into Series(Titre) values(?)", ["C"]);
+
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["Z", 1, 1]);
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["Z", 1, 2]);
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["Z", 2, 1]);
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["Z", 2, 2]);
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["Z", 2, 3]);
+
+    await db.execute(
+        "insert or ignore into Videos(Titre,Lien_Affiche) values(?,?)", [
+      "shanara",
+      "assets/images/video_posters/1538860831_fei_ren_zai_vostfr.jpg"
+    ]);
+
+    await db.execute(
+        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
+        ["shanara", "Romance"]);
+
+    await db.execute(
+        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
+        ["shanara", "Tranche de vie"]);
+
+    await db.execute(
+        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
+        ["shanara", "Comédie"]);
+
+    await db.execute(
+        "insert or ignore into Videos_Series(Titre) values(?)", ["shanara"]);
+
+    await db.execute(
+        "insert or ignore into Animes_Series(Titre) values(?)", ["shanara"]);
+
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["shanara", 1, 1]);
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["shanara", 1, 2]);
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["shanara", 1, 3]);
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["shanara", 2, 1]);
+    await db.execute(
+        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+        ["shanara", 2, 2]);
   }
 
   static void closeConnection() async {
