@@ -10,22 +10,20 @@ import 'package:unistream/Services/Databases/Interface/ILoad_Manager_Database.da
 class DramaFilmManager implements IloadManagerDatabase {
   @override
   Iterable GetGen(item) sync* {
-    Iterator iterator_source_dramafilm = item.iterator;
+    Iterator iterator_source_dramafilm = item[0].iterator;
     int iteration = 0;
     while (iterator_source_dramafilm.moveNext()) {
       yield {
         "index": iteration,
         "Video": DramaFilm.parseToDramaFilm(
-            titre: iterator_source_dramafilm.current[0]["Titre"],
-            description:
-                iterator_source_dramafilm.current[0]["Description"] ?? "",
-            duree: iterator_source_dramafilm.current[0]["Duree"] ??
-                TimeOfDay.now(),
-            dateParution: iterator_source_dramafilm.current[0]
-                    ["Date_Parution"] ??
+            titre: iterator_source_dramafilm.current["Titre"],
+            description: iterator_source_dramafilm.current["Description"] ?? "",
+            duree:
+                iterator_source_dramafilm.current["Duree"] ?? TimeOfDay.now(),
+            dateParution: iterator_source_dramafilm.current["Date_Parution"] ??
                 DateTime.now(),
             lienAffiche:
-                iterator_source_dramafilm.current[0]["Lien_Affiche"] ?? "")
+                iterator_source_dramafilm.current["Lien_Affiche"] ?? "")
       };
       iteration += 1;
     }
