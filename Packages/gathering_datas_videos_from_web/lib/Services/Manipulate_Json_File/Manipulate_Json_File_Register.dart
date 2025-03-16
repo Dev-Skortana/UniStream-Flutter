@@ -39,8 +39,9 @@ class ManipulateJsonFileRegister {
   }
 
   void _generateIdentifiants() {
-    List<String> list_identifiants = BuilderIdentifiants()
-        .getIdentifiants(how_many_identifiers: 0, lenght: 0);
+    List<String> identifiants = BuilderIdentifiants()
+        .getIdentifiants(how_many_identifiers: this._dataFromJson.length);
+    this.manipulateJsonFileUpdate.addIdentifiantsToJson(identifiants);
   }
 
   bool _isDictionnarysHasRightIdentifiants() {
