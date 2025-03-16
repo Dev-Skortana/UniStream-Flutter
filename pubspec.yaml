@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider:
   sqflite: ^2.4.1
+  gathering_datas_videos_from_web:
+    path: packages/gathering_datas_videos_from_web
 
 dev_dependencies:
   flutter_test:
