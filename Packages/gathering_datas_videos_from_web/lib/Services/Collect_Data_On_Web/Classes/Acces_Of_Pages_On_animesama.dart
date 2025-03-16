@@ -72,18 +72,4 @@ class AccesOfPagesOnAnimesama extends Acces
   @override
   Future<int> getNumbersOfPages() async => this.getNumbersPages(
       requete_xpath: "//div[@id='nav_pages']/descendant::a[last()]");
-
-  Future<Map<int, List<int>>> getSaisonAndEpisode(
-      {required String url_pagepresentation_video,
-      required Element html_dom_pagepresentation_video,
-      required String request_saisons,
-      required String request_episodes}) async {
-    return await super.getSaisonWithEpisodeThem(
-        url_pagepresentation_video: url_pagepresentation_video,
-        html_dom_pagepresentation_video: html_dom_pagepresentation_video,
-        request_saisons: request_saisons,
-        request_episodes: request_episodes,
-        requete_xpath_of_links_of_saisons_on_video:
-            this.getRequeteXpathOfLinksOfSaisonsOnVideo());
-  }
 }

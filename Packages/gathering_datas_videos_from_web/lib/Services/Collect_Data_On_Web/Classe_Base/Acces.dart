@@ -47,7 +47,6 @@ class Acces {
       {required Element html_dom,
       required String requete_xpath,
       required String Function(Match) replace_regex}) {
-    /*TODO*/
     RegExpMatch result_match;
     try {
       XPathResult elements = html_dom.queryXPath(requete_xpath);
@@ -67,7 +66,6 @@ class Acces {
       {required String requete_xpath,
       String requete_regex = "",
       String Function(Match)? methode_replaceofregex = null}) async {
-    /*TODO*/
     String base_of_url = this.urlPageVideos.split("//")[1];
     String start_point_of_url = base_of_url.split("/")[0];
     String endpoint_of_url = base_of_url.split("/")[1];
@@ -84,7 +82,6 @@ class Acces {
   @protected
   Future<int> getNumbersPages(
       {required String requete_xpath, String requete_regex = ""}) async {
-    /*TODO*/
     String base_of_url = this.urlPageVideos.split("//")[1];
     String start_point_of_url = base_of_url.split("/")[0];
     String endpoint_of_url = base_of_url.split("/")[1];
@@ -103,7 +100,6 @@ class Acces {
   }
 
   String getUrl() {
-    /*TODO*/
     return this.urlPageVideos;
   }
 
@@ -114,7 +110,6 @@ class Acces {
       required String request_saisons,
       required String request_episodes,
       required String requete_xpath_of_links_of_saisons_on_video}) async {
-    /*TODO*/
     RegExp regex_extract_urlbase = RegExp(r'https?:\/\/[^\/]+');
     String url_base =
         regex_extract_urlbase.firstMatch(this.urlPageVideos)!.group(1)!;
@@ -145,7 +140,6 @@ class Acces {
       required Element html_dom_pagepresentation_video,
       required List<Map>
           list_dictionnary_requests_regexs__saison_and_episode}) async {
-    /*TODO*/
     const int MAX_TRY = 2;
     Map<int, List<int>> dictionnary_saisons_episode = {};
     EnumerationLibrairyGathering library_ghatering =
@@ -179,5 +173,20 @@ class Acces {
         count_try_gathering != MAX_TRY);
     return Map.fromEntries(dictionnary_saisons_episode.entries.toList()
       ..sort((e1, e2) => e1.key.compareTo(e2.key)));
+  }
+
+  Future<Map<int, List<int>>> getSaisonAndEpisode(
+      {required String url_pagepresentation_video,
+      required Element html_dom_pagepresentation_video,
+      required String request_saisons,
+      required String request_episodes}) async {
+    return await this.getSaisonWithEpisodeThem(
+        url_pagepresentation_video: url_pagepresentation_video,
+        html_dom_pagepresentation_video: html_dom_pagepresentation_video,
+        request_saisons: request_saisons,
+        request_episodes: request_episodes,
+        requete_xpath_of_links_of_saisons_on_video: (this as dynamic)
+            .getRequeteXpathOfLinksOfSaisonsOnVideo()
+            .toString());
   }
 }

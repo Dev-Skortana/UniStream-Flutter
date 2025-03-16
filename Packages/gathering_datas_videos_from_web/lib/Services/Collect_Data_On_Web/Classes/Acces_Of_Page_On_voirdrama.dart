@@ -63,18 +63,4 @@ class AccesOfPageOnVoirdrama extends Acces
       requete_xpath:
           "//div[@class='main-col-inner']/descendant::div[@class='tab-content-wrap']/div[@class='col-12 col-md-12']/descendant::span[@class='pages']",
       requete_regex: "([0-9]+)\$");
-
-  Future<Map<int, List<int>>> getSaisonAndEpisode(
-      {required String url_pagepresentation_video,
-      required Element html_dom_pagepresentation_video,
-      required String request_saisons,
-      required String request_episodes}) async {
-    return await super.getSaisonWithEpisodeThem(
-        url_pagepresentation_video: url_pagepresentation_video,
-        html_dom_pagepresentation_video: html_dom_pagepresentation_video,
-        request_saisons: request_saisons,
-        request_episodes: request_episodes,
-        requete_xpath_of_links_of_saisons_on_video:
-            this.getRequeteXpathOfLinksOfSaisonsOnVideo().toString());
-  }
 }
