@@ -1,3 +1,5 @@
+part of gathering_urls_videos_from_web;
+
 class ManipJsonFileRead {
   late List<Map<String, dynamic>> _dataFromJson;
 

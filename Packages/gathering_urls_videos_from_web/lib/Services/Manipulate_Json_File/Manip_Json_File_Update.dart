@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
+part of gathering_urls_videos_from_web;
 
 class ManipJsonFileUpdate {
   late List<Map<String, dynamic>> _dataFromJson;
@@ -17,11 +16,12 @@ class ManipJsonFileUpdate {
     for (var (index, dictionnary) in copy_datafromjson.indexed) {
       dictionnary["Identifiant"] = identififants[index];
     }
+    this._updateFile(copy_datafromjson);
   }
 
   void _updateFile(List<Map<String, dynamic>> newdata_fromjson) async {
-    var file =
-        File('lib/Services/Manipulate_Json_File/Scrapping_Register.json');
+    var file = File(
+        'packages/gathering_urls_videos_from_web/assets/raw/Scrapping_Redirect.json');
     var sink = file.openWrite(mode: FileMode.write);
     sink.write(jsonEncode(newdata_fromjson));
     await sink.flush();

@@ -1,11 +1,4 @@
-import 'package:gathering_urls_videos_from_web/Helpers/Enumerations/Enumeration_Panels_Links.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Classe_Base/Gathering_Urls.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IConfiguration_Panel_Link_Site.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_ButtonSearch.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_Episode_Video.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_For_Data_Mandatory.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_Movie_Video.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_Saison_Video.dart';
+part of gathering_urls_videos_from_web;
 
 class AccesOfPageOnPapadustream extends GatheringUrls
     implements
@@ -21,15 +14,22 @@ class AccesOfPageOnPapadustream extends GatheringUrls
       EnumerationPanelsLinks.HavePanelLinksSaisons_And_HavePanelLinksEpisodes;
 
   @override
+  Future<String> getUrlBase() async =>
+      await this.searchUrlBaseFromName(this.runtimeType);
+
+  @override
   bool getRequeteXpathOfLinkOfMovieOnVideo() => false;
 
   @override
+  String getRequeteXpathOfIconMenu() => "span.fa-search";
+
+  @override
   String getRequeteXpathOfButtonSearch() =>
-      "//div[@id='filter-wrap']/form/descendant::input[@type='button']";
+      "form#quicksearch > div.search_box > button";
 
   @override
   String getRequeteXpathOfEntryFieldSearch() =>
-      "//div[@id='filter-wrap']/form/descendant::input[@class='search form-control']";
+      "form#quicksearch > div.search_box > input";
 
   @override
   String getRequeteXpathOfLinksInResultsOfSearch() =>
@@ -38,8 +38,8 @@ class AccesOfPageOnPapadustream extends GatheringUrls
   @override
   String getRequeteXpathOfTitleInResultsOfSearch(
       {bool is_for_value_of_attribute = false}) {
-    String attrib = is_for_value_of_attribute ? "/text()[1]" : "";
-    return "//div[@class='short gridder-list']/div/div[@id='short_title']/a${attrib}";
+    String attrib = is_for_value_of_attribute ? "/text()" : "";
+    return "//div[@class='short gridder-list']/div/div[@id='short_title']/a${attrib}!div.short.gridder-list > div > div#short_title > a";
   }
 
   @override
@@ -50,7 +50,7 @@ class AccesOfPageOnPapadustream extends GatheringUrls
 
   @override
   String getRequeteXpathOfEpisodeOnVideo() =>
-      "//div[@class='saisontab']/div[@class='floats clearfix']/div[@style]/../div[@align='center']/a[not(@class)]/@href";
+      "//div[@class='saisontab']/h2[contains(text(), 'Voir tous les épisodes')]/ancestor::div/div[@class='floats clearfix']/div/a";
 
   @override
   String getRequeteXpathOfLinksOfSaisonsOnVideo() =>

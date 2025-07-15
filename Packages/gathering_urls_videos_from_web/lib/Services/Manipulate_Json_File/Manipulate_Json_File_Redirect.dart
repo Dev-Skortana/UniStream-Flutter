@@ -1,9 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:gathering_urls_videos_from_web/Helpers/Builder_Identifiants.dart';
-import 'package:gathering_urls_videos_from_web/Services/Manipulate_Json_File/Manip_Json_File_Read.dart';
-import 'package:gathering_urls_videos_from_web/Services/Manipulate_Json_File/Manip_Json_File_Update.dart';
+part of gathering_urls_videos_from_web;
 
 class ManipulateJsonFileRedirect {
   late List<Map<String, dynamic>> _dataFromJson;
@@ -16,29 +11,48 @@ class ManipulateJsonFileRedirect {
   late ManipJsonFileRead manipulateJsonFileRead;
   late ManipJsonFileUpdate manipulateJsonFileUpdate;
 
-  ManipulateJsonFileRegister() {
-    this._dataFromJson = this.getDataFromJson();
+  ManipulateJsonFileRedirect._create(
+      List<Map<String, dynamic>> data_from_json) {
+    this._dataFromJson = data_from_json;
     this.manipulateJsonFileRead = ManipJsonFileRead(this._dataFromJson);
     this.manipulateJsonFileUpdate = ManipJsonFileUpdate(this._dataFromJson);
   }
 
-  Future<List<Map<String, dynamic>>> getDataFromJson() async {
-    final file =
-        File('lib/Services/Manipulate_Json_File/Scrapping_Redirect.json');
-    Stream<String> content = file.openRead().transform(utf8.decoder);
-    List<Map<String, dynamic>> data_json = jsonDecode(await content.single);
+  static Future<ManipulateJsonFileRedirect> create() async {
+    List<Map<String, dynamic>> data_from_json =
+        await ManipulateJsonFileRedirect.getDataFromJson();
+    return ManipulateJsonFileRedirect._create(data_from_json);
+  }
+
+  static Future<List<Map<String, dynamic>>> getDataFromJson() async {
+    final bytesdata_json = await rootBundle.load(
+      "packages/gathering_urls_videos_from_web/assets/raw/Scrapping_Redirect.json",
+    );
+    final uint8from_bytesdata = Uint8List.sublistView(bytesdata_json);
+
+    List<Map<String, dynamic>> data_json =
+        (jsonDecode(utf8.decode(uint8from_bytesdata)) as List)
+            .cast<Map<String, dynamic>>();
     return data_json;
   }
 
   void checkConsistanceFile() {
     if (this._isDictionnarysHasRightIdentifiants() == false) {
-      this._generateIdentifiants();
+      // this._generateIdentifiants();
     }
   }
 
   void _generateIdentifiants() {
-    List<String> list_identifiants = BuilderIdentifiants()
-        .getIdentifiants(how_many_identifiers: 0, lenght: 0);
+    List<String> identifiants = BuilderIdentifiants()
+        .getIdentifiants(how_many_identifiers: this._dataFromJson.length);
+    this.manipulateJsonFileUpdate.addIdentifiantsToJson(identifiants);
+    this._actualiseDataOfJson();
+  }
+
+  void _actualiseDataOfJson() {
+    this._dataFromJson = this.manipulateJsonFileUpdate.dataFromJson;
+    this.manipulateJsonFileRead._dataFromJson =
+        this.manipulateJsonFileUpdate.dataFromJson;
   }
 
   bool _isDictionnarysHasRightIdentifiants() {
@@ -64,8 +78,8 @@ class ManipulateJsonFileRedirect {
   bool __IsEveryValuesUnique() {
     List<String> liste_identifiants =
         this.manipulateJsonFileRead.getIdentifiants();
-    int count_duplicates;
-    if (count_duplicates > 0) {
+    Set set_identifiants = {...liste_identifiants};
+    if (liste_identifiants.length != set_identifiants.length) {
       return false;
     }
     return true;

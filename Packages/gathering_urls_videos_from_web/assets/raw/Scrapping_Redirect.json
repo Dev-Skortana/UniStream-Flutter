@@ -14,14 +14,10 @@
     "Regex_On_Episodes": "- *([0-9]+).*$"
   },
   {
-    "Name": "papadustream",
-    "Url_Reference": "https://papadustream.vote",
-    "Regex_On_Saisons": "[^0-9]*([0-9]+)",
-    "Regex_On_Episodes": "[^0-9]*([0-9]+)"
-  },
-  {
-    "Name": "v5voiranime",
-    "Url_Reference": "https://v5.voiranime.com",
+    "Name": "v6voiranime",
+    "Url_Reference": "https://v6.voiranime.com",
     "Regex_On_Episodes": "- *([0-9]+) *$"
   }
+
+  
 ]

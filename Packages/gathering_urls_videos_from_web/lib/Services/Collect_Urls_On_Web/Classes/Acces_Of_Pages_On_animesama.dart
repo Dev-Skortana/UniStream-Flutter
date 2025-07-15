@@ -1,10 +1,4 @@
-import 'package:gathering_urls_videos_from_web/Helpers/Enumerations/Enumeration_Panels_Links.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Classe_Base/Gathering_Urls.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_ButtonSearch.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_Episode_Video.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_For_Data_Mandatory.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_Movie_Video.dart';
-import 'package:gathering_urls_videos_from_web/Services/Collect_Urls_On_Web/Interfaces/IRequest_Saison_Video.dart';
+part of gathering_urls_videos_from_web;
 
 class AccesOfPagesOnAnimesama extends GatheringUrls
     implements
@@ -21,14 +15,20 @@ class AccesOfPagesOnAnimesama extends GatheringUrls
           .HavePanelLinksSaisons_And_DontHavePanelLinksEpisodes;
 
   @override
+  Future<String> getUrlBase() async =>
+      await this.searchUrlBaseFromName(this.runtimeType);
+
+  @override
   String getRequeteXpathOfButtonAcceptCokkie() => "J'ACCEPTE";
+
+  @override
+  String getRequeteXpathOfIconMenu() => "";
 
   @override
   bool getRequeteXpathOfButtonSearch() => false;
 
   @override
-  String getRequeteXpathOfEntryFieldSearch() =>
-      "//div[contains(@class,'flex hidden')]/descendant::input[@id='search_text']";
+  String getRequeteXpathOfEntryFieldSearch() => "nav >a > input#search_text";
 
   @override
   String getRequeteXpathOfEpisodeOnVideo() =>
@@ -36,21 +36,21 @@ class AccesOfPagesOnAnimesama extends GatheringUrls
 
   @override
   String getRequeteXpathOfLinkOfMovieOnVideo() =>
-      "//h2[text()='Anime']/following::div[1]/a/div[contains(text(),'Film')]/../@href";
+      "//h2[text()='Anime']/following::div[1]/a/div[contains(text(),'Film')]/ancestor::a/@href";
 
   @override
   String getRequeteXpathOfLinksInResultsOfSearch() =>
-      "(//div[@id='result'])[1]/a/@href";
+      "//div[@id='result']/child::a";
 
   @override
   String getRequeteXpathOfLinksOfSaisonsOnVideo() =>
-      "//h2[text()='Anime']/following::div[1]/a[contains(@href,'saison')]/div/../@href";
+      "//h2[text()='Anime']/following::div[1]/a[contains(@href,'saison')]/div/ancestor::a/@href";
 
   @override
   String getRequeteXpathOfTitleInResultsOfSearch(
       {bool is_for_value_of_attribute = false}) {
-    String attrib = is_for_value_of_attribute ? "/text()[1]" : "";
-    return "(//div[@id='result'])[1]/a/div/h3${attrib}";
+    String attrib = is_for_value_of_attribute ? "/text()" : "";
+    return " //div[@id='result']/a/div/h3${attrib}!div#result > a > div > h3";
   }
 
   @override

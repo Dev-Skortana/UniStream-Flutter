@@ -1,4 +1,5 @@
 abstract class IrequestForDataMandatory {
+  String getRequeteXpathOfIconMenu();
   String getRequeteXpathOfButtonAcceptCokkie();
   bool isResulstOFSearchOnSamePageThatPageContainsEntry();
   String getRequeteXpathOfEntryFieldSearch();
