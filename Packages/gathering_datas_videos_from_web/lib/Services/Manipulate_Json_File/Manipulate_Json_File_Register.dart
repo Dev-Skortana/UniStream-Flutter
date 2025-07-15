@@ -6,6 +6,8 @@ class ManipulateJsonFileRegister {
   List<Map<String, dynamic>> get dataFromJson => this._dataFromJson;
   void set dataFromJson(List<Map<String, dynamic>> value) {
     this._dataFromJson = value;
+    this.manipulateJsonFileRead._dataFromJson = this._dataFromJson;
+    this.manipulateJsonFileUpdate._dataFromJson = this._dataFromJson;
   }
 
   late ManipJsonFileRead manipulateJsonFileRead;
@@ -25,10 +27,20 @@ class ManipulateJsonFileRegister {
   }
 
   static Future<List<Map<String, dynamic>>> getDataFromJson() async {
-    final file =
-        File('lib/Services/Manipulate_Json_File/Scrapping_Register.json');
-    Stream<String> content = file.openRead().transform(utf8.decoder);
-    List<Map<String, dynamic>> data_json = jsonDecode(await content.single);
+    ByteData bytesdata_json = ByteData(0);
+    try {
+      bytesdata_json = await rootBundle.load(
+        "packages/gathering_datas_videos_from_web/assets/raw/scraping_register.json",
+      );
+    } on ErrorDescription catch (exception_load_file) {
+      ManagerLogging.logger
+          .e("Une erreur sur le fichier à été lever -> ${exception_load_file}");
+    }
+    final uint8from_bytesdata = Uint8List.sublistView(bytesdata_json);
+
+    List<Map<String, dynamic>> data_json =
+        (jsonDecode(utf8.decode(uint8from_bytesdata)) as List)
+            .cast<Map<String, dynamic>>();
     return data_json;
   }
 

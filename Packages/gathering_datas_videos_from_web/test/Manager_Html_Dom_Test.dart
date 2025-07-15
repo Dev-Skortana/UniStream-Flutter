@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-//import 'package:gathering_datas_videos_from_web/gathering_datas_videos_from_web.dart';
+import 'package:gathering_datas_videos_from_web/gathering_datas_videos_from_web.dart';
 import 'package:html/dom.dart';
-import 'package:html/parser.dart';
 
 void main() {
   late String htmlDoc;
@@ -23,16 +22,16 @@ void main() {
     test("Expect htmlDom have value ", () {
       //ARRANGE
       //ACT
-      Element? html_dom = parse(htmlDoc).documentElement!;
+      Element? html_dom = ManagerHtmlDom.ParseHtmlDoc(htmlDoc);
       //ASSERT
       expect(html_dom, isNotNull);
     });
     test("Expect htmlDom is instance of Element", () {
       //ARRANGE
       //ACT
-      var html_dom = parse(htmlDoc).documentElement!;
+      var html_dom = ManagerHtmlDom.ParseHtmlDoc(htmlDoc);
       //ASSERT
-      expect(html_dom.runtimeType, Element);
+      expect(html_dom, isA<Element>());
     });
   });
 }

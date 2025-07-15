@@ -1,0 +1,110 @@
+- Name: !!str animesama
+  Url_Reference: !!str https://anime-sama.fr
+  Categories:
+    AllCategories:
+      Url: !!str https://anime-sama.fr/catalogue
+      Types:
+        Video_Film:
+          - !!str Film_Animer
+          
+        Video_Serie:
+          - !!str Serie_Animer
+  Titre: !!str //div[@id='list_catalog']/div/a/descendant::h1
+  Description: !!str //h2[text()='Synopsis']/following::p[1]
+  Type_Video : !!str //h2[text()='Anime']/following::div[1]/script
+  Lien_Affiche: !!str //div[@id='list_catalog']/div/a/img
+  Liste_Genres: !!str //h2[text()='Genres']/following::a[1]
+  Saisons: !!str //h2[text()='Anime']/following::div[1]/a[contains(@href,'saison')]/div
+  Episodes: !!str //select[@id='selectEpisodes']/option
+  Extract_Saisons_On_Xpath: !!str "Saison.?([0-9]+)"
+  Extract_Episodes_On_Xpath: !!str "[^0-9]*([0-9]+)"
+  Identifiant: !!str JPMNDUBXQIVP
+
+- Name: !!str vostfree
+  Url_Reference: !!str https://vostfree.ws
+  Categories:
+    AllCategories:
+      Url: !!str https://vostfree.ws/lastnews
+      Types:
+        Video_Film:
+          - !!str Film_Animer
+          
+        Video_Serie:
+          - !!str Serie_Animer
+  Titre: !!str //div[@id='dle-content']/div[@class='movie-poster']/div[@class='play']/a
+  Description: !str //div[@class='slide-middle']/div[@class='slide-desc']
+  Duree: !!str //div[@class='slide-info']/p[last()]/b[contains(text(),'min')]
+  Type_Video: !!str //div[@id='dle-content']/descendant::div[@class='watch-top']/descendant::li[@class='right']/a[1]
+  Lien_Affiche: !!str //div[@id='dle-content']/div[@class='movie-poster']/span[@class='image']/img
+  Liste_Genres: !!str //div[@id='dle-content']/descendant::div[@class='watch-top']/descendant::li[@class='right']/a[position()>1]
+  Liste_Realisateurs: !!str //div[@id='dle-content']/descendant::div[@class='slide-middle']/div[@class='slide-desc']/span[@class='cast']/b[contains(text(),'Réalisateur')]/ancestor::span/text()
+  Episodes: !!str //div[@class='jq-selectbox__dropdown']/ul[1]/li
+  Extract_Duree_On_Xpath: !!str "[^0-9]*((?<hours>[0-9] *h)){0,1} *((?<minutes>[0-9]+ *m)){0,1}"
+  Extract_Episodes_On_Xpath: !!str "[^0-9]*([0-9]+)"
+  Identifiant: !!str YGCUFULBYQOU
+
+- Name: !!str voirdrama
+  Url_Reference: !!str https://voirdrama.org
+  Categories:
+    AllCategories:
+      Url: !!str https://voirdrama.org/?s=&post_type=wp-manga
+      Types:
+        Video_Film:
+          - !!str Film_Drama
+          
+        Video_Serie:
+          - !!str Serie_Drama
+  Titre: //div[@role='tabpanel']/descendant::div[@class='post-title']/h3[@class='h4']/a
+  Description: //div[@class='container']/descendant::div[@class='c-page__content']/div[@class='description-summary']/descendant::p
+  Date_Parution: //div[@class='post-content']/div[@class='post-content_item']/div[@class='summary-heading']/h5[contains(text(),'Start date')]/ancestor::*/ancestor::*/div[@class='summary-content']
+  Type_Video: //div[@class='post-content']/div[@class='post-content_item']/div[@class='summary-heading']/h5[contains(text(),'Type')]/ancestor::*/ancestor::*/div[@class='summary-content']
+  Lien_Affiche: //div[@role='tabpanel']/div[@class='row c-tabs-item__content']/descendant::img
+  Liste_Genres: //div[@class='post-content']/div[@class='post-content_item']/div[@class='summary-heading']/h5[contains(text(),'Genre')]/ancestor::*/ancestor::*/descendant::div[@class='genres-content']/a
+  Liste_Pays: //div[@class='post-content']/div[@class='post-content_item']/div[@class='summary-heading']/h5[contains(text(),'Country')]/ancestor::*/ancestor::*/div[@class='summary-content']
+  Episodes: //div[@class='c-page__content']/div[@class='page-content-listing single-page']/descendant::li
+  Extract_Episodes_On_Xpath: !!str '- *([0-9]+).*$'
+  Identifiant: ODPSHHKKCOVG
+
+- Name: !!str papadustream
+  Url_Reference: !!str https://papadustream.vote
+  Categories:
+    Video_Serie:
+      Url: !!str https://papadustream.vote/categorie-series
+      Types:
+        Video_Serie:
+          - !!str Serie
+  Titre: !!str //div[@class='short gridder-list']/div/div[@id='short_title']/a
+  Description: !!str //div[@class='full_content-inner full_inner fx_row']/descendant::div[@class='full_content-desc']
+  Duree: !!str //ul[@id='full_info']/li[contains(text(),'min')]
+  Lien_Affiche: !!str //div[@class='short gridder-list']/div/a/img
+  Liste_Genres: !!str //span[contains(text(),'Genre')]/ancestor::li/a
+  Liste_Pays: !!str //span[contains(text(),'Pays')]/ancestor::li/text()
+  Liste_Realisateurs: !!str //span[contains(text(),'Réalisateur')]/ancestor::li/text()
+  Saisons: !!str //div[@class='seasontab']/div/div[@align='center']/a/descendant::div[contains(@class,'th-title')]
+  Episodes: !!str //div[@class='saisontab']/div[@class='floats clearfix']/div/ancestor::*/div[@align='center']/a/div/span
+  Extract_Saisons_On_Xpath: !!str "[^0-9]*([0-9]+)"
+  Extract_Episodes_On_Xpath: !!str "[^0-9]*([0-9]+)"
+  Extract_Duree_On_Xpath: !!str "[^0-9]*((?<hours>[0-9] *[hH])){0,1} *((?<minutes>[0-9]+ *[mM])){0,1}"
+  Identifiant: !!str AIHMHSTJAPZC
+
+- Name: !!str v6voiranime
+  Url_Reference: !!str https://v6.voiranime.com
+  Categories:
+    AllCategories:
+      Url: !!str https://v6.voiranime.com/?s=&post_type=wp-manga
+      Types:
+        Video_Film:
+          - !!str Film_Anime
+          
+        Video_Serie:
+          - !!str Serie_Anime
+  Titre: !!str //div[@class='row c-tabs-item__content']/child::div[@class='col-8 col-sm-10 col-md-10']/descendant::h3[@class='h4']/a
+  Description: !!str //div[@class='c-page__content']/descendant::div[@class='summary__content ']/p
+  Date_Parution: !!str //div[@class='post-content_item']/div/h5[contains(text(),'Start date')]/ancestor::*/ancestor::*/div[@class='summary-content']
+  Type_Video: !!str //div[@class='post-content']/div[@class='post-content_item']/div[@class='summary-heading']/h5[contains(text(),'Type')]/ancestor::*/ancestor::*/div[@class='summary-content']
+  Lien_Affiche: !!str //div[@class='row c-tabs-item__content']/descendant::div[@class='tab-thumb c-image-hover']/descendant::img
+  Liste_Genres: !!str //div[@class='post-content_item']/div/h5[contains(text(),'Genre(s)')]/ancestor::*/ancestor::*/div[@class='summary-content']/descendant::a
+  Episodes: !!str //div[@class='c-page__content']/descendant::div[@class='page-content-listing single-page']/descendant::li/a
+  Studio_Animes: !!str //div[@class='post-content']/div[@class='post-content_item']/div[@class='summary-heading']/h5[contains(text(),'Studios')]/ancestor::*/ancestor::*/div[@class='summary-content']
+  Extract_Episodes_On_Xpath: !!str '- *([0-9]+) *$'
+  Identifiant: !!str DGRAPJALITNF

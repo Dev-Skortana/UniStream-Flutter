@@ -12,13 +12,12 @@ class Acces {
 
   @protected
   Future<String> searchUrlBaseFromName(Type child_class_of_this) async {
-    int length_underscore = child_class_of_this.toString().split("_").length;
     return (await ManipulateJsonFileRegister.create())
         .dataFromJson
         .where((element) => child_class_of_this
             .toString()
-            .split("_")[length_underscore]
-            .contains(element["Name"]))
+            .toLowerCase()
+            .contains(element["Name"].toString().toLowerCase()))
         .first["Url_Reference"];
   }
 
@@ -37,28 +36,47 @@ class Acces {
           .byName("${categorie_video}_${this.typeVideo}");
 
   Future<String> getAbsoluteLinkFromUrlPageVideos(String url) async {
-    /*TODO*/
-    return url.startsWith(RegExp("http|HTTP")) == false
-        ? path.joinAll([this.urlPageVideos, url])
-        : url;
+    if (this.urlPageVideos.isEmpty) return url;
+    if (url.isEmpty) return this.urlPageVideos;
+    if (url.startsWith(RegExp("http|HTTP")) == false) {
+      var start_string_relative_link = "${this.urlPageVideos.split("/").last}";
+      if (start_string_relative_link.endsWith("/") == false)
+        start_string_relative_link += "/";
+      return Uri.parse(this.urlPageVideos)
+          .resolve("${start_string_relative_link}${url}")
+          .toString();
+    }
+    return url;
   }
 
   String getCategorie(
       {required Element html_dom,
       required String requete_xpath,
       required String Function(Match) replace_regex}) {
+    String categorie = "Autre";
     RegExpMatch result_match;
     try {
       XPathResult elements = html_dom.queryXPath(requete_xpath);
-      String chaine_format =
-          elements.toString().replaceAllMapped("([A-Za-z]+)", replace_regex);
+      String chaine_format = elements.nodes.first.text!
+          .replaceAllMapped(RegExp("([A-Za-z]+)"), replace_regex);
       result_match = RegExp("(Film|Serie|Autre)").firstMatch(chaine_format)!;
+      categorie = result_match.group(1) ?? categorie;
     } on IndexError catch (exception_index_error) {
-      return "Autre";
+      ManagerLogging.logger.e(
+          "Une erreure d'index lors de la recuperation du type de la Vidéo, n'a pas pu étre recuperer.[Cette vidéo sera donc considérer comme étant de type \"Autre\"]\nDétail de l'erreure : ${exception_index_error}");
+      return categorie;
+    } on StateError catch (exception_state) {
+      ManagerLogging.logger.e(
+          "Une erreure d'état sur un objet lors de la recuperation du type de la Vidéo, n'a pas pu étre recuperer.[Cette vidéo sera donc considérer comme étant de type \"Autre\"]\nDétail de l'erreure : ${exception_state}");
+
+      return categorie;
     } on Exception catch (exception_base) {
-      return "Autre";
+      ManagerLogging.logger.e(
+          "Une erreure lors de la recuperation du type de la Vidéo, n'a pas pu étre recuperer.[Cette vidéo sera donc considérer comme étant de type \"Autre\"]\nDétail de l'erreure : ${exception_base}");
+
+      return categorie;
     }
-    return result_match.group(1)!;
+    return categorie;
   }
 
   @protected
@@ -66,30 +84,23 @@ class Acces {
       {required String requete_xpath,
       String requete_regex = "",
       String Function(Match)? methode_replaceofregex = null}) async {
-    String base_of_url = this.urlPageVideos.split("//")[1];
-    String start_point_of_url = base_of_url.split("/")[0];
-    String endpoint_of_url = base_of_url.split("/")[1];
-    http.Response response =
-        await http.get(Uri.https(start_point_of_url, endpoint_of_url));
+    http.Response response = await http.get(Uri.parse(this.urlPageVideos));
     String html_doc = response.body;
     Element html_dom = ManagerHtmlDom.ParseHtmlDoc(html_doc);
     XPathResult xpath_result = html_dom.queryXPath(requete_xpath);
     String element = await this.getAbsoluteLinkFromUrlPageVideos(
-        xpath_result.attrs.where((item) => item == "href").first!);
-    return element.replaceAllMapped(requete_regex, methode_replaceofregex!);
+        xpath_result.node!.attributes["href"]!);
+    return element.replaceAllMapped(
+        RegExp(requete_regex), methode_replaceofregex!);
   }
 
   @protected
   Future<int> getNumbersPages(
       {required String requete_xpath, String requete_regex = ""}) async {
-    String base_of_url = this.urlPageVideos.split("//")[1];
-    String start_point_of_url = base_of_url.split("/")[0];
-    String endpoint_of_url = base_of_url.split("/")[1];
-    http.Response response =
-        await http.get(Uri.https(start_point_of_url, endpoint_of_url));
+    http.Response response = await http.get(Uri.parse(this.urlPageVideos));
     String html_doc = response.body;
     Element html_dom = ManagerHtmlDom.ParseHtmlDoc(html_doc);
-    String numpagemax = html_dom.queryXPath(requete_xpath).toString();
+    String numpagemax = html_dom.queryXPath(requete_xpath).nodes.first.text!;
     if (requete_regex != "") {
       Match match_regex = RegExp(requete_regex).firstMatch(numpagemax)!;
       String numero_page_max = match_regex.group(1)!;
@@ -110,9 +121,7 @@ class Acces {
       required String request_saisons,
       required String request_episodes,
       required String requete_xpath_of_links_of_saisons_on_video}) async {
-    RegExp regex_extract_urlbase = RegExp(r'https?:\/\/[^\/]+');
-    String url_base =
-        regex_extract_urlbase.firstMatch(this.urlPageVideos)!.group(1)!;
+    String url_base = await this.getUrlBase();
 
     Map row_register = (await ManipulateJsonFileRegister.create())
         .manipulateJsonFileRead
@@ -140,37 +149,43 @@ class Acces {
       required Element html_dom_pagepresentation_video,
       required List<Map>
           list_dictionnary_requests_regexs__saison_and_episode}) async {
-    const int MAX_TRY = 2;
+    //TODO
+    final Map<EnumerationLibrairyGathering, dynamic>
+        dictionnary_enum_librairy_scrap =
+        BuilderLibrairysScrapings.getLibrairysScrapingAsMap();
     Map<int, List<int>> dictionnary_saisons_episode = {};
-    EnumerationLibrairyGathering library_ghatering =
-        EnumerationLibrairyGathering.Requests;
-    int count_try_gathering = 0;
+    List<EnumerationLibrairyGathering> librarys_gathering_to_use =
+        EnumerationLibrairyGathering.values;
 
-    do {
-      ManagerSeasonsAndTheirEpisodes manager = ManagerSeasonsAndTheirEpisodes(
-          librairy_use_for_gathering: library_ghatering,
-          dictionnary_request_and_regex_saison: {
-            "request": list_dictionnary_requests_regexs__saison_and_episode[0]
-                ["request"],
-            "regex": list_dictionnary_requests_regexs__saison_and_episode[0]
-                ["regex"]
-          },
-          dictionnary_request_and_regex_episode: {
-            "request": list_dictionnary_requests_regexs__saison_and_episode[1]
-                ["request"],
-            "regex": list_dictionnary_requests_regexs__saison_and_episode[1]
-                ["regex"]
-          });
-      await manager.getSeasonsAndTheirEpisodes(
-          url_pagepresentation_video: url_pagepresentation_video,
-          htmldom_pagevideo: html_dom_pagepresentation_video,
-          requete_xpathoflinksofsaisonsonvideo:
-              requete_xpath_of_links_of_saisons_on_video);
-      dictionnary_saisons_episode = manager.dictionnarySaisonsEpisode;
-      library_ghatering = EnumerationLibrairyGathering.Playwright;
-      count_try_gathering += 1;
-    } while (dictionnary_saisons_episode.length == 0 &&
-        count_try_gathering != MAX_TRY);
+    for (var library_ghatering in librarys_gathering_to_use) {
+      if (dictionnary_saisons_episode.isEmpty) {
+        ManagerSeasonsAndTheirEpisodes manager = ManagerSeasonsAndTheirEpisodes(
+            librairy_use_for_gathering:
+                dictionnary_enum_librairy_scrap[library_ghatering](),
+            dictionnary_request_and_regex_saison: {
+              "request": list_dictionnary_requests_regexs__saison_and_episode[0]
+                  ["request"],
+              "regex": list_dictionnary_requests_regexs__saison_and_episode[0]
+                      ["regex"] ??
+                  ""
+            },
+            dictionnary_request_and_regex_episode: {
+              "request": list_dictionnary_requests_regexs__saison_and_episode[1]
+                  ["request"],
+              "regex": list_dictionnary_requests_regexs__saison_and_episode[1]
+                      ["regex"] ??
+                  ""
+            });
+        await manager.getSeasonsAndTheirEpisodes(
+            url_pagepresentation_video: url_pagepresentation_video,
+            htmldom_pagevideo: html_dom_pagepresentation_video,
+            requete_xpathoflinksofsaisonsonvideo:
+                requete_xpath_of_links_of_saisons_on_video);
+        dictionnary_saisons_episode = manager.dictionnarySaisonsEpisode;
+        library_ghatering = EnumerationLibrairyGathering.Dio;
+      }
+    }
+
     return Map.fromEntries(dictionnary_saisons_episode.entries.toList()
       ..sort((e1, e2) => e1.key.compareTo(e2.key)));
   }

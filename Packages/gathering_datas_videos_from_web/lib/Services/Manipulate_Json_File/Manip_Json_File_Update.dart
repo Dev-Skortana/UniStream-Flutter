@@ -12,15 +12,17 @@ class ManipJsonFileUpdate {
 
   void addIdentifiantsToJson(List identififants) {
     List<Map<String, dynamic>> copy_datafromjson =
-        jsonDecode(jsonEncode(this._dataFromJson));
+        (jsonDecode(jsonEncode(this._dataFromJson)) as List)
+            .cast<Map<String, dynamic>>();
     for (var (index, dictionnary) in copy_datafromjson.indexed) {
       dictionnary["Identifiant"] = identififants[index];
     }
+    this._updateFile(copy_datafromjson);
   }
 
   void _updateFile(List<Map<String, dynamic>> newdata_fromjson) async {
-    var file =
-        File('lib/Services/Manipulate_Json_File/Scrapping_Register.json');
+    var file = File(
+        'packages/gathering_datas_videos_from_web/assets/raw/scraping_register.json');
     var sink = file.openWrite(mode: FileMode.write);
     sink.write(jsonEncode(newdata_fromjson));
     await sink.flush();

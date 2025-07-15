@@ -31,8 +31,8 @@ class AccesOfPageOnVostfree extends Acces
         "Films": "Film",
         "Animes": "Serie"
       };
-      return dictionnary_replace.containsKey(match.group(1))
-          ? match.group(1)!
+      return dictionnary_replace.containsKey(match.group(1)?.trim())
+          ? dictionnary_replace[match.group(1)!.trim()]!
           : "Autre";
     }
 
