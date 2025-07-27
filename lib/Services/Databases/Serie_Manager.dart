@@ -18,9 +18,17 @@ class SerieManager implements IloadManagerDatabase {
         "Video": Serie.parseToSerie(
             titre: iterator_source_serie.current["Titre"],
             description: iterator_source_serie.current["Description"] ?? "",
-            duree: iterator_source_serie.current["Duree"] ?? TimeOfDay.now(),
-            dateParution: iterator_source_serie.current["Date_Parution"] ??
-                DateTime.now(),
+            duree: iterator_source_serie.current["Duree"] != null
+                ? TimeOfDay(
+                    hour: int.parse(
+                        iterator_source_serie.current["Duree"].split(":")[0]),
+                    minute: int.parse(
+                        iterator_source_serie.current["Duree"].split(":")[1]))
+                : null,
+            dateParution: iterator_source_serie.current["Date_Parution"] != null
+                ? DateTime.tryParse(
+                    iterator_source_serie.current["Date_Parution"])
+                : null,
             lienAffiche: iterator_source_serie.current["Lien_Affiche"] ?? "")
       };
       iteration += 1;
@@ -55,9 +63,14 @@ class SerieManager implements IloadManagerDatabase {
   }
 
   @override
-  Future<void> insert(BaseModel model) async {
-    Database database = await DataInitialize.getDatabase();
-    await database.execute("insert or ignore into Series(Titre) values(?)",
-        [(model as Serie).titre]);
+  Future<bool> insert(BaseModel model) async {
+    try {
+      Database database = await DataInitialize.getDatabase();
+      await database.execute("insert or ignore into Series(Titre) values(?)",
+          [(model as Serie).titre]);
+    } on DatabaseException catch (exception_database) {
+      return false;
+    } finally {}
+    return true;
   }
 }

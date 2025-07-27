@@ -18,9 +18,17 @@ class MainWrapper extends StatefulWidget {
 }
 
 class MainWrapperState extends State<MainWrapper> {
+  final String nameofapplication = "UniStream";
+
   int currentIndex = 0;
   Map<String, int> objectIndex = {"Index": 0};
-  final String nameofapplication = "UniStream";
+
+  IconData iconDataMode = Icons.dark_mode;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void setCurrentIndex(int index) {
     setState(() {
@@ -29,10 +37,15 @@ class MainWrapperState extends State<MainWrapper> {
   }
 
   void setCurrentTheme() {
+    this.iconDataMode = this.setIconDataMode();
     setState(() {
       Provider.of<ThemeProvider>(context, listen: false).toogleTheme();
     });
   }
+
+  IconData setIconDataMode() => this.iconDataMode == Icons.light_mode
+      ? Icons.dark_mode
+      : Icons.light_mode;
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +85,11 @@ class MainWrapperState extends State<MainWrapper> {
             ])
           ],
         )),
-        leading: Icon(Icons.bed),
+        leading: Icon(Icons.video_library_rounded),
         centerTitle: true,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.accessibility),
+            icon: Icon(this.iconDataMode),
             style: ButtonStyle(
                 backgroundColor: WidgetStatePropertyAll(Colors.blue)),
             onPressed: () {
@@ -132,7 +145,7 @@ class MainWrapperState extends State<MainWrapper> {
             NavigationDestination(
                 selectedIcon: Icon(Icons.import_contacts),
                 icon: Icon(Icons.import_contacts_outlined),
-                label: "Sites enregistrements"),
+                label: "Sites enregistrements(beta)"),
           ]),
     );
   }

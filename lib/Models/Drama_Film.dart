@@ -15,8 +15,8 @@ class DramaFilm extends VideoFilm {
   static DramaFilm parseToDramaFilm(
           {required String titre,
           required String description,
-          required TimeOfDay duree,
-          required DateTime dateParution,
+          required TimeOfDay? duree,
+          required DateTime? dateParution,
           required String lienAffiche}) =>
       DramaFilm(
         videoFilm: VideoFilm(

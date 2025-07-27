@@ -4,14 +4,14 @@ import 'package:collection/collection.dart';
 
 import 'package:sqflite/sqflite.dart';
 import 'package:unistream/Database/Data_Initialize.dart';
-import 'package:unistream/Models/Meta_Data.dart';
+import 'package:unistream/Models/Models_MetaData/Meta_Data.dart';
 import 'dart:typed_data';
 
 class SpecialManagement {
   static Future<Iterator<Map<String, dynamic>>>
       getVideosOnTheLastTwelveMonths() async {
-    const String chaine_condition = "";
-    //"where date(Videos.Date_Parution)>=date('now','-1 year') and date(Videos.Date_Parution)<=date('now')";
+    const String chaine_condition =
+        "where date(Videos.Date_Parution)>=date('now','-1 year') and date(Videos.Date_Parution)<=date('now')";
     const String chaine_order = "order by Videos.Titre asc";
     Iterable<Map<String, dynamic>> iterator_videos_films =
         await SpecialManagement.getVideosFilmsOnTheLastTwelveMonths(
@@ -64,13 +64,58 @@ class SpecialManagement {
     return count;
   }
 
-  static getListOfMetaDataOnVideo() {}
+  static Future<List<MetaData>> getListOfMetaDataOnVideo(
+      String name_table) async {
+    Database database = await DataInitialize.getDatabase();
+    var records = await database
+        .rawQuery("select name,type from PRAGMA_Table_Info('${name_table}')");
+    return records
+        .map((record) => MetaData(
+            nameField: record["name"].toString(),
+            typeField: record["type"].toString()))
+        .cast<MetaData>()
+        .toList();
+  }
 
-  static MetaData getMetaDataOnVideo() {
+  static Future<MetaData> getMetaDataOnVideo(String name_field) async {
+    List<String> names_tables = await SpecialManagement._getNamesOfTables();
+    MetaData meta_data;
+    for (String name_table in names_tables) {
+      meta_data = await SpecialManagement._getMetaData(
+          name_table: name_table, name_field: name_field);
+      if (meta_data.nameField.isNotEmpty && meta_data.typeField.isNotEmpty) {
+        return meta_data;
+      }
+    }
     return MetaData(nameField: "", typeField: "");
   }
 
-  static getNamesOfTables() {}
+  static Future<List<String>> _getNamesOfTables() async {
+    Database database = await DataInitialize.getDatabase();
+    final List<Map<String, dynamic>> records = await database
+        .rawQuery("SELECT name from sqlite_master WHERE type = 'table'");
+    return records.map((record) => record["name"]).cast<String>().toList();
+  }
 
-  static getMetaData() {}
+  static Future<MetaData> _getMetaData(
+      {required String name_table, required String name_field}) async {
+    Database database = await DataInitialize.getDatabase();
+    String requete_part_condition =
+        "upper(replace(name,'_',''))='${name_field.toUpperCase()}'";
+    if (["Genres", "Realisateurs", "Pays"].contains(name_table)) {
+      final String name_field_transform =
+          name_field.replaceAll(name_field, "Nom${name_field}");
+      requete_part_condition =
+          "upper(replace(replace(name,'_','') , replace(name,'_','') , replace(name,'_','') || '$name_table'))='${name_field_transform.toUpperCase()}'";
+    }
+    var record = (await database.rawQuery(
+            "select name,type from PRAGMA_Table_Info('${name_table}') where ${requete_part_condition}"))
+        .firstOrNull;
+    if (record != null) {
+      return MetaData(
+          nameField: record["name"].toString(),
+          typeField: record["type"].toString());
+    }
+    return MetaData(nameField: "", typeField: "");
+  }
 }

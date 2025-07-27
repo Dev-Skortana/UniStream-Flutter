@@ -33,6 +33,17 @@ class PaginationDisplayState extends State<PaginationDisplay> {
     this.controlTotalFiche = GlobalKey();
   }
 
+  Widget getTextCurrentPositionPagination() {
+    int current_position = 0;
+    if (widget.viewmodelVideo.TotalCount > 0) {
+      current_position = (widget.viewmodelVideo.index + 1);
+    }
+    return Text(key: this.controlNumberFiche, current_position.toString());
+  }
+
+  Widget getTextTotalPagination() => Text(
+      key: this.controlTotalFiche, widget.viewmodelVideo.TotalCount.toString());
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -44,13 +55,9 @@ class PaginationDisplayState extends State<PaginationDisplay> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text("Fiche : "),
-                Text(
-                    key: this.controlNumberFiche,
-                    (widget.viewmodelVideo.index + 1).toString()),
+                this.getTextCurrentPositionPagination(),
                 Text("/"),
-                Text(
-                    key: this.controlTotalFiche,
-                    widget.viewmodelVideo.TotalCount.toString())
+                this.getTextTotalPagination()
               ],
             );
           }),

@@ -1,16 +1,26 @@
+import 'dart:ffi';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:unistream/Helpers/Duration_Util.dart';
+import 'package:unistream/Helpers/Manager_Of_Location_Folder_File_Of_App.dart';
 import 'package:unistream/Models/Video.dart';
+import 'package:unistream/Services/Features/Search_Data/Set_Search.dart';
 import 'package:unistream/ViewModels/Templates/ViewModel_VideoBase.dart';
+import 'package:unistream/ViewModels/ViewModel_AnimeFilm.dart';
+import 'package:unistream/ViewModels/ViewModel_AnimeSerie.dart';
+import 'package:unistream/Views/View_Services/Service_Components_Search.dart';
 
 class VideoBlockDisplay extends StatefulWidget {
   late ValueNotifier videoNotifier;
 
   late ViewmodelVideobase viewmodelVideobase;
-  VideoBlockDisplay(
-      {Key? key,
-      required ViewmodelVideobase viewmodel,
-      required ValueNotifier video_notifier})
-      : super(key: key) {
+  VideoBlockDisplay({
+    Key? key,
+    required ViewmodelVideobase viewmodel,
+    required ValueNotifier video_notifier,
+  }) : super(key: key) {
     this.viewmodelVideobase = viewmodel;
     this.videoNotifier = video_notifier;
   }
@@ -20,62 +30,28 @@ class VideoBlockDisplay extends StatefulWidget {
 }
 
 class VideoBlockDisplayState extends State<VideoBlockDisplay> {
-  late Map<String, dynamic> videosToDisplay;
+  late ValueNotifier fieldNotifier;
+  late Iterable videosToDisplay;
   late bool isComponentSearchSecondaryVisible;
-  late bool hasAttributeStudio;
+  late final bool hasAttributeStudio;
 
   late int index;
-
-  late GlobalKey controlStudio;
-
-  late GlobalKey controlDropdownFieldSearch;
-  late GlobalKey controlContainerComposantsSearch;
-  late GlobalKey controlContainerComposantsFilter;
-  late GlobalKey controlLienAffiche;
-  late GlobalKey controlTitre;
-  late GlobalKey controlDescription;
-  late GlobalKey controlDuree;
-  late GlobalKey controlDateParution;
-  late GlobalKey controlGenres;
-  late GlobalKey controlRealisateurs;
-  late GlobalKey controlPays;
-
-  late GlobalKey controlButtonFirst;
-  late GlobalKey controlButtonPrevious;
-  late GlobalKey controlPagination;
-  late GlobalKey controlButtonLast;
-  late GlobalKey controlButtonNext;
 
   @override
   void initState() {
     super.initState();
-    this.videosToDisplay = super.widget.viewmodelVideobase.video;
+
+    this.videosToDisplay =
+        super.widget.viewmodelVideobase.videosFromDictionnary; // à revoir !
     this.isComponentSearchSecondaryVisible = false;
-    this.hasAttributeStudio = false;
+    this.hasAttributeStudio = [ViewmodelAnimefilm, ViewmodelAnimeserie]
+            .contains(super.widget.viewmodelVideobase.runtimeType)
+        ? true
+        : false;
     this.initializeControlsVideo();
   }
 
-  void initializeControlsVideo() {
-    this.controlDropdownFieldSearch = GlobalKey();
-
-    this.controlContainerComposantsSearch = GlobalKey();
-    this.controlContainerComposantsFilter = GlobalKey();
-
-    this.controlLienAffiche = GlobalKey();
-    this.controlTitre = GlobalKey();
-    this.controlDescription = GlobalKey();
-    this.controlDuree = GlobalKey();
-    this.controlDateParution = GlobalKey();
-    this.controlGenres = GlobalKey();
-    this.controlRealisateurs = GlobalKey();
-    this.controlPays = GlobalKey();
-
-    this.controlButtonFirst = GlobalKey();
-    this.controlButtonPrevious = GlobalKey();
-    this.controlPagination = GlobalKey();
-    this.controlButtonLast = GlobalKey();
-    this.controlButtonNext = GlobalKey();
-  }
+  void initializeControlsVideo() {}
 
   _value_Changed(VoidCallback callback_naviguation) {
     callback_naviguation();
@@ -96,8 +72,6 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
     return chaine;
   }
 
-  Iterable convertIterableNullToIterable(Iterable? items) => [...?items];
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -107,198 +81,220 @@ class VideoBlockDisplayState extends State<VideoBlockDisplay> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 15,
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Row(mainAxisAlignment: MainAxisAlignment.start, children: [
               Container(
-                child: Row(
-                  children: [
-                    DropdownMenu(
-                      key: this.controlDropdownFieldSearch,
-                      dropdownMenuEntries: <DropdownMenuEntry>[],
-                      width: 110,
-                    ),
-                    Container(
-                      key: this.controlContainerComposantsSearch,
-                      child: Column(),
-                    ),
-                    Container(
-                      key: this.controlContainerComposantsFilter,
-                      child: Row(),
-                    ),
-                  ],
-                ),
+                child: ServiceComponentsSearch(
+                    fields_names:
+                        super.widget.viewmodelVideobase.getFieldsSearch(),
+                    function_getTypeOfFieldSelected:
+                        this.widget.viewmodelVideobase.getTypeOfFieldSelected,
+                    functionGetVideosOfSearch:
+                        this.widget.viewmodelVideobase.GetVideosOfSearch,
+                    videoNotifier: this.widget.videoNotifier),
               )
             ]),
             ValueListenableBuilder(
                 valueListenable: widget.videoNotifier,
                 builder: (context, value, child) {
-                  if (value != null) {
-                    return Container(
-                        child: Column(spacing: 0, children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                              key: this.controlLienAffiche,
-                              (value as Video).lienAffiche,
-                              width: 200,
-                              height: 150),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Titre :"),
-                          SizedBox(
-                            width: 80,
-                            child: TextField(
-                              key: this.controlTitre,
-                              decoration: InputDecoration(
-                                  constraints: BoxConstraints(),
-                                  hintText: (value as Video).titre,
-                                  border: InputBorder.none),
-                              readOnly: true,
+                  if (this.isVideosDipslayNotEmpty() == false) {
+                    return Container();
+                  }
+                  Video video = (value as Video);
+                  return SizedBox(
+                      height: 600,
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 3,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (video.lienAffiche.isNotEmpty)
+                                  Image.file(
+                                    File(video.lienAffiche),
+                                    fit: BoxFit.cover,
+                                    width: 200,
+                                    height: 150,
+                                  )
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Description :"),
-                          SizedBox(
-                            width: 80,
-                            child: TextField(
-                              key: this.controlDescription,
-                              readOnly: true,
-                              keyboardType: TextInputType.multiline,
-                              maxLines: 5,
-                              decoration: InputDecoration(
-                                  constraints: BoxConstraints(),
-                                  hintText: (value as Video).description,
-                                  border: InputBorder.none),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Durée :"),
-                          Text(
-                              key: this.controlDuree,
-                              (value as Video).duree.toString()),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Date de parution :"),
-                          Text(
-                              key: this.controlDateParution,
-                              (value as Video).dateParution.toString())
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: this.hasAttributeStudio
-                            ? [
-                                /* Text("Studio de réalisation :"),
-                                Text(
-                                    key: this.controlStudio,
-                                    (super
-                                        .widget
-                                        .viewmodelVideobase
-                                        .video["Video"])
-                                        .studio) */
-                              ]
-                            : [],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Genre :"),
-                          SizedBox(
-                            height: 30,
-                            width: 80,
-                            child: TextField(
-                              maxLines: null,
-                              key: this.controlGenres,
-                              readOnly: true,
-                              decoration: InputDecoration(
-                                  constraints: BoxConstraints(),
-                                  hintText: this._Unsplit([
-                                    for (var item
-                                        in convertIterableNullToIterable(
-                                            value.genres))
-                                      item.nom
-                                  ]),
-                                  border: InputBorder.none),
-                              expands: true,
-                            ),
-                          ),
-                          Column(
-                            children: [
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text("Infos Additionnel : (en dessous !)")
-                                  ]),
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text("Réalisateurs :"),
-                                    SizedBox(
-                                      height: 30,
-                                      width: 80,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Titre :"),
+                                Expanded(
+                                  child: SizedBox(
+                                    height: 50,
+                                    width: 300,
+                                    child: Container(
+                                      margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
                                       child: TextField(
                                         maxLines: null,
-                                        key: this.controlRealisateurs,
+                                        minLines: null,
+                                        decoration: InputDecoration(
+                                            constraints: BoxConstraints(),
+                                            hintText: video.titre,
+                                            border: InputBorder.none),
+                                        readOnly: true,
+                                        expands: true,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Flexible(
+                              fit: FlexFit.loose,
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Text("Description :"),
+                                        SizedBox(height: 5),
+                                        SizedBox(
+                                          width: 350,
+                                          height: 100,
+                                          child: Container(
+                                            clipBehavior: Clip.hardEdge,
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromARGB(
+                                                    0, 43, 42, 41),
+                                                border: Border.all(
+                                                  width: 2,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(12)),
+                                            child: SingleChildScrollView(
+                                              child: TextField(
+                                                maxLines: 200,
+                                                readOnly: true,
+                                                keyboardType:
+                                                    TextInputType.multiline,
+                                                decoration: InputDecoration(
+                                                  constraints: BoxConstraints(),
+                                                  hintText:
+                                                      video.description.trim(),
+                                                  border: OutlineInputBorder(),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  ]),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Durée :"),
+                                Text(DurationUtil.getDurationIntoString(
+                                        video.duree) ??
+                                    ""),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Date de parution :"),
+                                Text(video.dateParution != null
+                                    ? video.dateParution!
+                                        .toIso8601String()
+                                        .split("T")
+                                        .first
+                                    : "")
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: this.hasAttributeStudio
+                                  ? [
+                                      Text("Studio de réalisation :"),
+                                      Text((super
+                                              .widget
+                                              .viewmodelVideobase
+                                              .video["Video"])
+                                          .studio)
+                                    ]
+                                  : [],
+                            ),
+                            Row(
+                                spacing: 5,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Genre :"),
+                                  Flexible(
+                                    child: SizedBox(
+                                      child: TextField(
+                                        maxLines: null,
                                         readOnly: true,
                                         decoration: InputDecoration(
                                             constraints: BoxConstraints(),
                                             hintText: this._Unsplit([
-                                              if (value.realisateurs != null)
-                                                for (var item
-                                                    in value.realisateurs!)
-                                                  item.nom
+                                              for (var item in video.genres)
+                                                item.nom
                                             ]),
                                             border: InputBorder.none),
-                                        expands: true,
                                       ),
-                                    )
-                                  ]),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text("Pays :"),
-                                  SizedBox(
-                                    height: 30,
-                                    width: 80,
-                                    child: TextField(
-                                      maxLines: null,
-                                      key: this.controlPays,
-                                      readOnly: true,
-                                      decoration: InputDecoration(
-                                          constraints: BoxConstraints(),
-                                          hintText: this._Unsplit([
-                                            if (value.pays != null)
-                                              for (var item in value.pays!)
-                                                item.nom
-                                          ]),
-                                          border: InputBorder.none),
-                                      expands: true,
                                     ),
                                   )
-                                ],
-                              ),
-                            ],
-                          )
-                        ],
-                      )
-                    ]));
-                  } else {
-                    return Container();
-                  }
+                                ]),
+                            Column(
+                              spacing: 5,
+                              children: [
+                                Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text("Infos Additionnel : (en dessous !)")
+                                    ]),
+                                Row(
+                                    spacing: 5,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text("Réalisateurs :"),
+                                      Flexible(
+                                        child: SizedBox(
+                                          child: TextField(
+                                            maxLines: null,
+                                            readOnly: true,
+                                            decoration: InputDecoration(
+                                                constraints: BoxConstraints(),
+                                                hintText: this._Unsplit([
+                                                  for (var item
+                                                      in video.realisateurs)
+                                                    item.nom
+                                                ]),
+                                                border: InputBorder.none),
+                                          ),
+                                        ),
+                                      )
+                                    ]),
+                                Row(
+                                  spacing: 5,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("Pays :"),
+                                    Flexible(
+                                      child: SizedBox(
+                                        child: TextField(
+                                          maxLines: null,
+                                          readOnly: true,
+                                          decoration: InputDecoration(
+                                              constraints: BoxConstraints(),
+                                              hintText: this._Unsplit([
+                                                for (var item in video.pays)
+                                                  item.nom
+                                              ]),
+                                              border: InputBorder.none),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            )
+                          ]));
                 }),
             Column(
               spacing: 15,

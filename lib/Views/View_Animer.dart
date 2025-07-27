@@ -33,19 +33,34 @@ class ViewAnimerState extends State<ViewAnimer> {
   FutureBuilder getDataOfMovies() => FutureBuilder(
       future: ViewmodelAnimefilm.create(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
-        } else {
+        }
+        if (snapshot.connectionState == ConnectionState.done) {
           print("Movies");
           try {
             this.viewmodel_anime_film = snapshot.data;
           } on TypeError catch (e) {
             print("TypeError on DataofMovies");
           }
+          if (this.viewmodel_anime_film!.TotalCount <= 0) {
+            return Row(
+              spacing: 10,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Aucun Film Animée"),
+                Icon(
+                  Icons.info_rounded,
+                  color: Colors.white,
+                )
+              ],
+            );
+          }
           this.videoNotifier =
               ValueNotifier(this.viewmodel_anime_film!.video["Video"]);
 
           return Column(
+            spacing: 10,
             children: [
               FilmsBlockDisplay(
                 viewmodel: this.viewmodel_anime_film!,
@@ -57,18 +72,32 @@ class ViewAnimerState extends State<ViewAnimer> {
             ],
           );
         }
+        return Container();
       });
 
   FutureBuilder getDataOfSeries() => FutureBuilder(
       future: ViewmodelAnimeserie.create(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
-        } else {
+        }
+        if (snapshot.connectionState == ConnectionState.done) {
           print("Series");
           try {
             this.viewmodel_anime_serie = snapshot.data;
-
+            if (this.viewmodel_anime_serie!.TotalCount <= 0) {
+              return Row(
+                spacing: 5,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Aucune Serie Animée"),
+                  Icon(
+                    Icons.info_rounded,
+                    color: Colors.white,
+                  )
+                ],
+              );
+            }
             this.videoNotifier =
                 ValueNotifier(this.viewmodel_anime_serie!.video["Video"]);
             return Column(children: [
@@ -82,8 +111,8 @@ class ViewAnimerState extends State<ViewAnimer> {
           } on TypeError catch (e) {
             print('TypeError on DataofSeries');
           }
-          return CircularProgressIndicator();
         }
+        return Container();
       });
 
   valueChangedCategorie(EnumCategorieVideoToDisplay new_categorie) {

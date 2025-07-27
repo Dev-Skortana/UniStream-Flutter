@@ -1,7 +1,12 @@
+import 'package:nameof_annotation/nameof_annotation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:unistream/Models/Video.dart';
 import 'package:unistream/Models/Video_Serie.dart';
 
+part 'Models_MetaData/Anime_Serie.nameof.dart';
+
+@nameof
 class AnimeSerie extends VideoSerie {
   String _studio = "";
   String get studio => this._studio;
@@ -23,8 +28,8 @@ class AnimeSerie extends VideoSerie {
   static AnimeSerie parseToAnimeSerie(
           {required String titre,
           required String description,
-          required TimeOfDay duree,
-          required DateTime dateParution,
+          required TimeOfDay? duree,
+          required DateTime? dateParution,
           required String lienAffiche,
           required String studio}) =>
       AnimeSerie(

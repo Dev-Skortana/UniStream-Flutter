@@ -1,4 +1,4 @@
-import 'package:unistream/Gathering_Datas_Videos_From_Web/Data_Json_Into_Object/Register_Data.dart';
+import 'package:gathering_datas_videos_from_web/gathering_datas_videos_from_web.dart';
 import 'package:unistream/Services/Databases/Interface/ILoad_Manager_Database.dart';
 import 'package:unistream/Services/Databases/Genre_Manager.dart';
 import 'package:unistream/Services/Databases/Pays_Manager.dart';
@@ -42,92 +42,92 @@ class UseDictionnaryServicemanagerBasemodel {
 
   UseDictionnaryServicemanagerBasemodel(RegisterData object_data) {
     this.__DictionnaryServiceManagerBaseModel = {
-      GenreManager: this._getGenresFromString(object_data.Liste_Genres),
-      PaysManager: this._getPaysFromString(object_data.Liste_Pays),
+      GenreManager: this._getGenresFromString(object_data.liste_Genres),
+      PaysManager: this._getPaysFromString(object_data.liste_Pays),
       RealisateurManager:
-          this._getRealisateursFromString(object_data.Liste_Realisateurs),
+          this._getRealisateursFromString(object_data.liste_Realisateurs),
       VideoManager: Video(
-          titre: object_data.Titre,
-          description: object_data.Description,
-          duree: object_data.Duree,
-          date_parution: object_data.Date_Parution,
-          lien_affiche: object_data.Lien_Affiche),
+          titre: object_data.titre,
+          description: object_data.description,
+          duree: object_data.duree,
+          date_parution: object_data.date_Parution,
+          lien_affiche: object_data.lien_Affiche),
       VideoGenreManager: this._getVideoGenresFromString(
-          titre_video: object_data.Titre,
-          genres_string: object_data.Liste_Genres),
+          titre_video: object_data.titre,
+          genres_string: object_data.liste_Genres),
       VideoPaysManager: this._getVideoPaysFromString(
-          titre_video: object_data.Titre, pays_string: object_data.Liste_Pays),
+          titre_video: object_data.titre, pays_string: object_data.liste_Pays),
       VideoRealisateurManager: this._getVideosRealisateursFromString(
-          titre_video: object_data.Titre,
-          realisateurss_string: object_data.Liste_Realisateurs),
+          titre_video: object_data.titre,
+          realisateurss_string: object_data.liste_Realisateurs),
       VideoFimManager: VideoFilm(
           video: Video(
-              titre: object_data.Titre,
-              description: object_data.Description,
-              duree: object_data.Duree,
-              date_parution: object_data.Date_Parution,
-              lien_affiche: object_data.Lien_Affiche)),
+              titre: object_data.titre,
+              description: object_data.description,
+              duree: object_data.duree,
+              date_parution: object_data.date_Parution,
+              lien_affiche: object_data.lien_Affiche)),
       FilmManager: Film(
           videoFilm: VideoFilm(
               video: Video(
-                  titre: object_data.Titre,
-                  description: object_data.Description,
-                  duree: object_data.Duree,
-                  date_parution: object_data.Date_Parution,
-                  lien_affiche: object_data.Lien_Affiche))),
+                  titre: object_data.titre,
+                  description: object_data.description,
+                  duree: object_data.duree,
+                  date_parution: object_data.date_Parution,
+                  lien_affiche: object_data.lien_Affiche))),
       DramaFilmManager: DramaFilm(
           videoFilm: VideoFilm(
               video: Video(
-                  titre: object_data.Titre,
-                  description: object_data.Description,
-                  duree: object_data.Duree,
-                  date_parution: object_data.Date_Parution,
-                  lien_affiche: object_data.Lien_Affiche))),
+                  titre: object_data.titre,
+                  description: object_data.description,
+                  duree: object_data.duree,
+                  date_parution: object_data.date_Parution,
+                  lien_affiche: object_data.lien_Affiche))),
       AnimeFilmManager: AnimeFilm(
           videoFilm: VideoFilm(
               video: Video(
-                  titre: object_data.Titre,
-                  description: object_data.Description,
-                  duree: object_data.Duree,
-                  date_parution: object_data.Date_Parution,
-                  lien_affiche: object_data.Lien_Affiche)),
-          studio: object_data.Studio_Animes),
+                  titre: object_data.titre,
+                  description: object_data.description,
+                  duree: object_data.duree,
+                  date_parution: object_data.date_Parution,
+                  lien_affiche: object_data.lien_Affiche)),
+          studio: object_data.studio_Animes),
       VideoSerieManager: VideoSerie(
           video: Video(
-              titre: object_data.Titre,
-              description: object_data.Description,
-              duree: object_data.Duree,
-              date_parution: object_data.Date_Parution,
-              lien_affiche: object_data.Lien_Affiche)),
+              titre: object_data.titre,
+              description: object_data.description,
+              duree: object_data.duree,
+              date_parution: object_data.date_Parution,
+              lien_affiche: object_data.lien_Affiche)),
       DetailVideoSerieManager: this._getDetailsVideoSeriesFromMap(
-          titre_video: object_data.Titre,
+          titre_video: object_data.titre,
           dictionnarysaisonwithepisodethem:
-              object_data.DictionnarySaisonWithEpisodeThem),
+              object_data.dictionnarySaisonWithEpisodeThem),
       SerieManager: Serie(
           videoSerie: VideoSerie(
               video: Video(
-                  titre: object_data.Titre,
-                  description: object_data.Description,
-                  duree: object_data.Duree,
-                  date_parution: object_data.Date_Parution,
-                  lien_affiche: object_data.Lien_Affiche))),
+                  titre: object_data.titre,
+                  description: object_data.description,
+                  duree: object_data.duree,
+                  date_parution: object_data.date_Parution,
+                  lien_affiche: object_data.lien_Affiche))),
       DramaSerieManager: DramaSerie(
           videoSerie: VideoSerie(
               video: Video(
-                  titre: object_data.Titre,
-                  description: object_data.Description,
-                  duree: object_data.Duree,
-                  date_parution: object_data.Date_Parution,
-                  lien_affiche: object_data.Lien_Affiche))),
+                  titre: object_data.titre,
+                  description: object_data.description,
+                  duree: object_data.duree,
+                  date_parution: object_data.date_Parution,
+                  lien_affiche: object_data.lien_Affiche))),
       AnimeSerieManager: AnimeSerie(
           videoSerie: VideoSerie(
               video: Video(
-                  titre: object_data.Titre,
-                  description: object_data.Description,
-                  duree: object_data.Duree,
-                  date_parution: object_data.Date_Parution,
-                  lien_affiche: object_data.Lien_Affiche)),
-          studio: object_data.Studio_Animes)
+                  titre: object_data.titre,
+                  description: object_data.description,
+                  duree: object_data.duree,
+                  date_parution: object_data.date_Parution,
+                  lien_affiche: object_data.lien_Affiche)),
+          studio: object_data.studio_Animes)
     };
   }
 

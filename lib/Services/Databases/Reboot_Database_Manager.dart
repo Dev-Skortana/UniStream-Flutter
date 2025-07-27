@@ -4,12 +4,12 @@ import 'package:unistream/Database/Data_Initialize.dart';
 class RebootDatabaseManager {
   RebootDatabaseManager();
 
-  void reboot() async {
+  Future<void> reboot() async {
     Database database = await DataInitialize.getDatabase();
-    database.rawDelete("delete from Videos");
-    database.rawDelete("delete from Genres");
-    database.rawDelete("delete from Pays");
-    database.rawDelete("delete from Realisateurs");
-    DataInitialize.closeConnection();
+    await database.rawDelete("delete from Videos");
+    await database.rawDelete("delete from Genres");
+    await database.rawDelete("delete from Pays");
+    await database.rawDelete("delete from Realisateurs");
+    //DataInitialize.closeConnection();
   }
 }

@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sqlite_api.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:unistream/Helpers/Manager_Of_Location_Folder_File_Of_App.dart';
 
 class DataInitialize {
   static Database? _database;
@@ -14,188 +19,39 @@ class DataInitialize {
     if (_database != null) {
       return _database!;
     }
-    _database = await DataInitialize._initDatabase();
+    _database = await DataInitialize.initDB();
+
     return _database!;
   }
 
-  static Future<Database> _initDatabase() async {
-    String path_database =
-        join(await getDatabasesPath(), "Database_UniStream.db");
-    return await openDatabase(
-      path_database,
-      version: 1,
-      onConfigure: (db) async {
-        await db.execute("PRAGMA foreign_keys = ON");
-      },
-      onCreate: (db, version) async {
-        await DataInitialize._createTables(db);
-      },
-      onOpen: (db) async {
-        await DataInitialize._insertDatas(db);
-      },
-    );
+  static Future<Database> initDB() async {
+    if (Platform.isWindows || Platform.isLinux) {
+      sqfliteFfiInit();
+      final databaseFactory = databaseFactoryFfi;
+      final appDocumentsDir =
+          await ManagerOfLocationFolderFileOfApp.getFolderDatabase();
+      final dbPath = join(appDocumentsDir.path, "Database_UniStream.db");
+      final winLinuxDB = await databaseFactory.openDatabase(
+        dbPath,
+        options: OpenDatabaseOptions(onConfigure: (db) async {
+          await DataInitialize._configureDatabase(db);
+        }),
+      );
+      return winLinuxDB;
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      final documentsDirectory =
+          await ManagerOfLocationFolderFileOfApp.getFolderDatabase();
+      final path = join(documentsDirectory.path, "Database_UniStream.db");
+      final iOSAndroidDB = await openDatabase(path, onConfigure: (db) async {
+        await DataInitialize._configureDatabase(db);
+      });
+      return iOSAndroidDB;
+    }
+    throw Exception("Unsupported platform");
   }
 
-  static Future<void> _createTables(Database db) async {
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Videos(Titre varchar(100) primary KEY,Description TEXT,Duree time,Date_Parution date,Lien_Affiche varchar(170))");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Videos_Films(Titre varchar(100) PRIMARY KEY,foreign KEY(Titre) REFERENCES Videos(Titre) On DELETE CASCADE)");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Videos_Series (Titre	varchar(100),PRIMARY KEY(Titre),FOREIGN KEY(Titre) REFERENCES Videos(Titre)  On DELETE CASCADE)");
-    await db.execute(
-        " CREATE TABLE IF NOT EXISTS Details_Videos_Series(Titre varchar(100),Saison INTEGER,Episode INTEGER,PRIMARY KEY(Titre,Saison,Episode),FOREIGN KEY(Titre) REFERENCES Videos_Series(Titre) On DELETE CASCADE)");
-    await db.execute(
-        " CREATE TABLE IF NOT EXISTS Animes_Series(Titre varchar(100) primary KEY,Studio varchar(30),foreign KEY(Titre) REFERENCES Videos_Series(Titre) On DELETE CASCADE)");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Animes_Films (Titre	varchar(100),Studio	varchar(30),FOREIGN KEY(Titre) REFERENCES Videos_Films(Titre) On DELETE CASCADE,PRIMARY KEY(Titre)) ");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Dramas_Films (Titre	varchar(100),PRIMARY KEY(Titre),FOREIGN KEY(Titre) REFERENCES Videos_Films(Titre)  On DELETE CASCADE) ");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Dramas_Series(Titre varchar(100) PRIMARY KEY,FOREIGN KEY(Titre) REFERENCES Videos_Series(Titre) On DELETE CASCADE)");
-    await db.execute(
-        " CREATE TABLE IF NOT EXISTS Films(Titre varchar(100) primary KEY,FOREIGN KEY(Titre) REFERENCES Videos_Films(Titre) On DELETE CASCADE)");
-    await db.execute(
-        " CREATE TABLE IF NOT EXISTS Series(Titre varchar(100) primary KEY,foreign KEY(Titre) REFERENCES Videos_Series(Titre) On DELETE CASCADE)");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Genres(Nom varchar(50) primary KEY)");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Pays(Nom varchar(50) primary KEY)");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Realisateurs(Nom varchar(50) primary KEY)");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Videos_Genres(Titre varchar(100),Nom varchar(50),primary KEY(Titre,Nom),foreign KEY(Titre) REFERENCES Videos(Titre) On DELETE CASCADE,FOREIGN KEY(Nom) REFERENCES Genres(Nom) On DELETE CASCADE)");
-    await db.execute(
-        "CREATE TABLE IF NOT EXISTS Videos_Pays(Titre varchar(100),Nom varchar(50),primary KEY(Titre,Nom),FOREIGN KEY(Titre) REFERENCES Videos(Titre) On DELETE CASCADE,FOREIGN KEY(Nom) REFERENCES Pays(Nom) On DELETE CASCADE)");
-    await db.execute(
-        " CREATE TABLE IF NOT EXISTS Videos_Realisateurs(Titre varchar(100),Nom varchar(50),primary KEY(Titre,Nom),foreign KEY(Titre) REFERENCES Videos(Titre) On DELETE CASCADE,FOREIGN KEY(Nom) REFERENCES Realisateurs(Nom) On DELETE CASCADE)");
-  }
-
-  static Future<void> _insertDatas(Database db) async {
-    await db.execute("insert or ignore into Genres values(?)", ["Aventure"]);
-    await db.execute("insert or ignore into Genres values(?)", ["Action"]);
-    await db.execute("insert or ignore into Genres values(?)", ["Shonen"]);
-    await db.execute("insert or ignore into Genres values(?)", ["Romance"]);
-    await db
-        .execute("insert or ignore into Genres values(?)", ["Tranche de vie"]);
-    await db.execute("insert or ignore into Genres values(?)", ["Comédie"]);
-
-    await db.execute(
-        "insert or ignore into Videos(Titre,Lien_Affiche) values(?,?)", [
-      "Z",
-      "assets/images/video_posters/1539165262_flcl-saison-2-progressive-vostfr.jpg"
-    ]);
-
-    await db.execute(
-        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
-        ["Z", "Aventure"]);
-    await db.execute(
-        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
-        ["Z", "Action"]);
-    await db.execute(
-        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
-        ["Z", "Shonen"]);
-
-    await db
-        .execute("insert or ignore into Videos_Series(Titre) values(?)", ["Z"]);
-
-    await db.execute(
-        "insert or ignore into Videos(Titre,Lien_Affiche) values(?,?)",
-        ["B", "assets/images/video_posters/1586273590_shadowverse_vostfr.jpg"]);
-    await db
-        .execute("insert or ignore into Videos_Films(Titre) values(?)", ["B"]);
-
-    await db.execute(
-        "insert or ignore into Videos(Titre,Lien_Affiche) values(?,?)", [
-      "C",
-      "assets/images/video_posters/1539165262_flcl-saison-2-progressive-vostfr.jpg"
-    ]);
-    await db
-        .execute("insert or ignore into Videos_Series(Titre) values(?)", ["C"]);
-    await db.execute(
-        "insert or ignore into Videos(Titre,Lien_Affiche) values(?,?)", [
-      "e",
-      "assets/images/video_posters/1539165262_flcl-saison-2-progressive-vostfr.jpg"
-    ]);
-    await db
-        .execute("insert or ignore into Videos_Series(Titre) values(?)", ["e"]);
-
-    await db.execute(
-        "insert or ignore into Videos(Titre,Lien_Affiche) values(?,?)",
-        ["g", "assets/images/video_posters/kuzu-no-honkai.jpg"]);
-    await db
-        .execute("insert or ignore into Videos_Series(Titre) values(?)", ["g"]);
-
-    await db.execute(
-        "insert or ignore into Videos(Titre,Lien_Affiche) values(?,?)",
-        ["X", "assets/images/video_posters/kuzu-no-honkai.jpg"]);
-    await db
-        .execute("insert or ignore into Videos_Series(Titre) values(?)", ["X"]);
-
-    await db
-        .execute("insert or ignore into Animes_Series(Titre) values(?)", ["e"]);
-
-    await db
-        .execute("insert or ignore into Animes_Films(Titre) values(?)", ["B"]);
-
-    await db.execute("insert or ignore into Series(Titre) values(?)", ["Z"]);
-    await db.execute("insert or ignore into Series(Titre) values(?)", ["C"]);
-
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["Z", 1, 1]);
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["Z", 1, 2]);
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["Z", 2, 1]);
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["Z", 2, 2]);
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["Z", 2, 3]);
-
-    await db.execute(
-        "insert or ignore into Videos(Titre,Lien_Affiche) values(?,?)", [
-      "shanara",
-      "assets/images/video_posters/1538860831_fei_ren_zai_vostfr.jpg"
-    ]);
-
-    await db.execute(
-        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
-        ["shanara", "Romance"]);
-
-    await db.execute(
-        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
-        ["shanara", "Tranche de vie"]);
-
-    await db.execute(
-        "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
-        ["shanara", "Comédie"]);
-
-    await db.execute(
-        "insert or ignore into Videos_Series(Titre) values(?)", ["shanara"]);
-
-    await db.execute(
-        "insert or ignore into Animes_Series(Titre) values(?)", ["shanara"]);
-
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["shanara", 1, 1]);
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["shanara", 1, 2]);
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["shanara", 1, 3]);
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["shanara", 2, 1]);
-    await db.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        ["shanara", 2, 2]);
+  static FutureOr<void> _configureDatabase(Database db) async {
+    await db.execute("PRAGMA foreign_keys = ON");
   }
 
   static void closeConnection() async {

@@ -18,9 +18,17 @@ class FilmManager implements IloadManagerDatabase {
         "Video": Film.parseToFilm(
             titre: iterator_source_film.current["Titre"],
             description: iterator_source_film.current["Description"] ?? "",
-            duree: iterator_source_film.current["Duree"] ?? TimeOfDay.now(),
-            dateParution:
-                iterator_source_film.current["Date_Parution"] ?? DateTime.now(),
+            duree: iterator_source_film.current["Duree"] != null
+                ? TimeOfDay(
+                    hour: int.parse(
+                        iterator_source_film.current["Duree"].split(":")[0]),
+                    minute: int.parse(
+                        iterator_source_film.current["Duree"].split(":")[1]))
+                : null,
+            dateParution: iterator_source_film.current["Date_Parution"] != null
+                ? DateTime.tryParse(
+                    iterator_source_film.current["Date_Parution"])
+                : null,
             lienAffiche: iterator_source_film.current["Lien_Affiche"] ?? "")
       };
       iteration += 1;
@@ -56,9 +64,14 @@ class FilmManager implements IloadManagerDatabase {
   }
 
   @override
-  Future<void> insert(BaseModel model) async {
-    Database database = await DataInitialize.getDatabase();
-    await database.execute("insert or ignore into Films(Titre) values(?)",
-        [(model as Film).titre]);
+  Future<bool> insert(BaseModel model) async {
+    try {
+      Database database = await DataInitialize.getDatabase();
+      await database.execute("insert or ignore into Films(Titre) values(?)",
+          [(model as Film).titre]);
+    } on DatabaseException catch (exception_database) {
+      return false;
+    } finally {}
+    return true;
   }
 }

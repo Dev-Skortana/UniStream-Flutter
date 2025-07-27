@@ -42,11 +42,16 @@ class DetailVideoSerieManager implements IloadManagerDatabase {
   }
 
   @override
-  Future<void> insert(BaseModel model) async {
-    DetailVideoSerie detailserie = model as DetailVideoSerie;
-    Database database = await DataInitialize.getDatabase();
-    await database.execute(
-        "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
-        [detailserie.titre, detailserie.saison, detailserie.episode]);
+  Future<bool> insert(BaseModel model) async {
+    try {
+      DetailVideoSerie detailserie = model as DetailVideoSerie;
+      Database database = await DataInitialize.getDatabase();
+      await database.execute(
+          "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
+          [detailserie.titre, detailserie.saison, detailserie.episode]);
+    } on DatabaseException catch (exception_database) {
+      return false;
+    } finally {}
+    return true;
   }
 }

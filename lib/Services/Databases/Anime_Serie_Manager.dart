@@ -10,6 +10,7 @@ import 'package:unistream/Services/Databases/Interface/ILoad_Manager_Database.da
 class AnimeSerieManager implements IloadManagerDatabase {
   @override
   Iterable GetGen(item) sync* {
+    //TODO
     Iterator iterator_source_animeserie = item[0].iterator;
     int iteration = 0;
     while (iterator_source_animeserie.moveNext()) {
@@ -19,10 +20,19 @@ class AnimeSerieManager implements IloadManagerDatabase {
             titre: iterator_source_animeserie.current["Titre"],
             description:
                 iterator_source_animeserie.current["Description"] ?? "",
-            duree:
-                iterator_source_animeserie.current["Duree"] ?? TimeOfDay.now(),
-            dateParution: iterator_source_animeserie.current["Date_Parution"] ??
-                DateTime.now(),
+            duree: iterator_source_animeserie.current["Duree"] != null
+                ? TimeOfDay(
+                    hour: int.parse(iterator_source_animeserie.current["Duree"]
+                        .split(":")[0]),
+                    minute: int.parse(iterator_source_animeserie
+                        .current["Duree"]
+                        .split(":")[1]))
+                : null,
+            dateParution:
+                iterator_source_animeserie.current["Date_Parution"] != null
+                    ? DateTime.tryParse(
+                        iterator_source_animeserie.current["Date_Parution"])
+                    : null,
             lienAffiche:
                 iterator_source_animeserie.current["Lien_Affiche"] ?? "",
             studio: iterator_source_animeserie.current["Studio"] ?? "")
@@ -59,10 +69,15 @@ class AnimeSerieManager implements IloadManagerDatabase {
   }
 
   @override
-  Future<void> insert(BaseModel model) async {
-    Database database = await DataInitialize.getDatabase();
-    await database.execute(
-        "insert or ignore into Animes_Series(Titre,Studio) values(?,?)",
-        [(model as AnimeSerie).titre, (model as AnimeSerie).studio]);
+  Future<bool> insert(BaseModel model) async {
+    try {
+      Database database = await DataInitialize.getDatabase();
+      await database.execute(
+          "insert or ignore into Animes_Series(Titre,Studio) values(?,?)",
+          [(model as AnimeSerie).titre, (model as AnimeSerie).studio]);
+    } on DatabaseException catch (exception_database) {
+      return false;
+    } finally {}
+    return true;
   }
 }

@@ -18,12 +18,27 @@ class ViewFilmState extends State<ViewFilm> {
   FutureBuilder getData() => FutureBuilder(
       future: ViewmodelFilm.create(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
-        } else {
+        }
+        if (snapshot.connectionState == ConnectionState.done) {
           this.viewmodel = snapshot.data;
+          if (this.viewmodel!.TotalCount <= 0) {
+            return Row(
+              spacing: 5,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Aucun Film"),
+                Icon(
+                  Icons.info_rounded,
+                  color: Colors.white,
+                )
+              ],
+            );
+          }
           this.videoNotifier = ValueNotifier(this.viewmodel!.video["Video"]);
           return Column(
+            spacing: 10,
             children: [
               Container(
                 alignment: Alignment.center,
@@ -44,16 +59,18 @@ class ViewFilmState extends State<ViewFilm> {
             ],
           );
         }
+        return Container();
       });
 
   @override
   void initState() {
     super.initState();
-    this.data = this.getData();
+
+    ///this.data = this.getData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(child: this.data);
+    return SingleChildScrollView(child: this.getData());
   }
 }

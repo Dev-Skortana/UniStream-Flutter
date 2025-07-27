@@ -31,10 +31,15 @@ class VideoSerieManager implements IloadManagerDatabase {
   }
 
   @override
-  Future<void> insert(BaseModel model) async {
-    Database database = await DataInitialize.getDatabase();
-    await database.execute(
-        "insert or ignore into Videos_Series(Titre) values(?)",
-        [(model as VideoSerie).titre]);
+  Future<bool> insert(BaseModel model) async {
+    try {
+      Database database = await DataInitialize.getDatabase();
+      await database.execute(
+          "insert or ignore into Videos_Series(Titre) values(?)",
+          [(model as VideoSerie).titre]);
+    } on DatabaseException catch (exception_database) {
+      return false;
+    } finally {}
+    return true;
   }
 }

@@ -1,6 +1,0 @@
-enum EnumerationPanelsLinks {
-  HavePanelLinksSaisons_And_HavePanelLinksEpisodes,
-  HavePanelLinksSaisons_And_DontHavePanelLinksEpisodes,
-  DontHavePanelLinksSaison_And_HavePanelLinksEpisodes,
-  DontHavePanelLinksSaisons_And_DontHavePanelLinksEpisodes,
-}

@@ -15,9 +15,9 @@ class DropdownOnglets extends StatelessWidget {
         spacing: 0,
         children: [
           DropdownMenu(
+            hintText: "Onglet",
             initialSelection: "Films",
             label: Text("Films"),
-            hintText: "Onglet",
             dropdownMenuEntries: <DropdownMenuEntry>[
               DropdownMenuEntry(value: "Video_Film", label: "Films"),
               DropdownMenuEntry(value: "Video_Serie", label: "Séries")

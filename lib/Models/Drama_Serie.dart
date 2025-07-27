@@ -15,8 +15,8 @@ class DramaSerie extends VideoSerie {
   static DramaSerie parseToDramaSerie(
           {required String titre,
           required String description,
-          required TimeOfDay duree,
-          required DateTime dateParution,
+          required TimeOfDay? duree,
+          required DateTime? dateParution,
           required String lienAffiche}) =>
       DramaSerie(
         videoSerie: VideoSerie(

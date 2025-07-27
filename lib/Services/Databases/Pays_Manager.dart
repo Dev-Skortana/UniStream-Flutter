@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:unistream/Database/Data_Initialize.dart';
 import 'package:unistream/Models/Pays.dart';
@@ -14,13 +15,13 @@ class PaysManager implements IloadManagerDatabase {
   @override
   Future<List<Map<String, dynamic>>> getList(Map<String, Object> fields) async {
     Database database = await DataInitialize.getDatabase();
-    List<Map<String, dynamic>> Records = await database.rawQuery(
-        "select Pays.Nom from Pays inner join Videos on Pays.Titre=Videos.Titre where Videos.Titre=",
-        [fields["Titre"]]);
+    List<Map<String, dynamic>> Records =
+        await database.rawQuery("select Pays.Nom from Pays");
     //DataInitialize.closeConnection();
     List<Map<String, dynamic>> genres = [];
     for (var record_genre in Records) {
-      genres.add({"nom": record_genre[0]});
+      debugPrint(record_genre["Nom"]);
+      genres.add({"nom": record_genre["Nom"]});
     }
     return genres;
   }
@@ -34,9 +35,14 @@ class PaysManager implements IloadManagerDatabase {
   }
 
   @override
-  Future<void> insert(BaseModel model) async {
-    Database database = await DataInitialize.getDatabase();
-    await database.execute(
-        "insert or ignore into Pays(Nom) values(?)", [(model as Pays).nom]);
+  Future<bool> insert(BaseModel model) async {
+    try {
+      Database database = await DataInitialize.getDatabase();
+      await database.execute(
+          "insert or ignore into Pays(Nom) values(?)", [(model as Pays).nom]);
+    } on DatabaseException catch (exception_database) {
+      return false;
+    } finally {}
+    return true;
   }
 }

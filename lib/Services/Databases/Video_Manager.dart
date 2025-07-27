@@ -4,6 +4,7 @@ import 'package:unistream/Database/Data_Initialize.dart';
 import 'package:unistream/Models/Templates/Base_Model.dart';
 import 'package:unistream/Models/Video.dart';
 import 'package:unistream/Services/Databases/Interface/ILoad_Manager_Database.dart';
+import 'package:unistream/Helpers/Duration_Util.dart';
 
 class VideoManager implements IloadManagerDatabase {
   @override
@@ -17,7 +18,8 @@ class VideoManager implements IloadManagerDatabase {
             titre: iterator_source_video.current["Titre"],
             description: iterator_source_video.current["Description"],
             duree: iterator_source_video.current["Duree"],
-            dateParution: iterator_source_video.current["Date_Parution"],
+            dateParution: DateTime.tryParse(
+                iterator_source_video.current["Date_Parution"]),
             lienAffiche: iterator_source_video.current["Lien_Affiche"])
       };
       iteration += 1;
@@ -44,19 +46,28 @@ class VideoManager implements IloadManagerDatabase {
   }
 
   @override
-  Future<void> insert(BaseModel model) async {
-    String duree_into_caracteres = "11:50:30";
-    Video video = model as Video;
-    Database database = await DataInitialize.getDatabase();
-    await database.execute(
-        "insert or ignore into Videos(Titre,Description,Duree,Date_Parution,Lien_Affiche) values(?,?,time(?),?,?)",
-        [
-          video.titre,
-          video.description,
-          duree_into_caracteres,
-          video.dateParution,
-          video.lienAffiche
-        ]);
+  Future<bool> insert(BaseModel model) async {
+    //TODO
+    try {
+      Video video = model as Video;
+      String? duree_into_caracteres =
+          DurationUtil.getDurationIntoString(video.duree);
+      String? date_parution_into_caracteres =
+          video.dateParution?.toIso8601String().split("T").firstOrNull;
+      Database database = await DataInitialize.getDatabase();
+      await database.execute(
+          "insert or ignore into Videos(Titre,Description,Duree,Date_Parution,Lien_Affiche) values(?,?,time(?),?,?)",
+          [
+            video.titre,
+            video.description,
+            duree_into_caracteres,
+            date_parution_into_caracteres,
+            video.lienAffiche
+          ]);
+    } on DatabaseException catch (exception_database) {
+      return false;
+    } finally {}
+    return true;
   }
 
   void UpdateFieldPoster(String title, String path_poster) async {

@@ -1,7 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:nameof_annotation/nameof_annotation.dart';
 
+import 'package:flutter/material.dart';
+import 'package:unistream/Helpers/Manager_Of_Location_Folder_File_Of_App.dart';
 import 'Templates/Base_Model.dart';
 
+part 'Models_MetaData/Video.nameof.dart';
+
+@nameof
 class Video extends BaseModel {
   @protected
   String _titre = "";
@@ -9,9 +14,9 @@ class Video extends BaseModel {
   TimeOfDay? _duree;
   DateTime? _dateParution;
   String _lienAffiche = "";
-  Iterable? _pays = [];
-  Iterable? _genres = [];
-  Iterable? _realisateurs = [];
+  Iterable _pays = [];
+  Iterable _genres = [];
+  Iterable _realisateurs = [];
 
   String get titre => _titre;
   void set titre(String value) {
@@ -38,18 +43,18 @@ class Video extends BaseModel {
     this._lienAffiche = value;
   }
 
-  Iterable? get pays => this._pays;
-  void set pays(Iterable? value) {
+  Iterable get pays => this._pays;
+  void set pays(Iterable value) {
     this._pays = value;
   }
 
-  Iterable? get genres => this._genres;
-  void set genres(Iterable? value) {
+  Iterable get genres => this._genres;
+  void set genres(Iterable value) {
     this._genres = value;
   }
 
-  Iterable? get realisateurs => this._realisateurs;
-  void set realisateurs(Iterable? value) {
+  Iterable get realisateurs => this._realisateurs;
+  void set realisateurs(Iterable value) {
     this._realisateurs = value;
   }
 
@@ -59,9 +64,9 @@ class Video extends BaseModel {
       TimeOfDay? duree,
       DateTime? date_parution,
       String lien_affiche = "",
-      Iterable? pays,
-      Iterable? genres,
-      Iterable? realisateurs})
+      Iterable pays = const [],
+      Iterable genres = const [],
+      Iterable realisateurs = const []})
       : super() {
     this._titre = titre;
     this._description = description;
@@ -73,8 +78,8 @@ class Video extends BaseModel {
   static Video parseToVideo(
           {required String titre,
           required String description,
-          required TimeOfDay duree,
-          required DateTime dateParution,
+          required TimeOfDay? duree,
+          required DateTime? dateParution,
           required String lienAffiche}) =>
       Video(
           titre: titre,
@@ -86,9 +91,8 @@ class Video extends BaseModel {
   static Video getEmptyVideo() => Video(
         titre: "",
         description: "",
-        duree: TimeOfDay.now(),
-        date_parution: DateTime.now(),
-        lien_affiche:
-            "assets/images/video_posters/visuals-NotFound-unsplash.jpg",
+        duree: TimeOfDay(hour: 0, minute: 0),
+        date_parution: null,
+        lien_affiche: "",
       );
 }

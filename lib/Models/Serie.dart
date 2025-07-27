@@ -14,8 +14,8 @@ class Serie extends VideoSerie {
   static Serie parseToSerie(
           {required String titre,
           required String description,
-          required TimeOfDay duree,
-          required DateTime dateParution,
+          required TimeOfDay? duree,
+          required DateTime? dateParution,
           required String lienAffiche}) =>
       Serie(
           videoSerie: VideoSerie(

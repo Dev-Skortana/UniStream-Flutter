@@ -1,5 +1,10 @@
+import 'package:nameof_annotation/nameof_annotation.dart';
+
 import 'package:unistream/Models/Templates/Base_Model.dart';
 
+part 'Models_MetaData/Detail_Video_Serie.nameof.dart';
+
+@nameof
 class DetailVideoSerie extends BaseModel {
   String _titre = "";
   int _saison = 0;

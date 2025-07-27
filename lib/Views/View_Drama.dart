@@ -33,18 +33,33 @@ class ViewDramaState extends State<ViewDrama> {
   FutureBuilder getDataOfMovies() => FutureBuilder(
       future: ViewmodelDramafilm.create(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
-        } else {
+        }
+        if (snapshot.connectionState == ConnectionState.done) {
           print("Movies");
           try {
             this.viewmodel_drama_film = snapshot.data;
           } on TypeError catch (e) {
             print("TypeError on DataofMovies");
           }
+          if (this.viewmodel_drama_film!.TotalCount <= 0) {
+            return Row(
+              spacing: 5,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Aucun Film Drama"),
+                Icon(
+                  Icons.info_rounded,
+                  color: Colors.white,
+                )
+              ],
+            );
+          }
           this.videoNotifier =
               ValueNotifier(this.viewmodel_drama_film!.video["Video"]);
           return Column(
+            spacing: 10,
             children: [
               FilmsBlockDisplay(
                 viewmodel: this.viewmodel_drama_film!,
@@ -56,21 +71,35 @@ class ViewDramaState extends State<ViewDrama> {
             ],
           );
         }
+        return Container();
       });
 
   FutureBuilder getDataOfSeries() => FutureBuilder(
       future: ViewmodelDramaserie.create(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
-        } else {
+        }
+        if (snapshot.connectionState == ConnectionState.done) {
           print("Series");
           try {
             this.viewmodel_drama_serie = snapshot.data;
-
+            if (this.viewmodel_drama_serie!.TotalCount <= 0) {
+              return Row(
+                spacing: 5,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Aucune Serie Drama"),
+                  Icon(
+                    Icons.info_rounded,
+                    color: Colors.white,
+                  )
+                ],
+              );
+            }
             this.videoNotifier =
                 ValueNotifier(this.viewmodel_drama_serie!.video["Video"]);
-            return Column(children: [
+            return Column(spacing: 10, children: [
               SeriesBlockDisplay(
                   viewmodel: this.viewmodel_drama_serie!,
                   video_notifier: this.videoNotifier!),
@@ -81,8 +110,8 @@ class ViewDramaState extends State<ViewDrama> {
           } on TypeError catch (e) {
             print('TypeError on DataofSeries');
           }
-          return CircularProgressIndicator();
         }
+        return Container();
       });
 
   valueChangedCategorie(EnumCategorieVideoToDisplay new_categorie) {

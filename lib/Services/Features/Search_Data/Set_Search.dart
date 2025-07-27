@@ -22,11 +22,11 @@ class SetSearch {
     this._value_of_search = value;
   }
 
-  late Object _value_of_search_secondary = "";
+  late Object? _value_of_search_secondary = "";
 
-  Object get valueOfSearchSecondary => this._value_of_search_secondary;
-  void set valueOfSearchSecondary(Object value) {
-    this._value_of_search_secondary = value;
+  Object? get valueOfSearchSecondary => this._value_of_search_secondary;
+  void set valueOfSearchSecondary(Object? value) {
+    this._value_of_search_secondary = value!;
   }
 
   late EnumerationsMethodesRecherches _methode_recherche;
@@ -38,5 +38,6 @@ class SetSearch {
   }
 
   SetSearch(this._typeField, this._field, this._value_of_search,
-      this._value_of_search_secondary, this._methode_recherche);
+      this._methode_recherche,
+      [this._value_of_search_secondary]);
 }

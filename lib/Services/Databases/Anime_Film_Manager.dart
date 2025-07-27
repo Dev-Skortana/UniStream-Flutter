@@ -18,10 +18,18 @@ class AnimeFilmManager implements IloadManagerDatabase {
         "Video": AnimeFilm.parseToAnimeFilm(
             titre: iterator_source_animefilm.current["Titre"],
             description: iterator_source_animefilm.current["Description"] ?? "",
-            duree:
-                iterator_source_animefilm.current["Duree"] ?? TimeOfDay.now(),
-            dateParution: iterator_source_animefilm.current["Date_Parution"] ??
-                DateTime.now(),
+            duree: iterator_source_animefilm.current["Duree"] != null
+                ? TimeOfDay(
+                    hour: int.parse(iterator_source_animefilm.current["Duree"]
+                        .split(":")[0]),
+                    minute: int.parse(iterator_source_animefilm.current["Duree"]
+                        .split(":")[1]))
+                : null,
+            dateParution:
+                iterator_source_animefilm.current["Date_Parution"] != null
+                    ? DateTime.tryParse(
+                        iterator_source_animefilm.current["Date_Parution"])
+                    : null,
             lienAffiche:
                 iterator_source_animefilm.current["Lien_Affiche"] ?? "",
             studio: iterator_source_animefilm.current["Studio"] ?? "")
@@ -56,10 +64,15 @@ class AnimeFilmManager implements IloadManagerDatabase {
   }
 
   @override
-  Future<void> insert(BaseModel model) async {
-    Database database = await DataInitialize.getDatabase();
-    await database.execute(
-        "insert or ignore into Animes_Films(Titre,Studio) values(?,?)",
-        [(model as AnimeFilm).titre, (model as AnimeFilm).studio]);
+  Future<bool> insert(BaseModel model) async {
+    try {
+      Database database = await DataInitialize.getDatabase();
+      await database.execute(
+          "insert or ignore into Animes_Films(Titre,Studio) values(?,?)",
+          [(model as AnimeFilm).titre, (model as AnimeFilm).studio]);
+    } on DatabaseException catch (exception_database) {
+      return false;
+    } finally {}
+    return true;
   }
 }

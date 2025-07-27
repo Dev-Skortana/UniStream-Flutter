@@ -1,0 +1,65 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "unistream",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "unistream (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "unistream (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "gathering_datas_videos_from_web",
+            "cwd": "packages\\gathering_datas_videos_from_web",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "gathering_datas_videos_from_web (profile mode)",
+            "cwd": "packages\\gathering_datas_videos_from_web",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "gathering_datas_videos_from_web (release mode)",
+            "cwd": "packages\\gathering_datas_videos_from_web",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "gathering_urls_videos_from_web",
+            "cwd": "packages\\gathering_urls_videos_from_web",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "gathering_urls_videos_from_web (profile mode)",
+            "cwd": "packages\\gathering_urls_videos_from_web",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "gathering_urls_videos_from_web (release mode)",
+            "cwd": "packages\\gathering_urls_videos_from_web",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
