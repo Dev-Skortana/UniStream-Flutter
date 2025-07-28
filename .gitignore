@@ -46,6 +46,5 @@ app.*.map.json
 
 #Others
 requetes SQL mémo .txt
-.local-chrome/
-/integration_test/
-/test/
+/integration_test
+/test
