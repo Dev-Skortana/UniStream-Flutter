@@ -5,7 +5,7 @@ on:
     branch: [master]
 
 permissions:
-  content: read
+  contents: read
   packages: write
   statuses: write
 
@@ -13,37 +13,37 @@ jobs:
   release-project:
     runs-on: ubuntu-latest
 
-  steps:
-    - name: checkout code
-      uses: actions/checkout@v4
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
 
-    - name: Build the APK
-    - run: |
-        flutter build apk --release
-        zip --junk-paths app-release build/app/outputs/flutter-apk/app-release.apk
+      - name: Build the APK
+        run: |
+          flutter build apk --release
+          zip --junk-paths app-release build/app/outputs/flutter-apk/app-release.apk
 
-    - name: Create Github release
-      id: create-new-release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body:
-          Change in this Release
-            - First Change
-            - Second Change
-        draft: false
-        prerelease: false
+      - name: Create Github release
+        id: create-new-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body:
+            Change in this Release
+              - First Change
+              - Second Change
+          draft: false
+          prerelease: false
 
-    - name: Upload release APK
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./app-release.zip
-        asset_name: app-release-${{ github.run_number }}.zip
-        asset_content_type: application/zip
+      - name: Upload release APK
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-new-release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./app-release.zip
+          asset_name: app-release-${{ github.run_number }}.zip
+          asset_content_type: application/zip
       
