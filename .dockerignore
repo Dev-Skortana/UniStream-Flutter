@@ -1,0 +1,16 @@
+.git/
+.dart_tool/
+.packages
+build/
+ios/
+android/
+macos/
+linux/
+windows/
+test/
+*.md
+.gitignore
+.metadata
+analysis_options.yaml
+docker-compose.yml
+Dockerfile

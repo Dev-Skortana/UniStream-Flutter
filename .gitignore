@@ -45,6 +45,9 @@ app.*.map.json
 /android/app/release
 
 #Others
+.env
+Dockerfile
+docker-compose.yml
 requetes SQL mémo .txt
 /integration_test
 /test
