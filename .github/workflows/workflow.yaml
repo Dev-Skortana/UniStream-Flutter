@@ -26,7 +26,7 @@ jobs:
 
       - name: Build the APK
         run: |
-          git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
           flutter pub get
           flutter build apk --release
           zip --junk-paths app-release build/app/outputs/flutter-apk/app-release.apk
