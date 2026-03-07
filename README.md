@@ -1,21 +1,24 @@
-# unistream
+<p align="center">
+  <img src="assets/images/Ressources/logo_unistream.svg" width="320" alt="UniStream Logo"/>
+</p>
 
-Introduction:
+<h1 align="center">UniStream</h1>
 
-Cette application permet d'avoir une bibliothèque multimédia de poche. 
+<p align="center">
+  <em>Bibliothèque multimédia de poche — Anime · Drama · Films · Séries</em>
+</p>
 
-C'est une application developper à l'origine en python avec flet(framwork flutter pour python).
-# 📱 UniStream — Application Flutter
-
-> **UniStream** est une bibliothèque multimédia de poche, disponible sur mobile, desktop et web.  
-> Retrouvez et organisez vos animes préférés depuis une interface moderne et fluide, alimentée par une [API de scraping dédiée](https://github.com/Dev-Skortana/api-unistream).
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white" alt="Flutter"/>
+  <img src="https://img.shields.io/badge/Dart-79%25-0175C2?logo=dart&logoColor=white" alt="Dart"/>
+  <img src="https://img.shields.io/github/v/release/Dev-Skortana/UniStream-Flutter" alt="Release"/>
+  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-lightgrey" alt="Platforms"/>
+</p>
 
 ---
 
-![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-79%25-0175C2?logo=dart&logoColor=white)
-![Release](https://img.shields.io/github/v/release/Dev-Skortana/UniStream-Flutter)
-![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-lightgrey)
+> **UniStream** est une bibliothèque multimédia de poche, disponible sur mobile, desktop et web.
+> Retrouvez et organisez vos animes préférés depuis une interface moderne et fluide, alimentée par une [API de scraping dédiée](https://github.com/Dev-Skortana/api-unistream).
 
 ---
 
