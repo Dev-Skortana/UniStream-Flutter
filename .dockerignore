@@ -1,0 +1,9 @@
+# Ignore build directories
+/build
+/dist
+
+#Others
+.dockerignore
+Dockerfile_Developpement.Dockerfile
+docker-compose_Developpement.yml
+requetes SQL mémo .txt

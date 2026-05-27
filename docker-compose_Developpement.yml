@@ -1,0 +1,42 @@
+services:
+  app:
+    container_name: Container_unistream_app
+    build:
+      context: .
+      dockerfile: Dockerfile_Developpement.Dockerfile
+    networks:
+      - monreseau_unistream_flutter
+  
+  sqlite:
+    build:
+    context: ./Database
+    dockerfile: Dockerfile
+    container_name: Container_unistream_sqlite
+    hostname: sqlite.hibit
+    ports:
+      - "8191:8191"
+    volumes:
+      - database-data_unistream_flutter:/db
+    networks:
+    - monreseau_unistream_flutter
+    command: ["tail", "-f", "/dev/null"]
+  
+  sqlitebrowser:
+    images : linuxserver/sqlitebrowser:latest
+    container_name: Container_unistream_sqlitebrowser
+    hostname: sqlite.hibit
+    ports:
+      - "5030:3000"
+      - "5020:3001"
+    volumes:
+      - sqlitebrowser:/config
+    networks:
+    - monreseau_unistream_flutter
+    command: ["tail", "-f", "/dev/null"]
+
+volumes:
+  database-data_unistream_flutter:
+  sqlitebrowser:
+
+networks:
+  monreseau_unistream_flutter:
