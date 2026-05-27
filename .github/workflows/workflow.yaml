@@ -1,0 +1,56 @@
+name: Management workflows of this project
+
+on:
+  push:
+     # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+permissions:
+  contents: write
+  packages: write
+  statuses: write
+
+jobs:
+  release-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important : récupère tout l'historique git pour que merge-base fonctionne
+
+      - name: Check if tag is on master
+        run: |
+          git fetch origin master
+          git merge-base --is-ancestor ${{ github.sha }} origin/master || (echo "Tag not on master" && exit 1)
+
+      - name: Install flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.32.1
+      - run: flutter --version
+
+      - name: Build the APK
+        run: |
+          git config --global url."https://${{ secrets.GH_PAT_UNISTREAM_FLUTTER }}@github.com/".insteadOf "https://github.com/"
+          flutter pub get
+          flutter build apk --release
+          zip --junk-paths app-release build/app/outputs/flutter-apk/app-release.apk
+
+
+      - name: Create Github release and upload
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+          files: ./app-release.zip
+          
+      

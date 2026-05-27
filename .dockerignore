@@ -1,6 +1,18 @@
-# Ignore build directories
-/build
+.git/
+.dart_tool/
+.packages
+build/
 /dist
+ios/
+android/
+macos/
+linux/
+windows/
+test/
+*.md
+.gitignore
+.metadata
+analysis_options.yaml
 
 #Others
 .dockerignore

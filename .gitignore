@@ -45,6 +45,11 @@ app.*.map.json
 /android/app/release
 
 #Others
+.env
+Dockerfile
+/sqlite_browser/
+docker-compose.yml
 requetes SQL mémo .txt
 /integration_test
 /test
+docker_use_image/sqlite_browser/config/
