@@ -40,7 +40,7 @@ class PaysManager implements IloadManagerDatabase {
       Database database = await DataInitialize.getDatabase();
       await database.execute(
           "insert or ignore into Pays(Nom) values(?)", [(model as Pays).nom]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

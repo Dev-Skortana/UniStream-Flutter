@@ -9,6 +9,7 @@ import 'package:unistream/Views/View_Enregistrement.dart';
 import 'package:unistream/Views/View_Film.dart';
 import 'package:unistream/Views/View_Serie.dart';
 import 'package:unistream/Views/View_Site_Stream_Register.dart';
+import 'package:unistream/Views/View_Synchronisation.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -88,6 +89,12 @@ class MainWrapperState extends State<MainWrapper> {
         leading: Icon(Icons.video_library_rounded),
         centerTitle: true,
         actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.sync),
+            tooltip: 'Synchronisation avec le serveur UniStream',
+            onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ViewSynchronisation())),
+          ),
           IconButton(
             icon: Icon(this.iconDataMode),
             style: ButtonStyle(

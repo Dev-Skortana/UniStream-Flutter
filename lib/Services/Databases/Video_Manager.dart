@@ -64,7 +64,7 @@ class VideoManager implements IloadManagerDatabase {
             date_parution_into_caracteres,
             video.lienAffiche
           ]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

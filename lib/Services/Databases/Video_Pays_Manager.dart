@@ -44,7 +44,7 @@ class VideoPaysManager implements IloadManagerDatabase {
       await database.execute(
           "insert or ignore into Videos_Pays(Titre,Nom) values(?,?)",
           [(model as VideoPays).titre, (model as VideoPays).nom]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

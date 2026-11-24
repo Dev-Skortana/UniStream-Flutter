@@ -41,7 +41,7 @@ class RealisateurManager implements IloadManagerDatabase {
       await database.execute(
           "insert or ignore into Realisateurs(Nom) values(?)",
           [(model as Realisateur).nom]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

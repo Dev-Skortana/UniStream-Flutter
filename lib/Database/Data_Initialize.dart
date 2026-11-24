@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sqlite_api.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:unistream/Helpers/Manager_Of_Location_Folder_File_Of_App.dart';
+import 'package:unistream/Services/Databases/Migrations_Base.dart';
 
 class DataInitialize {
   static Database? _database;
@@ -33,9 +34,12 @@ class DataInitialize {
       final dbPath = join(appDocumentsDir.path, "Database_UniStream.db");
       final winLinuxDB = await databaseFactory.openDatabase(
         dbPath,
-        options: OpenDatabaseOptions(onConfigure: (db) async {
-          await DataInitialize._configureDatabase(db);
-        }),
+        options: OpenDatabaseOptions(
+          onConfigure: (db) async {
+            await DataInitialize._configureDatabase(db);
+          },
+          onOpen: MigrationsBase.appliquer,
+        ),
       );
       return winLinuxDB;
     } else if (Platform.isAndroid || Platform.isIOS) {
@@ -44,7 +48,7 @@ class DataInitialize {
       final path = join(documentsDirectory.path, "Database_UniStream.db");
       final iOSAndroidDB = await openDatabase(path, onConfigure: (db) async {
         await DataInitialize._configureDatabase(db);
-      });
+      }, onOpen: MigrationsBase.appliquer);
       return iOSAndroidDB;
     }
     throw Exception("Unsupported platform");

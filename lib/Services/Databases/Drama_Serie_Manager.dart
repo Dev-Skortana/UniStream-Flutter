@@ -73,7 +73,7 @@ class DramaSerieManager implements IloadManagerDatabase {
       await database.execute(
           "insert or ignore into Dramas_Series(Titre) values(?)",
           [(model as DramaSerie).titre]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

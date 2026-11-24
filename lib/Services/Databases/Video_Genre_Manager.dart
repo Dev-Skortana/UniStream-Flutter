@@ -44,7 +44,7 @@ class VideoGenreManager implements IloadManagerDatabase {
       await database.execute(
           "insert or ignore into Videos_Genres(Titre,Nom) values(?,?)",
           [(model as VideoGenre).titre, (model as VideoGenre).nom]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

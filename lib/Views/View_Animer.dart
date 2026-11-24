@@ -40,7 +40,7 @@ class ViewAnimerState extends State<ViewAnimer> {
           print("Movies");
           try {
             this.viewmodel_anime_film = snapshot.data;
-          } on TypeError catch (e) {
+          } on TypeError {
             print("TypeError on DataofMovies");
           }
           if (this.viewmodel_anime_film!.TotalCount <= 0) {
@@ -108,7 +108,7 @@ class ViewAnimerState extends State<ViewAnimer> {
                   viewmodel_Video: this.viewmodel_anime_serie!,
                   video_notifier: this.videoNotifier!)
             ]);
-          } on TypeError catch (e) {
+          } on TypeError {
             print('TypeError on DataofSeries');
           }
         }

@@ -70,7 +70,7 @@ class AnimeFilmManager implements IloadManagerDatabase {
       await database.execute(
           "insert or ignore into Animes_Films(Titre,Studio) values(?,?)",
           [(model as AnimeFilm).titre, (model as AnimeFilm).studio]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

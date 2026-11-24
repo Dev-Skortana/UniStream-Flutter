@@ -37,7 +37,7 @@ class VideoFimManager implements IloadManagerDatabase {
       await database.execute(
           "insert or ignore into Videos_Films(Titre) values(?)",
           [(model as VideoFilm).titre]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

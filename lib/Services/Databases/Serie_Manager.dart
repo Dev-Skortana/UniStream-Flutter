@@ -68,7 +68,7 @@ class SerieManager implements IloadManagerDatabase {
       Database database = await DataInitialize.getDatabase();
       await database.execute("insert or ignore into Series(Titre) values(?)",
           [(model as Serie).titre]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

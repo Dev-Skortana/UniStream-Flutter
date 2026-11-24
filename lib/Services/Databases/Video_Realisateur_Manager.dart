@@ -44,7 +44,7 @@ class VideoRealisateurManager implements IloadManagerDatabase {
       await database.execute(
           "insert or ignore into Videos_Realisateurs(Titre,Nom) values(?,?)",
           [(model as VideoRealisateur).titre, (model as VideoRealisateur).nom]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

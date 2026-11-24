@@ -49,7 +49,7 @@ class DetailVideoSerieManager implements IloadManagerDatabase {
       await database.execute(
           "insert or ignore into Details_Videos_Series(Titre,Saison,Episode) values(?,?,?)",
           [detailserie.titre, detailserie.saison, detailserie.episode]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

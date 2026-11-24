@@ -75,7 +75,7 @@ class AnimeSerieManager implements IloadManagerDatabase {
       await database.execute(
           "insert or ignore into Animes_Series(Titre,Studio) values(?,?)",
           [(model as AnimeSerie).titre, (model as AnimeSerie).studio]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;

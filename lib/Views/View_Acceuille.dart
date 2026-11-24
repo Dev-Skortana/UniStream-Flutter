@@ -99,6 +99,9 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
               ),
             ),
             FloatingActionButton.extended(
+              // un bouton par carte de la grille : sans étiquette propre, Flutter voit plusieurs « héros »
+              // identiques au moment d'une transition de page (ouverture de l'écran Synchronisation)
+              heroTag: null,
               elevation: 10,
               disabledElevation: 0,
               backgroundColor: Provider.of<ThemeProvider>(context)

@@ -41,7 +41,7 @@ class GenreManager implements IloadManagerDatabase {
       Database database = await DataInitialize.getDatabase();
       await database.execute("insert or ignore into Genres(Nom) values(?)",
           [(model as Genre).nom]);
-    } on DatabaseException catch (exception_database) {
+    } on DatabaseException {
       return false;
     } finally {}
     return true;
