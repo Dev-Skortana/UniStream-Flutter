@@ -7,8 +7,8 @@ Cette application permet d'avoir une bibliothèque multimédia de poche.
 C'est une application developper à l'origine en python avec flet(framwork flutter pour python).
 # 📱 UniStream — Application Flutter
 
-> **UniStream** est une bibliothèque multimédia de poche, disponible sur mobile, desktop et web.  
-> Retrouvez et organisez vos animes préférés depuis une interface moderne et fluide, alimentée par une [API de scraping dédiée](https://github.com/Dev-Skortana/api-unistream).
+> **UniStream** est une bibliothèque multimédia de poche, disponible sur mobile (IOS et desktop, en traveaux).  
+> Retrouvez et organisez vos animes préférés depuis une interface moderne et fluide, alimentée par une [API de scraping dédiée].
 
 ---
 

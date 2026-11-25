@@ -42,7 +42,7 @@ class ApiUnistream {
         'Accept': 'application/json',
       };
 
-  Future<dynamic> _envoyer(String methode, String chemin, [Object? corps]) async {
+  Future<dynamic> _envoyer(String methode, String chemin, [Object? corps, Duration delai = _delai]) async {
     if (_url.isEmpty || _cle.isEmpty) {
       throw ApiUnistreamException(
           "API UniStream non configurée (UNISTREAM_API_URL / UNISTREAM_API_CLE dans config.json)");
@@ -53,7 +53,7 @@ class ApiUnistream {
       rep = await (methode == 'GET'
               ? _client.get(uri, headers: _entetes)
               : _client.post(uri, headers: _entetes, body: jsonEncode(corps)))
-          .timeout(_delai);
+          .timeout(delai);
     } on TimeoutException {
       throw ApiUnistreamException("Le serveur UniStream ne répond pas (délai dépassé) : êtes-vous sur le réseau de la maison ?");
     } catch (e) {
@@ -63,7 +63,12 @@ class ApiUnistream {
       throw ApiUnistreamException("Clé d'API refusée (UNISTREAM_API_CLE)", statut: 401);
     }
     if (rep.statusCode >= 400) {
-      throw ApiUnistreamException("Erreur du serveur UniStream (HTTP ${rep.statusCode})", statut: rep.statusCode);
+      // FastAPI renvoie {"detail": "…"} : plus parlant que le seul code (fiche illisible, site injoignable…)
+      String detail = '';
+      try {
+        detail = ' : ${(jsonDecode(utf8.decode(rep.bodyBytes)) as Map)['detail']}';
+      } catch (_) {}
+      throw ApiUnistreamException("Erreur du serveur UniStream (HTTP ${rep.statusCode})$detail", statut: rep.statusCode);
     }
     return jsonDecode(utf8.decode(rep.bodyBytes));
   }
@@ -75,6 +80,28 @@ class ApiUnistream {
     } on ApiUnistreamException {
       return false;
     }
+  }
+
+  /// Fiches de l'index dont le titre ressemble à [q] (une fiche = une version : site + langue), les meilleures
+  /// d'abord. `total` > nombre de résultats : la liste est tronquée (les correspondances partielles en premier).
+  Future<({List<dynamic> resultats, int total})> rechercher(String q, {int limite = 200}) async {
+    final r = await _envoyer('GET', '/v1/rechercher?${Uri(queryParameters: {'q': q, 'limite': '$limite'}).query}');
+    final resultats = r['resultats'] as List;
+    return (resultats: resultats, total: (r['total'] as num?)?.toInt() ?? resultats.length);
+  }
+
+  /// Fiches apparues sur les sites ces [jours] derniers jours, la plus récente d'abord.
+  Future<List<dynamic>> nouveautes({int jours = 7, int limite = 100}) async {
+    final r = await _envoyer('GET', '/v1/nouveautes?jours=$jours&limite=$limite');
+    return r['resultats'] as List;
+  }
+
+  /// Détails d'une fiche. Cache du serveur s'il a moins de [ageMaxH] heures, sinon lecture du site :
+  /// plusieurs secondes (une page par saison), d'où un délai plus long que les autres appels.
+  Future<Map<String, dynamic>> details(String urlFiche, {String? idSite, double ageMaxH = 168}) async {
+    final q = Uri(queryParameters: {'url': urlFiche, if (idSite != null) 'site': idSite, 'age_max_h': '$ageMaxH'}).query;
+    return (await _envoyer('GET', '/v1/fiches/details?$q', null, const Duration(seconds: 150)) as Map)
+        .cast<String, dynamic>();
   }
 
   /// titres : [{titre, familles: [Anime|Drama], categorie: Film|Serie, affiche}]

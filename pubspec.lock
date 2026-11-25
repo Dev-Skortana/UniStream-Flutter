@@ -394,20 +394,16 @@ packages:
   gathering_datas_videos_from_web:
     dependency: "direct overridden"
     description:
-      path: "packages/gathering_datas_videos_from_web"
-      ref: HEAD
-      resolved-ref: "2850c40b69f6059e481703c8c38840b7a046c415"
-      url: "https://github.com/Dev-Skortana/unistream_packages.git"
-    source: git
+      path: "C:\\Users\\spart\\OneDrive\\Bureau\\Developpements IT\\visual-studio-projects\\unistream_packages\\packages\\gathering_datas_videos_from_web"
+      relative: false
+    source: path
     version: "0.0.1"
   gathering_urls_videos_from_web:
     dependency: "direct overridden"
     description:
-      path: "packages/gathering_urls_videos_from_web"
-      ref: HEAD
-      resolved-ref: "2850c40b69f6059e481703c8c38840b7a046c415"
-      url: "https://github.com/Dev-Skortana/unistream_packages.git"
-    source: git
+      path: "C:\\Users\\spart\\OneDrive\\Bureau\\Developpements IT\\visual-studio-projects\\unistream_packages\\packages\\gathering_urls_videos_from_web"
+      relative: false
+    source: path
     version: "0.0.1"
   glob:
     dependency: transitive

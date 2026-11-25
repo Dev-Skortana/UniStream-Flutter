@@ -40,14 +40,21 @@ dependency_overrides:
   provider:
   path_provider: ^2.1.5
   sqflite: ^2.4.1
+  # ── TEST LOCAL (08/11/2026) : package modifié sur le PC, sans passer par GitHub ──
+  # Pour revenir au dépôt : remettre le bloc « git » ci-dessous et supprimer la ligne « path ».
   gathering_datas_videos_from_web:
-    git:
-      url:  https://github.com/Dev-Skortana/unistream_packages.git  
-      path: packages/gathering_datas_videos_from_web
+    path: C:\Users\spart\OneDrive\Bureau\Developpements IT\visual-studio-projects\unistream_packages\packages\gathering_datas_videos_from_web
+  #  git:
+  #    url:  https://github.com/Dev-Skortana/unistream_packages.git
+  #    path: packages/gathering_datas_videos_from_web
+  # Non modifié : reste sur GitHub. Pour le charger en local aussi, remplacer le bloc « git »
+  # par « path: <dossier local>/gathering_urls_videos_from_web ».
   gathering_urls_videos_from_web:
-    git:
-      url:  https://github.com/Dev-Skortana/unistream_packages.git
-      path: packages/gathering_urls_videos_from_web
+    path: C:\Users\spart\OneDrive\Bureau\Developpements IT\visual-studio-projects\unistream_packages\packages\gathering_urls_videos_from_web
+
+    #git:
+     # url:  https://github.com/Dev-Skortana/unistream_packages.git
+      #path: packages/gathering_urls_videos_from_web
   dio: ^5.8.0+1
   permission_handler: ^12.0.0+1
   sqflite_common_ffi: ^2.3.4+4
@@ -58,7 +65,6 @@ dependency_overrides:
   puppeteer: ^3.18.0
   http: ^1.4.0
 
-  #gathering_datas_videos_from_web: path: packages/gathering_datas_videos_from_web and  gathering_urls_videos_from_web: path: packages/gathering_urls_videos_from_web ,using from local
 
 dev_dependencies:
   flutter_test:
