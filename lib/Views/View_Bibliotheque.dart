@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
 import 'package:unistream/ViewModels/ViewModel_Bibliotheque.dart';
-import 'package:unistream/Views/View_Fiche_Oeuvre.dart';
+import 'package:unistream/Views/View_Detail.dart';
 
 /// Onglet « Bibliothèque » : toutes les œuvres en grille d'affiches,
 /// avec recherche par titre et puces de filtre (famille × format).
@@ -44,7 +44,7 @@ class ViewBibliothequeState extends State<ViewBibliotheque> {
 
   Future<void> _ouvrir(OeuvreBibliotheque oeuvre) async {
     await Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => ViewFicheOeuvre(oeuvre: oeuvre)));
+        builder: (_) => ViewDetail(oeuvre: oeuvre)));
   }
 
   @override

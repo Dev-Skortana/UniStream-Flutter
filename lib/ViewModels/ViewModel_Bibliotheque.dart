@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:unistream/Models/Video.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
-import 'package:unistream/ViewModels/Templates/ViewModel_VideoBase.dart';
 import 'package:unistream/ViewModels/ViewModel_AnimeFilm.dart';
 import 'package:unistream/ViewModels/ViewModel_AnimeSerie.dart';
 import 'package:unistream/ViewModels/ViewModel_DramaFilm.dart';
@@ -98,29 +97,6 @@ class ViewmodelBibliotheque {
 
   void _appliquer() {
     oeuvres.value = filtre.value.appliquer(_toutes);
-  }
-
-  /// En attendant l'écran Détail (étape 4) : prépare l'ancien ViewModel de la
-  /// catégorie, positionné sur l'œuvre, pour réutiliser la fiche existante
-  /// (saison / épisode / recherche des liens de lecture).
-  static Future<ViewmodelVideobase> viewModelDeLaFiche(
-      OeuvreBibliotheque oeuvre) async {
-    final ViewmodelVideobase vm = switch ((oeuvre.famille, oeuvre.format)) {
-      (FamilleOeuvre.anime, FormatOeuvre.serie) => await ViewmodelAnimeserie.create(),
-      (FamilleOeuvre.anime, FormatOeuvre.film) => await ViewmodelAnimefilm.create(),
-      (FamilleOeuvre.drama, FormatOeuvre.serie) => await ViewmodelDramaserie.create(),
-      (FamilleOeuvre.drama, FormatOeuvre.film) => await ViewmodelDramafilm.create(),
-      (FamilleOeuvre.live, FormatOeuvre.serie) => await ViewmodelSerie.create(),
-      (FamilleOeuvre.live, FormatOeuvre.film) => await ViewmodelFilm.create(),
-    };
-    for (final element in vm.videosFromDictionnary) {
-      if (element["Video"].titre == oeuvre.titre) {
-        vm.index = element["index"] as int;
-        vm.GetVideo();
-        break;
-      }
-    }
-    return vm;
   }
 
   void dispose() {
