@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:unistream/Database/Data_Initialize.dart';
 import 'package:unistream/Models/Video.dart';
 import 'package:unistream/Services/Databases/Anime_Film_Manager.dart';
 import 'package:unistream/Services/Databases/Anime_Serie_Manager.dart';
@@ -22,6 +23,7 @@ class ContenuBibliotheque {
 class LectureBibliotheque {
   static Future<ContenuBibliotheque> toutes() async {
     final echecs = <String>[];
+    final genresParTitre = await _genresParTitre(echecs);
 
     Future<List<OeuvreBibliotheque>> lire(String nom, IloadManagerDatabase manager,
         FamilleOeuvre famille, FormatOeuvre format) async {
@@ -31,7 +33,11 @@ class LectureBibliotheque {
         return [
           for (final element in manager.GetGen([lignes]))
             OeuvreBibliotheque(
-                video: element["Video"] as Video, famille: famille, format: format)
+                video: element["Video"] as Video,
+                famille: famille,
+                format: format,
+                genres: genresParTitre[(element["Video"] as Video).titre] ??
+                    const [])
         ];
       } catch (e) {
         debugPrint("[Bibliothèque] lecture « $nom » impossible : $e");
@@ -49,5 +55,27 @@ class LectureBibliotheque {
       lire('films', FilmManager(), FamilleOeuvre.live, FormatOeuvre.film),
     ]);
     return ContenuBibliotheque(parties.expand((p) => p).toList(), echecs);
+  }
+
+  /// Tous les genres en une requête (une par œuvre serait N requêtes).
+  static Future<Map<String, List<String>>> _genresParTitre(
+      List<String> echecs) async {
+    try {
+      final base = await DataInitialize.getDatabase();
+      final lignes =
+          await base.rawQuery('select Titre, Nom from Videos_Genres');
+      final resultat = <String, List<String>>{};
+      for (final ligne in lignes) {
+        final titre = ligne['Titre'] as String?;
+        final nom = (ligne['Nom'] as String?)?.trim() ?? '';
+        if (titre == null || nom.isEmpty) continue;
+        resultat.putIfAbsent(titre, () => []).add(nom);
+      }
+      return resultat;
+    } catch (e) {
+      debugPrint("[Bibliothèque] lecture des genres impossible : $e");
+      echecs.add('genres');
+      return const {};
+    }
   }
 }

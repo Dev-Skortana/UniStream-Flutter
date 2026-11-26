@@ -13,8 +13,14 @@ class OeuvreBibliotheque {
   final FamilleOeuvre famille;
   final FormatOeuvre format;
 
+  /// Genres de l'œuvre (table Videos_Genres), tels qu'enregistrés.
+  final List<String> genres;
+
   const OeuvreBibliotheque(
-      {required this.video, required this.famille, required this.format});
+      {required this.video,
+      required this.famille,
+      required this.format,
+      this.genres = const []});
 
   String get titre => video.titre;
   String get lienAffiche => video.lienAffiche;
@@ -24,29 +30,50 @@ class OeuvreBibliotheque {
 /// Critères de la Bibliothèque. Logique pure (aucun accès base ni widget) :
 /// testée dans test/filtre_bibliotheque_test.dart.
 ///
-/// Règle des puces : un groupe sans puce cochée ne filtre rien
-/// (aucune famille cochée = toutes les familles).
+/// Règle des puces, la même pour chaque groupe (familles, formats, genres) :
+/// un groupe sans puce cochée ne filtre rien, plusieurs puces cochées dans
+/// un groupe s'additionnent (OU), et les groupes se combinent entre eux (ET).
 class FiltreBibliotheque {
   final Set<FamilleOeuvre> familles;
   final Set<FormatOeuvre> formats;
+
+  /// Genres cochés, sous forme normalisée (voir [normaliser]).
+  final Set<String> genres;
   final String recherche;
 
   const FiltreBibliotheque(
       {this.familles = const {},
       this.formats = const {},
+      this.genres = const {},
       this.recherche = ''});
 
   bool get estVide =>
-      familles.isEmpty && formats.isEmpty && recherche.trim().isEmpty;
+      familles.isEmpty &&
+      formats.isEmpty &&
+      genres.isEmpty &&
+      recherche.trim().isEmpty;
 
   FiltreBibliotheque copierAvec(
           {Set<FamilleOeuvre>? familles,
           Set<FormatOeuvre>? formats,
+          Set<String>? genres,
           String? recherche}) =>
       FiltreBibliotheque(
           familles: familles ?? this.familles,
           formats: formats ?? this.formats,
+          genres: genres ?? this.genres,
           recherche: recherche ?? this.recherche);
+
+  /// [genre] tel qu'affiché ; comparé sans casse ni accents.
+  FiltreBibliotheque basculerGenre(String genre) {
+    final cle = normaliser(genre);
+    return copierAvec(
+        genres: genres.contains(cle) ? ({...genres}..remove(cle)) : {...genres, cle});
+  }
+
+  bool aLeGenre(String genre) => genres.contains(normaliser(genre));
+
+  FiltreBibliotheque sansGenres() => copierAvec(genres: const {});
 
   FiltreBibliotheque basculerFamille(FamilleOeuvre f) => copierAvec(
       familles: familles.contains(f)
@@ -60,6 +87,10 @@ class FiltreBibliotheque {
   bool accepte(OeuvreBibliotheque oeuvre) {
     if (familles.isNotEmpty && !familles.contains(oeuvre.famille)) return false;
     if (formats.isNotEmpty && !formats.contains(oeuvre.format)) return false;
+    if (genres.isNotEmpty &&
+        !oeuvre.genres.any((g) => genres.contains(normaliser(g)))) {
+      return false;
+    }
     final mots = normaliser(recherche)
         .split(' ')
         .where((m) => m.isNotEmpty);
@@ -73,6 +104,32 @@ class FiltreBibliotheque {
     final resultat = oeuvres.where(accepte).toList();
     resultat.sort(comparer);
     return resultat;
+  }
+
+  /// Genres présents dans la bibliothèque, pour les puces : un seul par nom
+  /// (casse et accents ignorés, première écriture rencontrée gardée),
+  /// les plus fréquents d'abord, puis par ordre alphabétique.
+  static List<(String nom, int nombre)> genresDisponibles(
+      Iterable<OeuvreBibliotheque> oeuvres) {
+    final noms = <String, String>{};
+    final nombres = <String, int>{};
+    for (final oeuvre in oeuvres) {
+      // Un genre compte une fois par œuvre, même écrit deux fois.
+      final vus = <String>{};
+      for (final brut in oeuvre.genres) {
+        final nom = brut.trim();
+        final cle = normaliser(nom);
+        if (cle.isEmpty || !vus.add(cle)) continue;
+        noms.putIfAbsent(cle, () => nom);
+        nombres[cle] = (nombres[cle] ?? 0) + 1;
+      }
+    }
+    final cles = nombres.keys.toList()
+      ..sort((a, b) {
+        final ecart = nombres[b]!.compareTo(nombres[a]!);
+        return ecart != 0 ? ecart : a.compareTo(b);
+      });
+    return [for (final c in cles) (noms[c]!, nombres[c]!)];
   }
 
   static int comparer(OeuvreBibliotheque a, OeuvreBibliotheque b) {

@@ -135,8 +135,8 @@ class ViewAjoutOeuvreState extends State<ViewAjoutOeuvre> with SingleTickerProvi
       if (vm.erreur.value != null)
         ListTile(
             dense: true,
-            leading: const Icon(Icons.error_outline, color: Colors.red),
-            title: Text(vm.erreur.value!, style: const TextStyle(color: Colors.red))),
+            leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+            title: Text(vm.erreur.value!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
       if (occupe) ListTile(dense: true, leading: const CircularProgressIndicator(), title: Text(vm.etape.value ?? '')),
       if (a != null)
         Expanded(child: ListView(padding: const EdgeInsets.all(16), children: [_apercu(context, vm, a, occupe)]))

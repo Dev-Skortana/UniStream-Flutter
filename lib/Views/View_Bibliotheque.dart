@@ -67,27 +67,49 @@ class ViewBibliothequeState extends State<ViewBibliotheque> {
                 onChanged: _vm.rechercher,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  for (final e in _familles.entries)
-                    FilterChip(
-                      label: Text(e.value),
-                      selected: filtre.familles.contains(e.key),
-                      onSelected: (_) => _vm.basculerFamille(e.key),
-                    ),
-                  for (final e in _formats.entries)
-                    FilterChip(
-                      label: Text(e.value),
-                      selected: filtre.formats.contains(e.key),
-                      onSelected: (_) => _vm.basculerFormat(e.key),
-                    ),
-                ],
-              ),
-            ),
+            const SizedBox(height: 8),
+            // Ligne 1 : type d'œuvre (famille | format).
+            _RangeePuces(children: [
+              for (final e in _familles.entries)
+                FilterChip(
+                  label: Text(e.value),
+                  selected: filtre.familles.contains(e.key),
+                  onSelected: (_) => _vm.basculerFamille(e.key),
+                ),
+              const _Separateur(),
+              for (final e in _formats.entries)
+                FilterChip(
+                  label: Text(e.value),
+                  selected: filtre.formats.contains(e.key),
+                  onSelected: (_) => _vm.basculerFormat(e.key),
+                ),
+            ]),
+            // Ligne 2 : genres, en pilules (même forme que l'Accueil),
+            // les plus fréquents d'abord. « n genres ✕ » apparaît en tête
+            // dès qu'un genre est coché, même s'il est hors de l'écran.
+            if (_vm.genresDisponibles.isNotEmpty) ...[
+              _RangeePuces(children: [
+                if (filtre.genres.isNotEmpty)
+                  InputChip(
+                    label: Text(filtre.genres.length == 1
+                        ? '1 genre'
+                        : '${filtre.genres.length} genres'),
+                    onDeleted: _vm.effacerGenres,
+                    deleteButtonTooltipMessage: 'Retirer les genres',
+                    shape: const StadiumBorder(),
+                    backgroundColor: couleurs.secondaryContainer,
+                    side: BorderSide.none,
+                  ),
+                for (final (nom, nombre) in _vm.genresDisponibles)
+                  FilterChip(
+                    label: Text(nom),
+                    tooltip: '$nombre œuvre${nombre > 1 ? 's' : ''}',
+                    selected: filtre.aLeGenre(nom),
+                    shape: const StadiumBorder(),
+                    onSelected: (_) => _vm.basculerGenre(nom),
+                  ),
+              ]),
+            ],
             if (_vm.erreur.value != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -202,4 +224,36 @@ class CarteAffiche extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Une ligne de puces qui défile à l'horizontale : prend toujours une seule
+/// ligne de hauteur, quel que soit le nombre de puces.
+class _RangeePuces extends StatelessWidget {
+  final List<Widget> children;
+  const _RangeePuces({required this.children});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        // 48 : la zone tactile minimale d'une puce Material.
+        height: 48,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: children.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (_, i) => Center(child: children[i]),
+        ),
+      );
+}
+
+/// Trait vertical entre deux groupes de puces.
+class _Separateur extends StatelessWidget {
+  const _Separateur();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 1,
+        height: 24,
+        color: Theme.of(context).colorScheme.outlineVariant,
+      );
 }

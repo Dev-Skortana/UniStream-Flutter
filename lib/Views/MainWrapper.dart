@@ -51,8 +51,19 @@ class MainWrapperState extends State<MainWrapper> {
 
   @override
   Widget build(BuildContext context) {
+    final couleurs = Theme.of(context).colorScheme;
+    final surAccueil = currentIndex == 0;
     return Scaffold(
+      // Sur l'Accueil, le dégradé de la vedette passe sous la barre du haut ;
+      // la barre redevient opaque dès que la page défile.
+      extendBodyBehindAppBar: surAccueil,
       appBar: AppBar(
+        backgroundColor: surAccueil
+            ? WidgetStateColor.resolveWith((etats) =>
+                etats.contains(WidgetState.scrolledUnder)
+                    ? couleurs.surface
+                    : Colors.transparent)
+            : null,
         // Un seul texte, qui se coupe proprement s'il manque de place
         // (l'ancienne Row « UniStream + onglet » débordait).
         title: _titre(context),
@@ -70,15 +81,17 @@ class MainWrapperState extends State<MainWrapper> {
           const BoutonTheme(),
         ],
       ),
-      body: SafeArea(
-        child: IndexedStack(
-          index: currentIndex,
-          children: [
-            ViewAccueil(key: _cleAccueil),
-            ViewBibliotheque(key: _cleBibliotheque),
-            ViewOutils(onBibliothequeModifiee: _rechargerBibliotheque),
-          ],
-        ),
+      body: IndexedStack(
+        index: currentIndex,
+        children: [
+          // Pas de SafeArea : l'Accueil place lui-même son contenu sous la
+          // barre (MediaQuery.paddingOf(context).top inclut sa hauteur).
+          ViewAccueil(key: _cleAccueil),
+          SafeArea(child: ViewBibliotheque(key: _cleBibliotheque)),
+          SafeArea(
+              child:
+                  ViewOutils(onBibliothequeModifiee: _rechargerBibliotheque)),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,

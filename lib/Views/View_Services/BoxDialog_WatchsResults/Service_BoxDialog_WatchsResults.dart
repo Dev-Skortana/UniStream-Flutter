@@ -53,9 +53,6 @@ class _ServiceBoxdialogWatchsresultsState
           this.setDataToClipboard(link_watch);
           this.displayLinkWatchSelected(link_watch);
         },
-        style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll<Color>(Colors.green),
-            foregroundColor: WidgetStatePropertyAll<Color>(Colors.white)),
         child: Text(textAlign: TextAlign.center, name_watch));
   }
 
@@ -146,7 +143,8 @@ class _ServiceBoxdialogWatchsresultsState
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(Icons.videocam_off, color: Colors.red, size: 50),
+                      Icon(Icons.videocam_off,
+                          color: Theme.of(context).colorScheme.error, size: 50),
                       Flexible(
                         child: Text(
                             "Oups, aucun liens de visionnage n'a été trouver pour cette vidéo ! ! !"),

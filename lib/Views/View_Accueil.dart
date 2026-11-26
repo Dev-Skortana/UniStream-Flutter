@@ -54,10 +54,13 @@ class ViewAccueilState extends State<ViewAccueil> {
       builder: (context, _) {
         final contenu = _vm.contenu.value;
         if (_vm.chargement.value && contenu.estVide) {
-          return const Center(child: CircularProgressIndicator());
+          return const SafeArea(
+              child: Center(child: CircularProgressIndicator()));
         }
         return RefreshIndicator(
           onRefresh: _vm.charger,
+          // L'indicateur apparaît sous la barre, pas derrière.
+          edgeOffset: MediaQuery.paddingOf(context).top,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(bottom: 24),
@@ -171,7 +174,10 @@ class _Vedette extends StatelessWidget {
               stops: const [0, 0.55, 1],
             ),
           ),
-          padding: const EdgeInsets.only(top: 12, bottom: 8),
+          // Le dégradé part du haut de l'écran (sous la barre transparente) ;
+          // le contenu commence sous la barre.
+          padding: EdgeInsets.only(
+              top: MediaQuery.paddingOf(context).top + 8, bottom: 8),
           child: Column(
             children: [
               pilules,

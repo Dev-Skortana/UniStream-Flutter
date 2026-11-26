@@ -22,11 +22,17 @@ class ViewmodelBibliotheque {
   List<OeuvreBibliotheque> _toutes = const [];
   int get total => _toutes.length;
 
+  /// Genres de toute la bibliothèque (nom affiché, nombre d'œuvres),
+  /// recalculés à chaque chargement. Lus pendant le même rebuild que
+  /// [chargement], donc pas besoin d'un ValueNotifier de plus.
+  List<(String nom, int nombre)> genresDisponibles = const [];
+
   Future<void> charger() async {
     chargement.value = true;
     erreur.value = null;
     final contenu = await LectureBibliotheque.toutes();
     _toutes = contenu.oeuvres;
+    genresDisponibles = FiltreBibliotheque.genresDisponibles(_toutes);
     if (contenu.echecs.isNotEmpty) {
       erreur.value = "Lecture impossible : ${contenu.echecs.join(', ')}.";
     }
@@ -41,6 +47,16 @@ class ViewmodelBibliotheque {
 
   void basculerFormat(FormatOeuvre format) {
     filtre.value = filtre.value.basculerFormat(format);
+    _appliquer();
+  }
+
+  void basculerGenre(String genre) {
+    filtre.value = filtre.value.basculerGenre(genre);
+    _appliquer();
+  }
+
+  void effacerGenres() {
+    filtre.value = filtre.value.sansGenres();
     _appliquer();
   }
 

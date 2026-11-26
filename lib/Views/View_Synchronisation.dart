@@ -101,8 +101,8 @@ class ViewSynchronisationState extends State<ViewSynchronisation> {
       ),
       if (vm.erreur.value != null)
         ListTile(
-            leading: const Icon(Icons.error_outline, color: Colors.red),
-            title: Text(vm.erreur.value!, style: const TextStyle(color: Colors.red))),
+            leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+            title: Text(vm.erreur.value!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
       if (occupe) ListTile(leading: const CircularProgressIndicator(), title: Text(vm.etape.value ?? '')),
       Wrap(spacing: 12, runSpacing: 8, children: [
         FilledButton.icon(
