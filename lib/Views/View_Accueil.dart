@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:unistream/Services/Features/Accueil/Selection_Accueil.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
+import 'package:unistream/Services/Features/Historique/Suivi_Visionnage.dart';
 import 'package:unistream/ViewModels/ViewModel_Accueil.dart';
 import 'package:unistream/Views/Helpers/Couleurs_Affiches.dart';
 import 'package:unistream/Views/Helpers/Theme.dart';
@@ -41,9 +42,11 @@ class ViewAccueilState extends State<ViewAccueil> {
   /// Appelée par MainWrapper après un ajout ou une synchronisation.
   Future<void> recharger() => _vm.charger();
 
-  void _ouvrir(OeuvreBibliotheque oeuvre) {
-    Navigator.of(context)
+  Future<void> _ouvrir(OeuvreBibliotheque oeuvre) async {
+    await Navigator.of(context)
         .push(MaterialPageRoute(builder: (_) => ViewDetail(oeuvre: oeuvre)));
+    // Au retour, « Reprendre » et les badges reflètent la lecture lancée.
+    if (mounted) _vm.charger();
   }
 
   @override
@@ -67,6 +70,7 @@ class ViewAccueilState extends State<ViewAccueil> {
             children: [
               _Vedette(
                 oeuvre: contenu.vedette,
+                suivi: _vm.suivis[contenu.vedette?.titre],
                 pilules: _barrePilules(context),
                 onOuvrir: _ouvrir,
               ),
@@ -79,7 +83,7 @@ class ViewAccueilState extends State<ViewAccueil> {
                 ),
               if (contenu.estVide) _vide(context),
               for (final rangee in contenu.rangees)
-                _Rangee(rangee: rangee, onOuvrir: _ouvrir),
+                _Rangee(rangee: rangee, suivis: _vm.suivis, onOuvrir: _ouvrir),
             ],
           ),
         );
@@ -143,11 +147,15 @@ class ViewAccueilState extends State<ViewAccueil> {
 /// pilules de catégorie, affiche en relief, titre et bouton.
 class _Vedette extends StatelessWidget {
   final OeuvreBibliotheque? oeuvre;
+  final SuiviOeuvre? suivi;
   final Widget pilules;
   final void Function(OeuvreBibliotheque) onOuvrir;
 
   const _Vedette(
-      {required this.oeuvre, required this.pilules, required this.onOuvrir});
+      {required this.oeuvre,
+      this.suivi,
+      required this.pilules,
+      required this.onOuvrir});
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +203,9 @@ class _Vedette extends StatelessWidget {
                           chemin: o.lienAffiche,
                           rayon: 16,
                           force: 1.6,
-                          largeurDecodage: 450),
+                          largeurDecodage: 450,
+                          badge: suivi?.aNouveaute == true ? 'Nouvel ép.' : null,
+                          progression: suivi?.progression),
                     ),
                   ),
                 ),
@@ -218,7 +228,10 @@ class _Vedette extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: () => onOuvrir(o),
                   icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Voir la fiche'),
+                  label: Text(switch (suivi?.prochain) {
+                    (final s, final e) => 'Reprendre S$s · É$e',
+                    null => 'Voir la fiche',
+                  }),
                   style: FilledButton.styleFrom(
                       minimumSize: const Size(200, 48),
                       shape: const StadiumBorder()),
@@ -246,9 +259,11 @@ class _Vedette extends StatelessWidget {
 /// Une rangée : sur-titre espacé, titre arrondi, affiches qui défilent.
 class _Rangee extends StatelessWidget {
   final RangeeAccueil rangee;
+  final Map<String, SuiviOeuvre> suivis;
   final void Function(OeuvreBibliotheque) onOuvrir;
 
-  const _Rangee({required this.rangee, required this.onOuvrir});
+  const _Rangee(
+      {required this.rangee, required this.suivis, required this.onOuvrir});
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +292,7 @@ class _Rangee extends StatelessWidget {
           SizedBox(
             // Hauteur = marge haute + affiche + titre + marge basse
             // (la marge basse laisse la place à la lueur sous les affiches).
-            height: 226,
+            height: 242,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 22),
@@ -285,6 +300,8 @@ class _Rangee extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (context, i) {
                 final o = rangee.oeuvres[i];
+                final suivi = suivis[o.titre];
+                final legende = rangee.legendes[o.titre];
                 return SizedBox(
                   width: 110,
                   child: InkWell(
@@ -295,13 +312,24 @@ class _Rangee extends StatelessWidget {
                       children: [
                         SizedBox(
                             height: 165,
-                            child: AfficheTeintee(chemin: o.lienAffiche)),
+                            child: AfficheTeintee(
+                              chemin: o.lienAffiche,
+                              badge: suivi?.aNouveaute == true
+                                  ? 'Nouvel ép.'
+                                  : null,
+                              progression: suivi?.progression,
+                            )),
                         const SizedBox(height: 8),
                         Text(o.titre,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: textes.bodySmall
                                 ?.copyWith(fontWeight: FontWeight.w500)),
+                        if (legende != null)
+                          Text(legende,
+                              maxLines: 1,
+                              style: textes.labelSmall
+                                  ?.copyWith(color: couleurs.primary)),
                       ],
                     ),
                   ),

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:unistream/Models/Video.dart';
 import 'package:unistream/Services/Features/Accueil/Selection_Accueil.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
+import 'package:unistream/Services/Features/Historique/Suivi_Visionnage.dart';
 
 OeuvreBibliotheque oeuvre(String titre,
         {FamilleOeuvre famille = FamilleOeuvre.anime,
@@ -67,5 +68,39 @@ void main() {
     ];
     final c = SelectionAccueil.composer(beaucoup, maintenant: maintenant);
     expect(c.rangees.single.oeuvres.length, SelectionAccueil.maxParRangee);
+  });
+
+  group('reprendre', () {
+    SuiviOeuvre suivi(String titre, int jour, (int, int)? prochain) =>
+        SuiviOeuvre(
+            titre: titre,
+            derniereLecture: DateTime(2026, 11, jour),
+            dernierLu: (1, 1),
+            prochain: prochain);
+
+    test('en tête, la plus récemment regardée d’abord, avec l’épisode suivant', () {
+      final c = SelectionAccueil.composer(toutes, maintenant: maintenant, suivis: {
+        'Naruto': suivi('Naruto', 20, (1, 2)),
+        'Bloodhounds': suivi('Bloodhounds', 25, (2, 1)),
+      });
+      final r = c.rangees.first;
+      expect(r.surTitre, 'REPRENDRE');
+      expect(r.oeuvres, [bloodhounds, naruto]);
+      expect(r.legendes['Bloodhounds'], 'S2 · É1');
+    });
+
+    test('série terminée (pas d’épisode suivant) : absente', () {
+      final c = SelectionAccueil.composer(toutes,
+          maintenant: maintenant, suivis: {'Naruto': suivi('Naruto', 20, null)});
+      expect(c.rangees.first.surTitre, 'RÉCENT');
+    });
+
+    test('suit le filtre de famille', () {
+      final c = SelectionAccueil.composer(toutes,
+          famille: FamilleOeuvre.drama,
+          maintenant: maintenant,
+          suivis: {'Naruto': suivi('Naruto', 20, (1, 2))});
+      expect(c.rangees.any((r) => r.surTitre == 'REPRENDRE'), isFalse);
+    });
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
 import 'package:unistream/Services/Features/Detail/Infos_Detail.dart';
+import 'package:unistream/Services/Features/Historique/Suivi_Visionnage.dart';
 import 'package:unistream/ViewModels/ViewModel_Detail.dart';
 import 'package:unistream/Views/Templates/Affiche_Teintee.dart';
 import 'package:unistream/Views/Templates/Bouton_Theme.dart';
@@ -47,6 +48,7 @@ class ViewDetailState extends State<ViewDetail> {
           categorie: _vm.categorieLecture,
           mapsWatchResult: liens,
           episode_into_caracteres: _vm.estSerie ? '${_vm.episode.value}' : '',
+          surLecture: _vm.enregistrerLecture,
         ),
       );
     } catch (e) {
@@ -68,6 +70,7 @@ class ViewDetailState extends State<ViewDetail> {
           _vm.saison,
           _vm.episode,
           _vm.rechercheEnCours,
+          _vm.suivi,
         ]),
         builder: (context, _) => ListView(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
@@ -79,6 +82,10 @@ class ViewDetailState extends State<ViewDetail> {
               const SizedBox(height: 12),
             ],
             _boutonRegarder(context),
+            if (_vm.suivi.value case final suivi?) ...[
+              const SizedBox(height: 8),
+              _ligneSuivi(context, suivi),
+            ],
             if (_vm.erreur.value != null) ...[
               const SizedBox(height: 12),
               Text(_vm.erreur.value!,
@@ -217,7 +224,16 @@ class ViewDetailState extends State<ViewDetail> {
             selection: _vm.episode.value,
             entrees: [
               for (final e in infos.episodesDe(saison ?? -1))
-                DropdownMenuEntry(value: e, label: 'Épisode $e'),
+                DropdownMenuEntry(
+                  value: e,
+                  label: 'Épisode $e',
+                  // Épisode déjà lancé : coche « vu ».
+                  trailingIcon: _vm.estVu(saison ?? -1, e)
+                      ? Icon(Icons.check_circle,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.primary)
+                      : null,
+                ),
             ],
             onChoix: _vm.choisirEpisode,
           ),
@@ -233,7 +249,8 @@ class ViewDetailState extends State<ViewDetail> {
         : _vm.estSerie
             ? (_vm.episode.value == null
                 ? 'Regarder'
-                : 'Regarder S${_vm.saison.value} · É${_vm.episode.value}')
+                : '${_vm.estUneReprise ? 'Reprendre' : 'Regarder'} '
+                    'S${_vm.saison.value} · É${_vm.episode.value}')
             : 'Regarder le film';
     return SizedBox(
       height: 52,
@@ -247,6 +264,51 @@ class ViewDetailState extends State<ViewDetail> {
             : const Icon(Icons.play_arrow_rounded),
         label: Text(libelle),
       ),
+    );
+  }
+
+  /// « Dernier épisode vu : S1 · É4 », « Vu le 12 novembre 2026 » (film),
+  /// « 2 nouveaux épisodes depuis ta dernière visite ».
+  Widget _ligneSuivi(BuildContext context, SuiviOeuvre suivi) {
+    final couleurs = Theme.of(context).colorScheme;
+    final textes = Theme.of(context).textTheme;
+    final date = InfosDetail.formaterDate(suivi.derniereLecture);
+    final principal = switch (suivi.dernierLu) {
+      (final s, final e) => 'Dernier épisode lancé : S$s · É$e, le $date',
+      null => 'Lancé le $date',
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: [
+          Icon(Icons.history, size: 18, color: couleurs.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(principal,
+                style:
+                    textes.bodySmall?.copyWith(color: couleurs.onSurfaceVariant)),
+          ),
+        ]),
+        if (suivi.aNouveaute) ...[
+          const SizedBox(height: 6),
+          Row(children: [
+            Icon(Icons.fiber_new_rounded, size: 18, color: couleurs.tertiary),
+            const SizedBox(width: 6),
+            Text(
+                '${suivi.nouveaux} '
+                '${suivi.nouveaux > 1 ? 'nouveaux épisodes' : 'nouvel épisode'} '
+                'depuis ta dernière lecture',
+                style: textes.bodySmall?.copyWith(color: couleurs.tertiary)),
+          ]),
+        ],
+        if (suivi.progression case final p? when p > 0) ...[
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(value: p, minHeight: 4),
+          ),
+        ],
+      ],
     );
   }
 

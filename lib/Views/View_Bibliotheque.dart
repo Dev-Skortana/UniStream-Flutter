@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
+import 'package:unistream/Services/Features/Historique/Suivi_Visionnage.dart';
 import 'package:unistream/ViewModels/ViewModel_Bibliotheque.dart';
 import 'package:unistream/Views/Templates/Affiche_Teintee.dart';
 import 'package:unistream/Views/View_Detail.dart';
@@ -44,6 +45,8 @@ class ViewBibliothequeState extends State<ViewBibliotheque> {
   Future<void> _ouvrir(OeuvreBibliotheque oeuvre) async {
     await Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => ViewDetail(oeuvre: oeuvre)));
+    // Une lecture lancée depuis le Détail change les badges et barres « vu ».
+    if (mounted) _vm.charger();
   }
 
   @override
@@ -175,6 +178,7 @@ class ViewBibliothequeState extends State<ViewBibliotheque> {
         itemCount: oeuvres.length,
         itemBuilder: (context, i) => CarteAffiche(
           oeuvre: oeuvres[i],
+          suivi: _vm.suivis[oeuvres[i].titre],
           onTap: () => _ouvrir(oeuvres[i]),
         ),
       ),
@@ -185,9 +189,11 @@ class ViewBibliothequeState extends State<ViewBibliotheque> {
 /// Vignette d'une œuvre : affiche 2:3, titre sur 2 lignes, famille · format.
 class CarteAffiche extends StatelessWidget {
   final OeuvreBibliotheque oeuvre;
+  final SuiviOeuvre? suivi;
   final VoidCallback onTap;
 
-  const CarteAffiche({super.key, required this.oeuvre, required this.onTap});
+  const CarteAffiche(
+      {super.key, required this.oeuvre, this.suivi, required this.onTap});
 
   static const Map<FamilleOeuvre, String> _famille = {
     FamilleOeuvre.anime: 'Anime',
@@ -208,7 +214,12 @@ class CarteAffiche extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(child: AfficheTeintee(chemin: oeuvre.lienAffiche)),
+            Expanded(
+                child: AfficheTeintee(
+              chemin: oeuvre.lienAffiche,
+              badge: suivi?.aNouveaute == true ? 'Nouvel ép.' : null,
+              progression: suivi?.progression,
+            )),
             const SizedBox(height: 6),
             Text(oeuvre.titre,
                 maxLines: 2,

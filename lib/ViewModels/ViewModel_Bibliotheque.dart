@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:unistream/Services/Databases/Historique_Manager.dart';
+import 'package:unistream/Services/Features/Historique/Suivi_Visionnage.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Lecture_Bibliotheque.dart';
 
@@ -27,11 +31,18 @@ class ViewmodelBibliotheque {
   /// [chargement], donc pas besoin d'un ValueNotifier de plus.
   List<(String nom, int nombre)> genresDisponibles = const [];
 
+  /// Suivi de visionnage par titre (badge « Nouvel ép. », barre « vu »).
+  Map<String, SuiviOeuvre> suivis = const {};
+
   Future<void> charger() async {
     chargement.value = true;
     erreur.value = null;
-    final contenu = await LectureBibliotheque.toutes();
+    final (contenu, suivisLus) = await (
+      LectureBibliotheque.toutes(),
+      HistoriqueManager().suivis(),
+    ).wait;
     _toutes = contenu.oeuvres;
+    suivis = suivisLus;
     genresDisponibles = FiltreBibliotheque.genresDisponibles(_toutes);
     if (contenu.echecs.isNotEmpty) {
       erreur.value = "Lecture impossible : ${contenu.echecs.join(', ')}.";

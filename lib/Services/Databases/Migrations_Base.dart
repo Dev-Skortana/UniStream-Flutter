@@ -22,5 +22,26 @@ class MigrationsBase {
         await txn.execute('PRAGMA user_version = 1');
       });
     }
+    if (version < 2) {
+      await db.transaction((txn) async {
+        // Historique de visionnage : une ligne par épisode lancé (Saison et
+        // Episode à 0 pour un film), la plus récente date de lecture gardée.
+        // Episodes_Connus = nombre d'épisodes de la série au moment de la
+        // lecture : s'il y en a plus aujourd'hui, de nouveaux sont arrivés.
+        // ON DELETE CASCADE : réinitialiser la bibliothèque vide l'historique.
+        await txn.execute('''
+          CREATE TABLE IF NOT EXISTS Historique_Visionnage (
+            Titre            TEXT NOT NULL REFERENCES Videos(Titre) ON DELETE CASCADE ON UPDATE CASCADE,
+            Saison           INTEGER NOT NULL DEFAULT 0,
+            Episode          INTEGER NOT NULL DEFAULT 0,
+            Vu_Le            TEXT NOT NULL,
+            Episodes_Connus  INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (Titre, Saison, Episode)
+          )''');
+        await txn.execute(
+            'CREATE INDEX IF NOT EXISTS Historique_Vu_Le ON Historique_Visionnage(Vu_Le)');
+        await txn.execute('PRAGMA user_version = 2');
+      });
+    }
   }
 }
