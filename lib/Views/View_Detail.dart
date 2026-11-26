@@ -5,7 +5,7 @@ import 'package:unistream/Services/Features/Historique/Suivi_Visionnage.dart';
 import 'package:unistream/ViewModels/ViewModel_Detail.dart';
 import 'package:unistream/Views/Templates/Affiche_Teintee.dart';
 import 'package:unistream/Views/Templates/Bouton_Theme.dart';
-import 'package:unistream/Views/View_Services/BoxDialog_WatchsResults/Service_BoxDialog_WatchsResults.dart';
+import 'package:unistream/Views/Feuille_Lecture.dart';
 
 /// Écran Détail d'une œuvre, ouvert depuis la Bibliothèque.
 /// Remplace l'ancienne fiche (Video / Series / Films_Block_Display).
@@ -38,24 +38,17 @@ class ViewDetailState extends State<ViewDetail> {
     super.dispose();
   }
 
+  /// Ouvre la feuille de lecture sur l'épisode choisi (ou le film) ;
+  /// au retour, l'historique a pu changer (lecture, épisodes marqués vus).
   Future<void> _regarder() async {
-    try {
-      final liens = await _vm.chercherLiens();
-      if (liens == null || !mounted) return;
-      await showDialog(
-        context: context,
-        builder: (_) => ServiceBoxdialogWatchsresults(
-          categorie: _vm.categorieLecture,
-          mapsWatchResult: liens,
-          episode_into_caracteres: _vm.estSerie ? '${_vm.episode.value}' : '',
-          surLecture: _vm.enregistrerLecture,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Recherche des liens impossible : $e')));
-    }
+    final s = _vm.saison.value, e = _vm.episode.value;
+    await ouvrirFeuilleLecture(
+      context,
+      oeuvre: widget.oeuvre,
+      episodesParSaison: _vm.infos.value.episodesParSaison,
+      episode: _vm.estSerie && s != null && e != null ? (s, e) : null,
+    );
+    if (mounted) await _vm.rafraichirSuivi();
   }
 
   @override
@@ -69,7 +62,6 @@ class ViewDetailState extends State<ViewDetail> {
           _vm.infos,
           _vm.saison,
           _vm.episode,
-          _vm.rechercheEnCours,
           _vm.suivi,
         ]),
         builder: (context, _) => ListView(
@@ -243,25 +235,17 @@ class ViewDetailState extends State<ViewDetail> {
   }
 
   Widget _boutonRegarder(BuildContext context) {
-    final enCours = _vm.rechercheEnCours.value;
-    final libelle = enCours
-        ? 'Recherche des liens…'
-        : _vm.estSerie
-            ? (_vm.episode.value == null
-                ? 'Regarder'
-                : '${_vm.estUneReprise ? 'Reprendre' : 'Regarder'} '
-                    'S${_vm.saison.value} · É${_vm.episode.value}')
-            : 'Regarder le film';
+    final libelle = _vm.estSerie
+        ? (_vm.episode.value == null
+            ? 'Regarder'
+            : '${_vm.estUneReprise ? 'Reprendre' : 'Regarder'} '
+                'S${_vm.saison.value} · É${_vm.episode.value}')
+        : 'Regarder le film';
     return SizedBox(
       height: 52,
       child: FilledButton.icon(
-        onPressed: enCours || !_vm.peutRegarder ? null : _regarder,
-        icon: enCours
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.play_arrow_rounded),
+        onPressed: _vm.peutRegarder ? _regarder : null,
+        icon: const Icon(Icons.play_arrow_rounded),
         label: Text(libelle),
       ),
     );

@@ -6,7 +6,6 @@ import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dar
 import 'package:unistream/Services/Features/Detail/Infos_Detail.dart';
 import 'package:unistream/Services/Features/Detail/Lecture_Detail.dart';
 import 'package:unistream/Services/Features/Historique/Suivi_Visionnage.dart';
-import 'package:unistream/Services/Features/Link_Watch_Video/Result_Link_Watch_Of_Video.dart';
 
 /// État de l'écran Détail d'UNE œuvre : métadonnées, saison / épisode choisis,
 /// recherche des liens de lecture. Même modèle que les ViewModels récents
@@ -19,7 +18,6 @@ class ViewmodelDetail {
   final ValueNotifier<InfosDetail> infos = ValueNotifier(const InfosDetail());
   final ValueNotifier<int?> saison = ValueNotifier(null);
   final ValueNotifier<int?> episode = ValueNotifier(null);
-  final ValueNotifier<bool> rechercheEnCours = ValueNotifier(false);
 
   /// Où en est l'utilisateur sur cette œuvre (null : jamais regardée).
   final ValueNotifier<SuiviOeuvre?> suivi = ValueNotifier(null);
@@ -49,7 +47,7 @@ class ViewmodelDetail {
     try {
       final lues = await LectureDetail.lire(oeuvre.titre, estSerie: estSerie);
       infos.value = lues;
-      await _lireSuivi();
+      await rafraichirSuivi();
       // Présélection : l'épisode qui suit le dernier regardé, sinon le premier.
       final prochain = suivi.value?.prochain;
       if (prochain != null) {
@@ -76,22 +74,6 @@ class ViewmodelDetail {
 
   void choisirEpisode(int nouvelEpisode) => episode.value = nouvelEpisode;
 
-  /// Cherche les pages de lecture sur les sites. Renvoie null si une
-  /// recherche est déjà en cours (double appui).
-  Future<List<Map<String, String>>?> chercherLiens() async {
-    if (rechercheEnCours.value || !peutRegarder) return null;
-    rechercheEnCours.value = true;
-    try {
-      return await ResultLinkWatchOfVideo().getManyResultLinkWatchOfVideo({
-        "titre_video": oeuvre.titre,
-        if (estSerie) "saison": saison.value.toString(),
-        if (estSerie) "episode": episode.value.toString(),
-      });
-    } finally {
-      rechercheEnCours.value = false;
-    }
-  }
-
   /// L'épisode choisi est celui qui suit le dernier regardé.
   bool get estUneReprise {
     final p = suivi.value?.prochain;
@@ -100,24 +82,8 @@ class ViewmodelDetail {
 
   bool estVu(int s, int e) => suivi.value?.vus.contains((s, e)) ?? false;
 
-  /// À appeler quand l'utilisateur lance la vidéo : met à jour l'historique.
-  /// Une erreur d'écriture est ignorée (l'historique ne doit pas bloquer
-  /// la lecture).
-  Future<void> enregistrerLecture() async {
-    try {
-      await HistoriqueManager().enregistrer(
-        titre: oeuvre.titre,
-        saison: estSerie ? (saison.value ?? 0) : 0,
-        episode: estSerie ? (episode.value ?? 0) : 0,
-        episodesConnus: infos.value.nombreEpisodes,
-      );
-      await _lireSuivi();
-    } catch (e) {
-      debugPrint("[Détail] historique non enregistré : $e");
-    }
-  }
-
-  Future<void> _lireSuivi() async {
+  /// Relit l'historique de cette œuvre (au retour de la feuille de lecture).
+  Future<void> rafraichirSuivi() async {
     try {
       final entrees = await HistoriqueManager().lire(titre: oeuvre.titre);
       suivi.value = SuiviVisionnage.calculer(
@@ -128,16 +94,12 @@ class ViewmodelDetail {
     }
   }
 
-  /// Catégorie attendue par la boîte de dialogue des liens.
-  String get categorieLecture => estSerie ? "Video_Serie" : "Video_Film";
-
   void dispose() {
     chargement.dispose();
     erreur.dispose();
     infos.dispose();
     saison.dispose();
     episode.dispose();
-    rechercheEnCours.dispose();
     suivi.dispose();
   }
 }

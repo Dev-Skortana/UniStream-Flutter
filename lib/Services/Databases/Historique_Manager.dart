@@ -2,10 +2,14 @@ import 'package:unistream/Database/Data_Initialize.dart';
 import 'package:unistream/Services/Features/Detail/Infos_Detail.dart';
 import 'package:unistream/Services/Features/Historique/Suivi_Visionnage.dart';
 
-/// Accès à la table Historique_Visionnage (créée par la migration 2).
+/// Accès à la table Historique_Visionnage (migrations 2 et 3).
 class HistoriqueManager {
+  static const String _inserer = 'INSERT OR REPLACE INTO Historique_Visionnage'
+      '(Titre, Saison, Episode, Vu_Le, Episodes_Connus, Site) VALUES (?, ?, ?, ?, ?, ?)';
+
   /// Enregistre (ou rafraîchit) la lecture d'un épisode, ou d'un film
-  /// avec saison = episode = 0.
+  /// avec saison = episode = 0. [site] : source utilisée (null si marqué
+  /// « vu » à la main).
   ///
   /// INSERT OR REPLACE plutôt qu'un UPSERT (ON CONFLICT … DO UPDATE) :
   /// le SQLite des Android antérieurs à 11 ne connaît pas l'UPSERT.
@@ -13,13 +17,50 @@ class HistoriqueManager {
       {required String titre,
       int saison = 0,
       int episode = 0,
-      int episodesConnus = 0}) async {
+      int episodesConnus = 0,
+      String? site}) async {
     final base = await DataInitialize.getDatabase();
-    await base.rawInsert(
-      'INSERT OR REPLACE INTO Historique_Visionnage'
-      '(Titre, Saison, Episode, Vu_Le, Episodes_Connus) VALUES (?, ?, ?, ?, ?)',
-      [titre, saison, episode, DateTime.now().toIso8601String(), episodesConnus],
-    );
+    await base.rawInsert(_inserer, [
+      titre, saison, episode, DateTime.now().toIso8601String(), episodesConnus, site
+    ]);
+  }
+
+  /// Marque plusieurs épisodes « vus » d'un coup, dans l'ordre donné : chacun
+  /// reçoit une date un peu plus récente que le précédent, pour que le
+  /// dernier de la liste soit bien le « dernier lu » (reprise juste après).
+  Future<void> marquerVus(
+      {required String titre,
+      required List<(int, int)> episodes,
+      int episodesConnus = 0}) async {
+    if (episodes.isEmpty) return;
+    final base = await DataInitialize.getDatabase();
+    final debut = DateTime.now();
+    await base.transaction((txn) async {
+      for (var i = 0; i < episodes.length; i++) {
+        final (s, e) = episodes[i];
+        final date = debut.add(Duration(milliseconds: i)).toIso8601String();
+        await txn.rawInsert(_inserer, [titre, s, e, date, episodesConnus, null]);
+      }
+    });
+  }
+
+  /// Retire un épisode de l'historique (« non vu »).
+  Future<void> retirer(
+      {required String titre, required int saison, required int episode}) async {
+    final base = await DataInitialize.getDatabase();
+    await base.rawDelete(
+        'DELETE FROM Historique_Visionnage WHERE Titre = ? AND Saison = ? AND Episode = ?',
+        [titre, saison, episode]);
+  }
+
+  /// Dernier site utilisé pour regarder cette œuvre (null si aucun).
+  Future<String?> derniereSource(String titre) async {
+    final base = await DataInitialize.getDatabase();
+    final lignes = await base.rawQuery(
+        'SELECT Site FROM Historique_Visionnage '
+        'WHERE Titre = ? AND Site IS NOT NULL ORDER BY Vu_Le DESC LIMIT 1',
+        [titre]);
+    return lignes.isEmpty ? null : lignes.first['Site'] as String?;
   }
 
   /// Tout l'historique, ou celui d'une seule œuvre.

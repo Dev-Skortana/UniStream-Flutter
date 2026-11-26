@@ -43,5 +43,14 @@ class MigrationsBase {
         await txn.execute('PRAGMA user_version = 2');
       });
     }
+    if (version < 3) {
+      await db.transaction((txn) async {
+        // Site sur lequel l'épisode a été lancé (nom renvoyé par la recherche
+        // de liens) : la feuille de lecture présélectionne la dernière source.
+        // NULL pour un épisode marqué « vu » à la main.
+        await txn.execute('ALTER TABLE Historique_Visionnage ADD COLUMN Site TEXT');
+        await txn.execute('PRAGMA user_version = 3');
+      });
+    }
   }
 }
