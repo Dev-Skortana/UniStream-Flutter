@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: ^2.3.0
 
 dependency_overrides:
   path: ^1.9.1
@@ -110,6 +111,15 @@ flutter:
     - assets/images/Ressources/
     - assets/raw/
     - assets/SplashSCreen UniStream.json
+  fonts:
+    # Police arrondie des titres (M PLUS Rounded 1c, OFL, réduite aux
+    # caractères latins : ~68 Ko par graisse au lieu de 3,5 Mo).
+    - family: MPLUSRounded1c
+      fonts:
+        - asset: assets/fonts/MPLUSRounded1c-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/MPLUSRounded1c-ExtraBold.ttf
+          weight: 800
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

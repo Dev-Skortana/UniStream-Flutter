@@ -1,0 +1,270 @@
+import 'package:flutter/material.dart';
+import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
+import 'package:unistream/Services/Features/Historique/Suivi_Visionnage.dart';
+import 'package:unistream/ViewModels/ViewModel_Bibliotheque.dart';
+import 'package:unistream/Views/Templates/Affiche_Teintee.dart';
+import 'package:unistream/Views/View_Detail.dart';
+
+/// Onglet « Bibliothèque » : toutes les œuvres en grille d'affiches,
+/// avec recherche par titre et puces de filtre (famille × format).
+class ViewBibliotheque extends StatefulWidget {
+  const ViewBibliotheque({super.key});
+
+  @override
+  State<ViewBibliotheque> createState() => ViewBibliothequeState();
+}
+
+class ViewBibliothequeState extends State<ViewBibliotheque> {
+  final ViewmodelBibliotheque _vm = ViewmodelBibliotheque();
+
+  static const Map<FamilleOeuvre, String> _familles = {
+    FamilleOeuvre.anime: 'Animes',
+    FamilleOeuvre.drama: 'Dramas',
+    FamilleOeuvre.live: 'Live action',
+  };
+  static const Map<FormatOeuvre, String> _formats = {
+    FormatOeuvre.serie: 'Séries',
+    FormatOeuvre.film: 'Films',
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _vm.charger();
+  }
+
+  @override
+  void dispose() {
+    _vm.dispose();
+    super.dispose();
+  }
+
+  /// Appelée par MainWrapper après un ajout ou une synchronisation.
+  Future<void> recharger() => _vm.charger();
+
+  Future<void> _ouvrir(OeuvreBibliotheque oeuvre) async {
+    await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => ViewDetail(oeuvre: oeuvre)));
+    // Une lecture lancée depuis le Détail change les badges et barres « vu ».
+    if (mounted) _vm.charger();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final couleurs = Theme.of(context).colorScheme;
+    return ListenableBuilder(
+      listenable: Listenable.merge(
+          [_vm.chargement, _vm.erreur, _vm.filtre, _vm.oeuvres]),
+      builder: (context, _) {
+        final filtre = _vm.filtre.value;
+        final oeuvres = _vm.oeuvres.value;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: SearchBar(
+                hintText: 'Rechercher un titre',
+                leading: const Icon(Icons.search),
+                elevation: const WidgetStatePropertyAll<double>(0),
+                onChanged: _vm.rechercher,
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Ligne 1 : type d'œuvre (famille | format).
+            _RangeePuces(children: [
+              for (final e in _familles.entries)
+                FilterChip(
+                  label: Text(e.value),
+                  selected: filtre.familles.contains(e.key),
+                  onSelected: (_) => _vm.basculerFamille(e.key),
+                ),
+              const _Separateur(),
+              for (final e in _formats.entries)
+                FilterChip(
+                  label: Text(e.value),
+                  selected: filtre.formats.contains(e.key),
+                  onSelected: (_) => _vm.basculerFormat(e.key),
+                ),
+            ]),
+            // Ligne 2 : genres, en pilules (même forme que l'Accueil),
+            // les plus fréquents d'abord. « n genres ✕ » apparaît en tête
+            // dès qu'un genre est coché, même s'il est hors de l'écran.
+            if (_vm.genresDisponibles.isNotEmpty) ...[
+              _RangeePuces(children: [
+                if (filtre.genres.isNotEmpty)
+                  InputChip(
+                    label: Text(filtre.genres.length == 1
+                        ? '1 genre'
+                        : '${filtre.genres.length} genres'),
+                    onDeleted: _vm.effacerGenres,
+                    deleteButtonTooltipMessage: 'Retirer les genres',
+                    shape: const StadiumBorder(),
+                    backgroundColor: couleurs.secondaryContainer,
+                    side: BorderSide.none,
+                  ),
+                for (final (nom, nombre) in _vm.genresDisponibles)
+                  FilterChip(
+                    label: Text(nom),
+                    tooltip: '$nombre œuvre${nombre > 1 ? 's' : ''}',
+                    selected: filtre.aLeGenre(nom),
+                    shape: const StadiumBorder(),
+                    onSelected: (_) => _vm.basculerGenre(nom),
+                  ),
+              ]),
+            ],
+            if (_vm.erreur.value != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Text(_vm.erreur.value!,
+                    style: TextStyle(color: couleurs.error)),
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: Text(
+                _vm.chargement.value
+                    ? 'Chargement…'
+                    : '${oeuvres.length} œuvre${oeuvres.length > 1 ? 's' : ''}'
+                        '${filtre.estVide ? '' : ' sur ${_vm.total}'}',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: couleurs.onSurfaceVariant),
+              ),
+            ),
+            Expanded(child: _corps(context, oeuvres)),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _corps(BuildContext context, List<OeuvreBibliotheque> oeuvres) {
+    if (_vm.chargement.value && _vm.total == 0) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (oeuvres.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _vm.charger,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            const SizedBox(height: 80),
+            Icon(Icons.video_library_outlined,
+                size: 48,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            const SizedBox(height: 12),
+            Text(
+              _vm.total == 0
+                  ? 'Ta bibliothèque est vide.\nAjoute des œuvres depuis le serveur (bouton +).'
+                  : 'Aucune œuvre ne correspond.',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: _vm.charger,
+      child: GridView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        // Le nombre de colonnes suit la largeur : 3 sur téléphone, plus en
+        // paysage ou sur tablette. Aucune taille fixe à maintenir.
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 140,
+          childAspectRatio: 0.5,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 20,
+        ),
+        itemCount: oeuvres.length,
+        itemBuilder: (context, i) => CarteAffiche(
+          oeuvre: oeuvres[i],
+          suivi: _vm.suivis[oeuvres[i].titre],
+          onTap: () => _ouvrir(oeuvres[i]),
+        ),
+      ),
+    );
+  }
+}
+
+/// Vignette d'une œuvre : affiche 2:3, titre sur 2 lignes, famille · format.
+class CarteAffiche extends StatelessWidget {
+  final OeuvreBibliotheque oeuvre;
+  final SuiviOeuvre? suivi;
+  final VoidCallback onTap;
+
+  const CarteAffiche(
+      {super.key, required this.oeuvre, this.suivi, required this.onTap});
+
+  static const Map<FamilleOeuvre, String> _famille = {
+    FamilleOeuvre.anime: 'Anime',
+    FamilleOeuvre.drama: 'Drama',
+    FamilleOeuvre.live: 'Live',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final couleurs = Theme.of(context).colorScheme;
+    final textes = Theme.of(context).textTheme;
+    return Semantics(
+      button: true,
+      label: oeuvre.titre,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+                child: AfficheTeintee(
+              chemin: oeuvre.lienAffiche,
+              badge: suivi?.aNouveaute == true ? 'Nouvel ép.' : null,
+              progression: suivi?.progression,
+            )),
+            const SizedBox(height: 6),
+            Text(oeuvre.titre,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: textes.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+            Text(
+                '${_famille[oeuvre.famille]} · '
+                '${oeuvre.format == FormatOeuvre.serie ? 'Série' : 'Film'}',
+                maxLines: 1,
+                style: textes.bodySmall?.copyWith(color: couleurs.onSurfaceVariant)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Une ligne de puces qui défile à l'horizontale : prend toujours une seule
+/// ligne de hauteur, quel que soit le nombre de puces.
+class _RangeePuces extends StatelessWidget {
+  final List<Widget> children;
+  const _RangeePuces({required this.children});
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        // 48 : la zone tactile minimale d'une puce Material.
+        height: 48,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: children.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (_, i) => Center(child: children[i]),
+        ),
+      );
+}
+
+/// Trait vertical entre deux groupes de puces.
+class _Separateur extends StatelessWidget {
+  const _Separateur();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 1,
+        height: 24,
+        color: Theme.of(context).colorScheme.outlineVariant,
+      );
+}

@@ -9,11 +9,16 @@ class ServiceBoxdialogWatchsresults extends StatefulWidget {
   late String categorie;
   late List<Map<String, String>> mapsWatchResult;
   late String episode_into_caracteres;
+
+  /// Appelé quand l'utilisateur lance la vidéo (historique de visionnage).
+  final VoidCallback? surLecture;
+
   ServiceBoxdialogWatchsresults(
       {Key? key,
       required this.categorie,
       required this.mapsWatchResult,
-      this.episode_into_caracteres = ""})
+      this.episode_into_caracteres = "",
+      this.surLecture})
       : super(key: key);
 
   @override
@@ -53,9 +58,6 @@ class _ServiceBoxdialogWatchsresultsState
           this.setDataToClipboard(link_watch);
           this.displayLinkWatchSelected(link_watch);
         },
-        style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll<Color>(Colors.green),
-            foregroundColor: WidgetStatePropertyAll<Color>(Colors.white)),
         child: Text(textAlign: TextAlign.center, name_watch));
   }
 
@@ -128,6 +130,8 @@ class _ServiceBoxdialogWatchsresultsState
                         if (this.link_watch_video.isNotEmpty) {
                           final String request_episode =
                               await this.getRequestEpisodeIfNeeded();
+                          super.widget.surLecture?.call();
+                          if (!context.mounted) return;
 
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => ViewWatchvideo(
@@ -146,7 +150,8 @@ class _ServiceBoxdialogWatchsresultsState
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(Icons.videocam_off, color: Colors.red, size: 50),
+                      Icon(Icons.videocam_off,
+                          color: Theme.of(context).colorScheme.error, size: 50),
                       Flexible(
                         child: Text(
                             "Oups, aucun liens de visionnage n'a été trouver pour cette vidéo ! ! !"),

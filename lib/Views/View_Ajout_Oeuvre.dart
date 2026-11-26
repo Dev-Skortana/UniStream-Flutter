@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unistream/Views/Templates/Bouton_Theme.dart';
 import 'package:gathering_datas_videos_from_web/gathering_datas_videos_from_web.dart';
 import 'package:unistream/Models/Ajout_Oeuvre.dart';
 import 'package:unistream/ViewModels/ViewModel_Ajout_Oeuvre.dart';
@@ -58,7 +59,10 @@ class ViewAjoutOeuvreState extends State<ViewAjoutOeuvre> with SingleTickerProvi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ajouter depuis le serveur · v4.4')), // marqueur de version
+      appBar: AppBar(
+        title: const Text('Ajouter depuis le serveur · v4.5'),
+        actions: const [BoutonTheme()],
+      ), // marqueur de version
       body: FutureBuilder<ViewmodelAjoutOeuvre>(
         future: _viewmodel,
         builder: (context, snapshot) {
@@ -131,8 +135,8 @@ class ViewAjoutOeuvreState extends State<ViewAjoutOeuvre> with SingleTickerProvi
       if (vm.erreur.value != null)
         ListTile(
             dense: true,
-            leading: const Icon(Icons.error_outline, color: Colors.red),
-            title: Text(vm.erreur.value!, style: const TextStyle(color: Colors.red))),
+            leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+            title: Text(vm.erreur.value!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
       if (occupe) ListTile(dense: true, leading: const CircularProgressIndicator(), title: Text(vm.etape.value ?? '')),
       if (a != null)
         Expanded(child: ListView(padding: const EdgeInsets.all(16), children: [_apercu(context, vm, a, occupe)]))

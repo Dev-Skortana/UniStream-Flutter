@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:unistream/Views/Helpers/Theme_Provider.dart';
-import 'package:unistream/Views/Templates/Naviguation_Bar.dart';
-import 'package:unistream/Views/View_Acceuille.dart';
-import 'package:unistream/Views/View_Animer.dart';
-import 'package:unistream/Views/View_Drama.dart';
-import 'package:unistream/Views/View_Enregistrement.dart';
-import 'package:unistream/Views/View_Film.dart';
-import 'package:unistream/Views/View_Serie.dart';
-import 'package:unistream/Views/View_Site_Stream_Register.dart';
-import 'package:unistream/Views/View_Synchronisation.dart';
+import 'package:unistream/Views/Templates/Bouton_Theme.dart';
+import 'package:unistream/Views/View_Accueil.dart';
 import 'package:unistream/Views/View_Ajout_Oeuvre.dart';
+import 'package:unistream/Views/View_Bibliotheque.dart';
+import 'package:unistream/Views/View_Outils.dart';
+import 'package:unistream/Views/View_Synchronisation.dart';
 
+/// Écran racine : 3 onglets (Accueil · Bibliothèque · Outils).
+/// Animer / Drama / Série / Film sont regroupés dans la Bibliothèque,
+/// Enregistrements et Sites (beta) sont dans Outils.
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
 
@@ -20,147 +17,100 @@ class MainWrapper extends StatefulWidget {
 }
 
 class MainWrapperState extends State<MainWrapper> {
-  final String nameofapplication = "UniStream";
-
   int currentIndex = 0;
-  Map<String, int> objectIndex = {"Index": 0};
 
-  IconData iconDataMode = Icons.dark_mode;
+  /// Pour recharger l'Accueil et la grille après un ajout,
+  /// une synchronisation ou une réinitialisation.
+  final GlobalKey<ViewAccueilState> _cleAccueil = GlobalKey();
+  final GlobalKey<ViewBibliothequeState> _cleBibliotheque = GlobalKey();
 
-  @override
-  void initState() {
-    super.initState();
+  static const List<String> _titres = ['UniStream', 'Bibliothèque', 'Outils'];
+
+  void _rechargerBibliotheque() {
+    _cleAccueil.currentState?.recharger();
+    _cleBibliotheque.currentState?.recharger();
   }
 
-  void setCurrentIndex(int index) {
-    setState(() {
-      currentIndex = index;
-    });
+  /// « Uni » + « Stream » dans la couleur d'accent, sur l'Accueil.
+  Widget _titre(BuildContext context) {
+    if (currentIndex != 0) {
+      return Text(_titres[currentIndex], overflow: TextOverflow.ellipsis);
+    }
+    return Text.rich(TextSpan(children: [
+      const TextSpan(text: 'Uni'),
+      TextSpan(
+          text: 'Stream',
+          style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+    ]));
   }
 
-  void setCurrentTheme() {
-    this.iconDataMode = this.setIconDataMode();
-    setState(() {
-      Provider.of<ThemeProvider>(context, listen: false).toogleTheme();
-    });
+  Future<void> _ouvrir(Widget ecran) async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ecran));
+    _rechargerBibliotheque();
   }
-
-  IconData setIconDataMode() => this.iconDataMode == Icons.light_mode
-      ? Icons.dark_mode
-      : Icons.light_mode;
 
   @override
   Widget build(BuildContext context) {
+    final couleurs = Theme.of(context).colorScheme;
+    final surAccueil = currentIndex == 0;
     return Scaffold(
+      // Sur l'Accueil, le dégradé de la vedette passe sous la barre du haut ;
+      // la barre redevient opaque dès que la page défile.
+      extendBodyBehindAppBar: surAccueil,
       appBar: AppBar(
-        title: SafeArea(
-            child: IndexedStack(
-          index: currentIndex,
-          children: [
-            Row(spacing: 15, children: [
-              Text(this.nameofapplication),
-              Text("Acceuille", style: TextStyle(fontSize: 20))
-            ]),
-            Row(spacing: 15, children: [
-              Text(this.nameofapplication),
-              Text("Animer", style: TextStyle(fontSize: 20))
-            ]),
-            Row(spacing: 15, children: [
-              Text(this.nameofapplication),
-              Text("Drama", style: TextStyle(fontSize: 20))
-            ]),
-            Row(spacing: 15, children: [
-              Text(this.nameofapplication),
-              Text("Serie", style: TextStyle(fontSize: 20))
-            ]),
-            Row(spacing: 15, children: [
-              Text(this.nameofapplication),
-              Text("Film", style: TextStyle(fontSize: 20))
-            ]),
-            Row(spacing: 15, children: [
-              Text(this.nameofapplication),
-              Text("Enregistrements", style: TextStyle(fontSize: 20))
-            ]),
-            Row(spacing: 15, children: [
-              Text(this.nameofapplication),
-              Text("Sites enregistrements", style: TextStyle(fontSize: 16))
-            ])
-          ],
-        )),
-        leading: Icon(Icons.video_library_rounded),
-        centerTitle: true,
-        actions: <Widget>[
+        backgroundColor: surAccueil
+            ? WidgetStateColor.resolveWith((etats) =>
+                etats.contains(WidgetState.scrolledUnder)
+                    ? couleurs.surface
+                    : Colors.transparent)
+            : null,
+        // Un seul texte, qui se coupe proprement s'il manque de place
+        // (l'ancienne Row « UniStream + onglet » débordait).
+        title: _titre(context),
+        actions: [
           IconButton(
-            icon: const Icon(Icons.library_add),
-            tooltip: 'Ajouter une œuvre depuis le serveur UniStream',
-            onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ViewAjoutOeuvre())),
+            icon: const Icon(Icons.library_add_outlined),
+            tooltip: 'Ajouter depuis le serveur',
+            onPressed: () => _ouvrir(const ViewAjoutOeuvre()),
           ),
           IconButton(
             icon: const Icon(Icons.sync),
-            tooltip: 'Synchronisation avec le serveur UniStream',
-            onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ViewSynchronisation())),
+            tooltip: 'Synchronisation',
+            onPressed: () => _ouvrir(const ViewSynchronisation()),
           ),
-          IconButton(
-            icon: Icon(this.iconDataMode),
-            style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(Colors.blue)),
-            onPressed: () {
-              this.setCurrentTheme();
-            },
-          )
+          const BoutonTheme(),
         ],
       ),
-      body: SafeArea(
-          child: IndexedStack(
+      body: IndexedStack(
         index: currentIndex,
         children: [
-          ViewAcceuille(),
-          ViewAnimer(),
-          ViewDrama(),
-          ViewSerie(),
-          ViewFilm(),
-          ViewEnregistrement(),
-          ViewSiteStreamRegister(),
+          // Pas de SafeArea : l'Accueil place lui-même son contenu sous la
+          // barre (MediaQuery.paddingOf(context).top inclut sa hauteur).
+          ViewAccueil(key: _cleAccueil),
+          SafeArea(child: ViewBibliotheque(key: _cleBibliotheque)),
+          SafeArea(
+              child:
+                  ViewOutils(onBibliothequeModifiee: _rechargerBibliotheque)),
         ],
-      )),
+      ),
       bottomNavigationBar: NavigationBar(
-          selectedIndex: currentIndex,
-          elevation: 10,
-          onDestinationSelected: (index) {
-            this.setCurrentIndex(index);
-          },
-          destinations: const [
-            NavigationDestination(
-                selectedIcon: Icon(Icons.house),
-                icon: Icon(Icons.house_outlined),
-                label: "Acceuille"),
-            NavigationDestination(
-                selectedIcon: Icon(Icons.view_stream),
-                icon: Icon(Icons.view_stream_outlined),
-                label: "Animer"),
-            NavigationDestination(
-                selectedIcon: Icon(Icons.view_stream),
-                icon: Icon(Icons.view_stream_outlined),
-                label: "Drama"),
-            NavigationDestination(
-                selectedIcon: Icon(Icons.view_stream),
-                icon: Icon(Icons.view_stream_outlined),
-                label: "Serie"),
-            NavigationDestination(
-                selectedIcon: Icon(Icons.view_stream),
-                icon: Icon(Icons.view_stream_outlined),
-                label: "Film"),
-            NavigationDestination(
-                selectedIcon: Icon(Icons.search),
-                icon: Icon(Icons.search_outlined),
-                label: "Enregistrements"),
-            NavigationDestination(
-                selectedIcon: Icon(Icons.import_contacts),
-                icon: Icon(Icons.import_contacts_outlined),
-                label: "Sites enregistrements(beta)"),
-          ]),
+        selectedIndex: currentIndex,
+        onDestinationSelected: (index) => setState(() => currentIndex = index),
+        destinations: const [
+          NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Accueil'),
+          NavigationDestination(
+              icon: Icon(Icons.grid_view_outlined),
+              selectedIcon: Icon(Icons.grid_view_rounded),
+              label: 'Bibliothèque'),
+          NavigationDestination(
+              icon: Icon(Icons.handyman_outlined),
+              selectedIcon: Icon(Icons.handyman),
+              label: 'Outils'),
+        ],
+      ),
     );
   }
 }

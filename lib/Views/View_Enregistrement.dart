@@ -172,7 +172,7 @@ class ViewEnregistrementState extends State<ViewEnregistrement> {
                                   horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
                                   border:
-                                      Border.all(color: Colors.grey, width: 4)),
+                                      Border.all(color: Theme.of(context).colorScheme.outline)),
                               child: DropdownButton<String>(
                                 key: GlobalKey(),
                                 hint: Text("Site :"),
@@ -185,7 +185,6 @@ class ViewEnregistrementState extends State<ViewEnregistrement> {
                                     this.dropdownSiteChange(value);
                                   });
                                 },
-                                style: const TextStyle(color: Colors.white),
                                 isExpanded: true,
                               ),
                             ),
@@ -197,7 +196,7 @@ class ViewEnregistrementState extends State<ViewEnregistrement> {
                                   horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
                                   border:
-                                      Border.all(color: Colors.grey, width: 4)),
+                                      Border.all(color: Theme.of(context).colorScheme.outline)),
                               child: DropdownButton<String>(
                                 key: GlobalKey(),
                                 hint: Text("Catégorie:"),
@@ -209,7 +208,6 @@ class ViewEnregistrementState extends State<ViewEnregistrement> {
                                     this.dropdownCategorieVideoChange(value);
                                   });
                                 },
-                                style: const TextStyle(color: Colors.white),
                                 isExpanded: true,
                               ),
                             ),
@@ -228,7 +226,7 @@ class ViewEnregistrementState extends State<ViewEnregistrement> {
                                   horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
                                   border:
-                                      Border.all(color: Colors.grey, width: 4)),
+                                      Border.all(color: Theme.of(context).colorScheme.outline)),
                               child: DropdownButton<int>(
                                   key: GlobalKey(),
                                   hint: Text("Page N :"),
@@ -241,8 +239,7 @@ class ViewEnregistrementState extends State<ViewEnregistrement> {
                                       this.dropdownPageChange();
                                     });
                                   },
-                                  style: const TextStyle(color: Colors.white),
-                                  isExpanded: true),
+                                    isExpanded: true),
                             ),
                           )
                         ],
@@ -254,11 +251,6 @@ class ViewEnregistrementState extends State<ViewEnregistrement> {
                           Container(
                               child: ElevatedButton(
                                   key: GlobalKey(),
-                                  style: ElevatedButton.styleFrom(
-                                      disabledBackgroundColor: Colors.grey,
-                                      disabledForegroundColor: Colors.white,
-                                      backgroundColor: Colors.green,
-                                      foregroundColor: Colors.white),
                                   onPressed: this.isActiveButtonRegister
                                       ? () async {
                                           await this.buttonRegisterOnPressed();
@@ -283,8 +275,10 @@ class ViewEnregistrementState extends State<ViewEnregistrement> {
                                                           Icon(
                                                               Icons
                                                                   .playlist_add_check,
-                                                              color:
-                                                                  Colors.green),
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .primary),
                                                           Text(
                                                               "L'enregistrement s'est déroulé \navec succès !")
                                                         ],

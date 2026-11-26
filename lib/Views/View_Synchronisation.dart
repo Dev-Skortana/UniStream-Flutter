@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unistream/Views/Templates/Bouton_Theme.dart';
 import 'package:unistream/Models/Synchronisation.dart';
 import 'package:unistream/ViewModels/ViewModel_Synchronisation.dart';
 
@@ -35,7 +36,10 @@ class ViewSynchronisationState extends State<ViewSynchronisation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Synchronisation · v3.2')), // marqueur de version : change à chaque livraison
+      appBar: AppBar(
+        title: const Text('Synchronisation · v3.3'),
+        actions: const [BoutonTheme()],
+      ), // marqueur de version : change à chaque livraison
       body: FutureBuilder<ViewmodelSynchronisation>(
         future: _viewmodel,
         builder: (context, snapshot) {
@@ -97,8 +101,8 @@ class ViewSynchronisationState extends State<ViewSynchronisation> {
       ),
       if (vm.erreur.value != null)
         ListTile(
-            leading: const Icon(Icons.error_outline, color: Colors.red),
-            title: Text(vm.erreur.value!, style: const TextStyle(color: Colors.red))),
+            leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+            title: Text(vm.erreur.value!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
       if (occupe) ListTile(leading: const CircularProgressIndicator(), title: Text(vm.etape.value ?? '')),
       Wrap(spacing: 12, runSpacing: 8, children: [
         FilledButton.icon(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:unistream/Views/Templates/Bouton_Theme.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class ViewWatchvideo extends StatefulWidget {
@@ -160,10 +161,10 @@ class _ViewWatchvideoState extends State<ViewWatchvideo> {
       },
       child: Scaffold(
           appBar: AppBar(
-              title: Center(
-            child:
-                Text(textAlign: TextAlign.center, "Visionnage sur $nameSite"),
-          )),
+            title: Text("Visionnage sur $nameSite"),
+            centerTitle: true,
+            actions: const [BoutonTheme()],
+          ),
           body: InAppWebView(
               initialSettings: InAppWebViewSettings(
                 javaScriptEnabled: true,

@@ -17,7 +17,7 @@ class AnimatedSplashScreenWidget extends StatelessWidget {
       splashIconSize: 300,
       nextScreen: MainWrapper(),
       duration: 3000,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
     );
   }
 }
