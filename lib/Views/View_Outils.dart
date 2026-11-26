@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:unistream/Services/Features/Reinitialisation/Reinitialisation_Bibliotheque.dart';
 import 'package:unistream/Views/Helpers/Theme_Controller.dart';
 import 'package:unistream/Views/Templates/Bouton_Theme.dart';
 import 'package:unistream/Views/View_Ajout_Oeuvre.dart';
@@ -27,6 +28,42 @@ class ViewOutils extends StatelessWidget {
         appBar: AppBar(title: Text(titre), actions: const [BoutonTheme()]),
         body: SafeArea(child: corps),
       );
+
+  Future<void> _reinitialiser(BuildContext context) async {
+    final confirme = await showDialog<bool>(
+      context: context,
+      builder: (dialogue) => AlertDialog(
+        icon: const Icon(Icons.warning_amber_rounded),
+        title: const Text('Réinitialiser la bibliothèque ?'),
+        content: const Text(
+            'Toutes les œuvres de la base et les affiches téléchargées seront '
+            'supprimées. Cette action est irréversible.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(dialogue).pop(false),
+              child: const Text('Annuler')),
+          FilledButton(
+            style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(dialogue).colorScheme.error,
+                foregroundColor: Theme.of(dialogue).colorScheme.onError),
+            onPressed: () => Navigator.of(dialogue).pop(true),
+            child: const Text('Tout supprimer'),
+          ),
+        ],
+      ),
+    );
+    if (confirme != true || !context.mounted) return;
+    final messager = ScaffoldMessenger.of(context);
+    try {
+      await ReinitialisationBibliotheque.toutEffacer();
+      onBibliothequeModifiee?.call();
+      messager.showSnackBar(
+          const SnackBar(content: Text('Bibliothèque réinitialisée.')));
+    } catch (e) {
+      messager.showSnackBar(
+          SnackBar(content: Text('Réinitialisation impossible : $e')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +138,17 @@ class ViewOutils extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ]),
+        const _Titre('Données'),
+        _Groupe(children: [
+          ListTile(
+            leading: Icon(Icons.delete_forever_outlined,
+                color: Theme.of(context).colorScheme.error),
+            title: Text('Réinitialiser la bibliothèque',
+                style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            subtitle: const Text('Supprime toutes les œuvres et les affiches'),
+            onTap: () => _reinitialiser(context),
           ),
         ]),
       ],

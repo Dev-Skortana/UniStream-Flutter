@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
 import 'package:unistream/Services/Features/Detail/Infos_Detail.dart';
 import 'package:unistream/ViewModels/ViewModel_Detail.dart';
+import 'package:unistream/Views/Templates/Affiche_Teintee.dart';
 import 'package:unistream/Views/Templates/Bouton_Theme.dart';
 import 'package:unistream/Views/View_Services/BoxDialog_WatchsResults/Service_BoxDialog_WatchsResults.dart';
 
@@ -132,13 +131,11 @@ class ViewDetailState extends State<ViewDetail> {
           width: 120,
           child: AspectRatio(
             aspectRatio: 2 / 3,
-            child: Material(
-              elevation: 3,
-              borderRadius: BorderRadius.circular(14),
-              clipBehavior: Clip.antiAlias,
-              color: couleurs.surfaceContainerHighest,
-              child: _affiche(couleurs),
-            ),
+            child: AfficheTeintee(
+                chemin: o.lienAffiche,
+                rayon: 14,
+                force: 1.4,
+                largeurDecodage: 360),
           ),
         ),
         const SizedBox(width: 16),
@@ -162,16 +159,6 @@ class ViewDetailState extends State<ViewDetail> {
         ),
       ],
     );
-  }
-
-  Widget _affiche(ColorScheme couleurs) {
-    final repli = Center(
-        child: Icon(Icons.image_not_supported_outlined,
-            color: couleurs.onSurfaceVariant));
-    final chemin = widget.oeuvre.lienAffiche;
-    if (chemin.isEmpty) return repli;
-    return Image.file(File(chemin),
-        fit: BoxFit.cover, cacheWidth: 360, errorBuilder: (_, __, ___) => repli);
   }
 
   Widget _choixEpisode(BuildContext context) {

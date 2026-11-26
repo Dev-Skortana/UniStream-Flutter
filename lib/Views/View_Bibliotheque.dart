@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:unistream/Services/Features/Bibliotheque/Filtre_Bibliotheque.dart';
 import 'package:unistream/ViewModels/ViewModel_Bibliotheque.dart';
+import 'package:unistream/Views/Templates/Affiche_Teintee.dart';
 import 'package:unistream/Views/View_Detail.dart';
 
 /// Onglet « Bibliothèque » : toutes les œuvres en grille d'affiches,
@@ -149,7 +148,7 @@ class ViewBibliothequeState extends State<ViewBibliotheque> {
           maxCrossAxisExtent: 140,
           childAspectRatio: 0.5,
           crossAxisSpacing: 12,
-          mainAxisSpacing: 16,
+          mainAxisSpacing: 20,
         ),
         itemCount: oeuvres.length,
         itemBuilder: (context, i) => CarteAffiche(
@@ -187,15 +186,7 @@ class CarteAffiche extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Material(
-                elevation: 2,
-                borderRadius: BorderRadius.circular(12),
-                clipBehavior: Clip.antiAlias,
-                color: couleurs.surfaceContainerHighest,
-                child: _affiche(couleurs),
-              ),
-            ),
+            Expanded(child: AfficheTeintee(chemin: oeuvre.lienAffiche)),
             const SizedBox(height: 6),
             Text(oeuvre.titre,
                 maxLines: 2,
@@ -209,21 +200,6 @@ class CarteAffiche extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _affiche(ColorScheme couleurs) {
-    final repli = Center(
-        child: Icon(Icons.image_not_supported_outlined,
-            color: couleurs.onSurfaceVariant));
-    if (oeuvre.lienAffiche.isEmpty) return repli;
-    return Image.file(
-      File(oeuvre.lienAffiche),
-      fit: BoxFit.cover,
-      // Décode l'affiche à la taille de la vignette, pas en pleine
-      // résolution : indispensable quand des dizaines sont visibles.
-      cacheWidth: 300,
-      errorBuilder: (_, __, ___) => repli,
     );
   }
 }

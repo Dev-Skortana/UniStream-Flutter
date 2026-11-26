@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unistream/Views/Templates/Bouton_Theme.dart';
-import 'package:unistream/Views/View_Acceuille.dart';
+import 'package:unistream/Views/View_Accueil.dart';
 import 'package:unistream/Views/View_Ajout_Oeuvre.dart';
 import 'package:unistream/Views/View_Bibliotheque.dart';
 import 'package:unistream/Views/View_Outils.dart';
@@ -19,12 +19,30 @@ class MainWrapper extends StatefulWidget {
 class MainWrapperState extends State<MainWrapper> {
   int currentIndex = 0;
 
-  /// Pour recharger la grille après un ajout ou une synchronisation.
+  /// Pour recharger l'Accueil et la grille après un ajout,
+  /// une synchronisation ou une réinitialisation.
+  final GlobalKey<ViewAccueilState> _cleAccueil = GlobalKey();
   final GlobalKey<ViewBibliothequeState> _cleBibliotheque = GlobalKey();
 
   static const List<String> _titres = ['UniStream', 'Bibliothèque', 'Outils'];
 
-  void _rechargerBibliotheque() => _cleBibliotheque.currentState?.recharger();
+  void _rechargerBibliotheque() {
+    _cleAccueil.currentState?.recharger();
+    _cleBibliotheque.currentState?.recharger();
+  }
+
+  /// « Uni » + « Stream » dans la couleur d'accent, sur l'Accueil.
+  Widget _titre(BuildContext context) {
+    if (currentIndex != 0) {
+      return Text(_titres[currentIndex], overflow: TextOverflow.ellipsis);
+    }
+    return Text.rich(TextSpan(children: [
+      const TextSpan(text: 'Uni'),
+      TextSpan(
+          text: 'Stream',
+          style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+    ]));
+  }
 
   Future<void> _ouvrir(Widget ecran) async {
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => ecran));
@@ -37,7 +55,7 @@ class MainWrapperState extends State<MainWrapper> {
       appBar: AppBar(
         // Un seul texte, qui se coupe proprement s'il manque de place
         // (l'ancienne Row « UniStream + onglet » débordait).
-        title: Text(_titres[currentIndex], overflow: TextOverflow.ellipsis),
+        title: _titre(context),
         actions: [
           IconButton(
             icon: const Icon(Icons.library_add_outlined),
@@ -56,7 +74,7 @@ class MainWrapperState extends State<MainWrapper> {
         child: IndexedStack(
           index: currentIndex,
           children: [
-            ViewAcceuille(),
+            ViewAccueil(key: _cleAccueil),
             ViewBibliotheque(key: _cleBibliotheque),
             ViewOutils(onBibliothequeModifiee: _rechargerBibliotheque),
           ],
