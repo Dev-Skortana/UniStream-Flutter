@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:unistream/Views/Helpers/Theme_Provider.dart';
-import 'package:unistream/Views/Templates/Naviguation_Bar.dart';
+import 'package:unistream/Views/Templates/Bouton_Theme.dart';
 import 'package:unistream/Views/View_Acceuille.dart';
 import 'package:unistream/Views/View_Animer.dart';
 import 'package:unistream/Views/View_Drama.dart';
@@ -25,8 +23,6 @@ class MainWrapperState extends State<MainWrapper> {
   int currentIndex = 0;
   Map<String, int> objectIndex = {"Index": 0};
 
-  IconData iconDataMode = Icons.dark_mode;
-
   @override
   void initState() {
     super.initState();
@@ -37,17 +33,6 @@ class MainWrapperState extends State<MainWrapper> {
       currentIndex = index;
     });
   }
-
-  void setCurrentTheme() {
-    this.iconDataMode = this.setIconDataMode();
-    setState(() {
-      Provider.of<ThemeProvider>(context, listen: false).toogleTheme();
-    });
-  }
-
-  IconData setIconDataMode() => this.iconDataMode == Icons.light_mode
-      ? Icons.dark_mode
-      : Icons.light_mode;
 
   @override
   Widget build(BuildContext context) {
@@ -102,14 +87,7 @@ class MainWrapperState extends State<MainWrapper> {
             onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ViewSynchronisation())),
           ),
-          IconButton(
-            icon: Icon(this.iconDataMode),
-            style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(Colors.blue)),
-            onPressed: () {
-              this.setCurrentTheme();
-            },
-          )
+          const BoutonTheme(),
         ],
       ),
       body: SafeArea(

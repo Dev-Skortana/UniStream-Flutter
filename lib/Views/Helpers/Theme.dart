@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
 
-ThemeData lightMode = ThemeData(
-  brightness: Brightness.light,
-  colorScheme: ColorScheme.light(
-    surface: Colors.grey.shade400,
-    primary: Colors.grey.shade300,
-    secondary: Colors.grey.shade200,
-  ),
-  useMaterial3: true,
-);
+/// Couleur de base de l'appli : Material 3 en dérive toute la palette
+/// (clair et sombre), avec des contrastes vérifiés.
+const Color couleurDeBase = Color(0xFF4355B9);
 
-ThemeData darkMode = ThemeData(
-    brightness: Brightness.dark,
-    colorScheme: ColorScheme.dark(
-      surface: Colors.grey.shade900,
-      primary: Colors.grey.shade800,
-      secondary: Colors.grey.shade700,
+ThemeData _construire(Brightness luminosite) {
+  final schema = ColorScheme.fromSeed(
+    seedColor: couleurDeBase,
+    brightness: luminosite,
+  );
+  return ThemeData(
+    useMaterial3: true,
+    colorScheme: schema,
+    scaffoldBackgroundColor: schema.surface,
+    appBarTheme: AppBarTheme(
+      backgroundColor: schema.surface,
+      foregroundColor: schema.onSurface,
+      scrolledUnderElevation: 2,
     ),
-    useMaterial3: true);
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: schema.surfaceContainer,
+      indicatorColor: schema.secondaryContainer,
+    ),
+  );
+}
+
+final ThemeData lightMode = _construire(Brightness.light);
+final ThemeData darkMode = _construire(Brightness.dark);

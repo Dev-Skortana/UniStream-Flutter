@@ -3,11 +3,9 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:unistream/Helpers/Manager_Of_Location_Folder_File_Of_App.dart';
 import 'package:unistream/Models/Video.dart';
 import 'package:unistream/ViewModels/ViewModel_Acceuille.dart';
-import 'package:unistream/Views/Helpers/Theme_Provider.dart';
 import 'package:unistream/Views/View_Services/BoxDialog_WatchsResults/Service_BoxDialog_WatchsResults.dart';
 
 class ViewAcceuille extends StatefulWidget {
@@ -104,11 +102,9 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
               heroTag: null,
               elevation: 10,
               disabledElevation: 0,
-              backgroundColor: Provider.of<ThemeProvider>(context)
-                  .themeData
-                  .colorScheme
-                  .surface,
-              foregroundColor: Colors.white70,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              foregroundColor:
+                  Theme.of(context).colorScheme.onPrimaryContainer,
               label: Text(data.containsKey("Titre_Serie") ? "Serie" : "Film"),
               icon: const Icon(Icons.ondemand_video_sharp),
               onPressed: this.isVisibleBarProgress.value == false
@@ -288,11 +284,10 @@ class ViewAcceuilleState extends State<ViewAcceuille> {
                       child: SizedBox(
                           height: 5,
                           child: LinearProgressIndicator(
-                            color: Provider.of<ThemeProvider>(context)
-                                .themeData
+                            color: Theme.of(context).colorScheme.primary,
+                            backgroundColor: Theme.of(context)
                                 .colorScheme
-                                .surface,
-                            backgroundColor: Colors.white70,
+                                .surfaceContainerHighest,
                           )),
                     )
                   ]),

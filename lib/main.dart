@@ -14,7 +14,8 @@ import 'package:unistream/Helpers/Manager_Of_Location_Folder_File_Of_App.dart';
 import 'package:unistream/Helpers/Manager_Permission.dart';
 import 'package:unistream/Services/Databases/Reboot_Database_Manager.dart';
 import 'package:unistream/Views/MainWrapper.dart';
-import 'package:unistream/Views/Helpers/Theme_Provider.dart';
+import 'package:unistream/Views/Helpers/Theme.dart';
+import 'package:unistream/Views/Helpers/Theme_Controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +23,11 @@ void main() async {
   // Pré-charge le User-Agent de la WebView (facultatif : launch() le fait aussi).
   // Lancé sans await pour ne pas retarder l'affichage.
   WebViewUserAgent.init();
-  runApp(ChangeNotifierProvider(
-    create: (context) => ThemeProvider(),
+  // Thème choisi par l'utilisateur, lu avant le premier affichage
+  // (sinon l'appli s'ouvrirait en clair puis basculerait).
+  final themeController = await ThemeController.charger();
+  runApp(ChangeNotifierProvider<ThemeController>.value(
+    value: themeController,
     child: const MyApp(),
   ));
 }
@@ -71,7 +75,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'UniStream',
-      theme: Provider.of<ThemeProvider>(context).themeData,
+      theme: lightMode,
+      darkTheme: darkMode,
+      themeMode: context.watch<ThemeController>().value,
       home: AnimatedSplashScreenWidget(),
     );
   }
