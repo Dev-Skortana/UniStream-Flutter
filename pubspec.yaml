@@ -85,7 +85,9 @@ dev_dependencies:
   integration_test:
     sdk: flutter 
   flutter_launcher_icons: ^0.14.4
-  flutter_native_splash: 2.4.7   # 2.4.8 demande un Flutter plus récent
+  # 2.4.6 exactement : 2.4.7+ passe à xml 6.6.1, donc petitparser 7, incompatible avec
+  # puppeteer < 3.20 (petitparser 6). À relâcher en même temps que la borne de puppeteer.
+  flutter_native_splash: 2.4.6
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
