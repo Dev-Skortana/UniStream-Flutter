@@ -5,11 +5,10 @@ import 'package:unistream/Views/Helpers/Theme_Controller.dart';
 import 'package:unistream/Views/Templates/Bouton_Theme.dart';
 import 'package:unistream/Views/View_Ajout_Oeuvre.dart';
 import 'package:unistream/Views/View_Enregistrement.dart';
-import 'package:unistream/Views/View_Site_Stream_Register.dart';
 import 'package:unistream/Views/View_Synchronisation.dart';
 
 /// Onglet « Outils » : serveur UniStream, ancienne collecte sur l'appareil,
-/// réglage du thème. Remplace les onglets Enregistrements et Sites (beta).
+/// réglage du thème. Remplace l'onglet Enregistrements.
 class ViewOutils extends StatelessWidget {
   /// Appelé au retour d'un écran qui a pu modifier la bibliothèque.
   final VoidCallback? onBibliothequeModifiee;
@@ -101,18 +100,6 @@ class ViewOutils extends StatelessWidget {
                 context, _ecranAvecBarre('Enregistrements', ViewEnregistrement()),
                 modifieBibliotheque: true),
           ),
-          ListTile(
-            leading: const Icon(Icons.dns_outlined),
-            title: const Row(children: [
-              Flexible(child: Text('Sites enregistrés')),
-              SizedBox(width: 8),
-              _Badge('bêta'),
-            ]),
-            subtitle: const Text('Sélecteurs XPath par site'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => _ouvrir(context,
-                _ecranAvecBarre('Sites enregistrés', ViewSiteStreamRegister())),
-          ),
         ]),
         const _Titre('Affichage'),
         _Groupe(children: [
@@ -179,23 +166,4 @@ class _Groupe extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: Column(children: children),
       );
-}
-
-class _Badge extends StatelessWidget {
-  final String texte;
-  const _Badge(this.texte);
-
-  @override
-  Widget build(BuildContext context) {
-    final couleurs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-          color: couleurs.tertiaryContainer,
-          borderRadius: BorderRadius.circular(6)),
-      child: Text(texte,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: couleurs.onTertiaryContainer)),
-    );
-  }
 }

@@ -8,7 +8,7 @@ import 'package:unistream/Views/View_Synchronisation.dart';
 
 /// Écran racine : 3 onglets (Accueil · Bibliothèque · Outils).
 /// Animer / Drama / Série / Film sont regroupés dans la Bibliothèque,
-/// Enregistrements et Sites (beta) sont dans Outils.
+/// Enregistrements est dans Outils.
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
 
