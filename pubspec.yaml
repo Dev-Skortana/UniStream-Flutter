@@ -49,8 +49,13 @@ dependencies:
   # Son d'ouverture (lib/Views/Helpers/Son_Demarrage.dart).
   # 6.7+ exige Flutter 3.35+, 6.8+ Flutter 3.44+ : ^6.6.0 reste en 6.6.x avec Flutter 3.32.
   audioplayers: ^6.6.0
+  # puppeteer n'est pas importé par l'appli (il arrive par les packages gathering_*),
+  # mais on le plafonne ici : 3.20.0+ exige Dart 3.9, que le compilateur actuel refuse.
+  # Contrainte dans dependencies (pas en surcharge) : pub l'applique obligatoirement.
+  # À retirer quand le SDK accepte le langage 3.9.
+  puppeteer: ">=3.16.0 <3.20.0"
   # Packages UniStream : version de référence sur GitHub (utilisée si on retire les
-  # surcharges locales ci-dessous). puppeteer arrive par eux : plus besoin de le déclarer.
+  # surcharges locales ci-dessous).
   gathering_datas_videos_from_web:
     git:
       url: https://github.com/Dev-Skortana/unistream_packages.git
