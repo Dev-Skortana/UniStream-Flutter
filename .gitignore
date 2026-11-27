@@ -57,3 +57,4 @@ config.json
 
 # Copies de sauvegarde locales
 /_sauvegarde_*/
+utils/son/sortie/

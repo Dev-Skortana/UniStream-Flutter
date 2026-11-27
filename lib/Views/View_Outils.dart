@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unistream/Services/Features/Reinitialisation/Reinitialisation_Bibliotheque.dart';
+import 'package:unistream/Views/Helpers/Son_Demarrage.dart';
 import 'package:unistream/Views/Helpers/Theme_Controller.dart';
 import 'package:unistream/Views/Templates/Bouton_Theme.dart';
 import 'package:unistream/Views/View_Ajout_Oeuvre.dart';
@@ -8,7 +9,7 @@ import 'package:unistream/Views/View_Enregistrement.dart';
 import 'package:unistream/Views/View_Synchronisation.dart';
 
 /// Onglet « Outils » : serveur UniStream, ancienne collecte sur l'appareil,
-/// réglage du thème. Remplace l'onglet Enregistrements.
+/// réglages du thème et du son d'ouverture. Remplace l'onglet Enregistrements.
 class ViewOutils extends StatelessWidget {
   /// Appelé au retour d'un écran qui a pu modifier la bibliothèque.
   final VoidCallback? onBibliothequeModifiee;
@@ -67,6 +68,7 @@ class ViewOutils extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controleur = context.watch<ThemeController>();
+    final sonDemarrage = context.watch<SonDemarrage>();
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
@@ -125,6 +127,13 @@ class ViewOutils extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.music_note_outlined),
+            title: const Text('Son au démarrage'),
+            subtitle: const Text("Joué à l'ouverture, sauf en mode silencieux"),
+            value: sonDemarrage.value,
+            onChanged: sonDemarrage.choisir,
           ),
         ]),
         const _Titre('Données'),

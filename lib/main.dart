@@ -8,17 +8,20 @@ import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:gathering_urls_videos_from_web/gathering_urls_videos_from_web.dart'
     show WebViewUserAgent;
-import 'package:unistream/Animated_Splash_Screen_Widget.dart';
 import 'package:unistream/Database/Data_Initialize.dart';
 import 'package:unistream/Helpers/Manager_Of_Location_Folder_File_Of_App.dart';
 import 'package:unistream/Helpers/Manager_Permission.dart';
 import 'package:unistream/Services/Databases/Reboot_Database_Manager.dart';
-import 'package:unistream/Views/MainWrapper.dart';
 import 'package:unistream/Views/Helpers/Theme.dart';
+import 'package:unistream/Views/Helpers/Son_Demarrage.dart';
 import 'package:unistream/Views/Helpers/Theme_Controller.dart';
+import 'package:unistream/Views/Splash/View_Splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Son d'ouverture : préparé pendant l'écran natif, en parallèle du reste.
+  final sonDemarrage = await SonDemarrage.charger();
+  final prechauffage = sonDemarrage.prechauffer();
   await saveFilesIntoApp();
   // Pré-charge le User-Agent de la WebView (facultatif : launch() le fait aussi).
   // Lancé sans await pour ne pas retarder l'affichage.
@@ -26,8 +29,14 @@ void main() async {
   // Thème choisi par l'utilisateur, lu avant le premier affichage
   // (sinon l'appli s'ouvrirait en clair puis basculerait).
   final themeController = await ThemeController.charger();
-  runApp(ChangeNotifierProvider<ThemeController>.value(
-    value: themeController,
+  // On attend le son au plus 800 ms : s'il n'est pas prêt, l'appli s'ouvre
+  // sans lui plutôt que d'allonger l'écran natif.
+  await prechauffage.timeout(const Duration(milliseconds: 800), onTimeout: () {});
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider<ThemeController>.value(value: themeController),
+      ChangeNotifierProvider<SonDemarrage>.value(value: sonDemarrage),
+    ],
     child: const MyApp(),
   ));
 }
@@ -78,7 +87,7 @@ class MyApp extends StatelessWidget {
       theme: lightMode,
       darkTheme: darkMode,
       themeMode: context.watch<ThemeController>().value,
-      home: AnimatedSplashScreenWidget(),
+      home: const ViewSplash(),
     );
   }
 }
