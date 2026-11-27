@@ -73,9 +73,10 @@ class ApiUnistream {
     return jsonDecode(utf8.decode(rep.bodyBytes));
   }
 
-  Future<bool> sante() async {
+  /// [delai] court pour savoir vite si le serveur est là (hors de la maison : non).
+  Future<bool> sante({Duration delai = _delai}) async {
     try {
-      final r = await _envoyer('GET', '/v1/sante');
+      final r = await _envoyer('GET', '/v1/sante', null, delai);
       return r is Map && r['status'] == 'ok';
     } on ApiUnistreamException {
       return false;
@@ -101,6 +102,20 @@ class ApiUnistream {
   Future<Map<String, dynamic>> details(String urlFiche, {String? idSite, double ageMaxH = 168}) async {
     final q = Uri(queryParameters: {'url': urlFiche, if (idSite != null) 'site': idSite, 'age_max_h': '$ageMaxH'}).query;
     return (await _envoyer('GET', '/v1/fiches/details?$q', null, const Duration(seconds: 150)) as Map)
+        .cast<String, dynamic>();
+  }
+
+  /// Liens de lecture d'un épisode sur chaque site de l'œuvre (saison 0 et épisode 0 : film).
+  /// [cleReference] : la fiche reliée au titre (traduction des saisons, langue en tête).
+  /// Premier appel pour une œuvre : le serveur lit les sites (jusqu'à ~40 s) ; ensuite, son cache répond.
+  Future<Map<String, dynamic>> liens(int idOeuvre,
+      {required int saison, required int episode, String? cleReference}) async {
+    final q = Uri(queryParameters: {
+      'saison': '$saison',
+      'episode': '$episode',
+      if (cleReference != null) 'cle_reference': cleReference,
+    }).query;
+    return (await _envoyer('GET', '/v1/oeuvres/$idOeuvre/liens?$q', null, const Duration(seconds: 60)) as Map)
         .cast<String, dynamic>();
   }
 

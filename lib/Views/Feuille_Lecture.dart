@@ -147,6 +147,8 @@ class FeuilleLectureState extends State<FeuilleLecture> {
         _vm.choisie,
         _vm.onglet,
         _vm.suivi,
+        _vm.provenance,
+        _vm.sansLien,
       ]),
       builder: (context, _) {
         final enCours = _vm.etat.value == EtatRecherche.enCours;
@@ -365,7 +367,12 @@ class FeuilleLectureState extends State<FeuilleLecture> {
             Text.rich(
               TextSpan(style: petit, children: [
                 TextSpan(
-                    text: '${sources.length} source${sources.length > 1 ? 's' : ''} · '),
+                    text: '${sources.length} source${sources.length > 1 ? 's' : ''}'
+                        '${switch (_vm.provenance.value) {
+                      ProvenanceSources.serveur => ' (serveur)',
+                      ProvenanceSources.telephone => ' (téléphone)',
+                      null => '',
+                    }} · '),
                 TextSpan(
                   text: derniereRetenue
                       ? 'ta dernière source est choisie'
@@ -374,6 +381,12 @@ class FeuilleLectureState extends State<FeuilleLecture> {
                 ),
               ]),
             ),
+            // Statut par site (serveur) : on sait pourquoi un site manque.
+            if (_vm.sansLien.value.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text('Sans lien : ${_vm.sansLien.value.map((x) => x.libelle).join(' · ')}',
+                  style: petit),
+            ],
             const SizedBox(height: 10),
             _grille([
               for (var i = 0; i < sources.length; i++)

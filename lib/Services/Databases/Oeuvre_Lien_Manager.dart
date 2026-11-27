@@ -72,6 +72,14 @@ class OeuvreLienManager {
     });
   }
 
+  /// Œuvre du serveur reliée à [titre] et fiche suivie, ou null si le titre n'est pas relié (Synchronisation).
+  Future<({int idOeuvre, String? cleFiche})?> lienServeur(String titre) async {
+    final r = await (await _db).rawQuery(
+        'SELECT Id_Oeuvre, Cle_Fiche FROM Oeuvres_Liens WHERE Titre=? AND Id_Oeuvre IS NOT NULL LIMIT 1', [titre]);
+    if (r.isEmpty) return null;
+    return (idOeuvre: (r.first['Id_Oeuvre'] as num).toInt(), cleFiche: r.first['Cle_Fiche'] as String?);
+  }
+
   Future<List<Map<String, Object?>>> getList() async =>
       (await _db).rawQuery('SELECT Titre, Id_Oeuvre, Cle_Fiche, Source FROM Oeuvres_Liens ORDER BY Titre');
 
