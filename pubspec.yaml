@@ -30,45 +30,48 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.8
+  # État partagé (thème, son d'ouverture).
+  provider: ^6.1.2
   shared_preferences: ^2.3.0
+  # Fichiers et base locale.
+  path: ^1.9.0
+  path_provider: ^2.1.5
+  collection: ^1.19.0
+  sqflite: ^2.4.1
+  sqflite_common_ffi: ^2.3.4+4
+  # Réseau et pages web.
+  dio: ^5.8.0+1
+  http: ^1.4.0
+  flutter_inappwebview: ^6.1.5
+  permission_handler: ^12.0.0+1
+  nameof_annotation: ^0.2.1
   # Son d'ouverture (lib/Views/Helpers/Son_Demarrage.dart).
   # 6.7+ exige Flutter 3.35+, 6.8+ Flutter 3.44+ : ^6.6.0 reste en 6.6.x avec Flutter 3.32.
   audioplayers: ^6.6.0
+  # Packages UniStream : version de référence sur GitHub (utilisée si on retire les
+  # surcharges locales ci-dessous). puppeteer arrive par eux : plus besoin de le déclarer.
+  gathering_datas_videos_from_web:
+    git:
+      url: https://github.com/Dev-Skortana/unistream_packages.git
+      path: packages/gathering_datas_videos_from_web
+  gathering_urls_videos_from_web:
+    git:
+      url: https://github.com/Dev-Skortana/unistream_packages.git
+      path: packages/gathering_urls_videos_from_web
 
+# Surcharges : uniquement du dépannage, chacune avec sa raison. Pub n'y vérifie ni les
+# contraintes des autres paquets ni la compatibilité avec le SDK : à garder au minimum.
 dependency_overrides:
+  # gathering_datas_videos_from_web impose path 1.9.0 exactement, Flutter impose 1.9.1.
+  # À retirer quand ce package passera à « path: ^1.9.0 ».
   path: ^1.9.1
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-  provider:
-  path_provider: ^2.1.5
-  sqflite: ^2.4.1
-  # ── TEST LOCAL (08/11/2026) : package modifié sur le PC, sans passer par GitHub ──
-  # Pour revenir au dépôt : remettre le bloc « git » ci-dessous et supprimer la ligne « path ».
+  # ── TEST LOCAL (08/11/2026) : packages modifiés sur le PC, sans passer par GitHub ──
+  # Pour revenir à la version GitHub (déclarée plus haut) : supprimer ces deux blocs.
   gathering_datas_videos_from_web:
     path: C:\Users\spart\OneDrive\Bureau\Developpements IT\visual-studio-projects\unistream_packages\packages\gathering_datas_videos_from_web
-  #  git:
-  #    url:  https://github.com/Dev-Skortana/unistream_packages.git
-  #    path: packages/gathering_datas_videos_from_web
-  # Non modifié : reste sur GitHub. Pour le charger en local aussi, remplacer le bloc « git »
-  # par « path: <dossier local>/gathering_urls_videos_from_web ».
   gathering_urls_videos_from_web:
     path: C:\Users\spart\OneDrive\Bureau\Developpements IT\visual-studio-projects\unistream_packages\packages\gathering_urls_videos_from_web
-
-    #git:
-     # url:  https://github.com/Dev-Skortana/unistream_packages.git
-      #path: packages/gathering_urls_videos_from_web
-  dio: ^5.8.0+1
-  permission_handler: ^12.0.0+1
-  sqflite_common_ffi: ^2.3.4+4
-  nameof_annotation: ^0.2.1
-  flutter_inappwebview: ^6.1.5
-  # Plafonné : puppeteer 3.20.0 et suivants exigent Dart 3.9 (SDK actuel : Dart 3.8).
-  # Ce paquet est dans dependency_overrides : pub n'y vérifie pas la compatibilité
-  # avec le SDK, il faut donc la borne haute à la main.
-  puppeteer: ">=3.18.0 <3.20.0"
-  http: ^1.4.0
 
 
 dev_dependencies:
